@@ -1,7 +1,7 @@
 "use client";
 
 import { useCompanyStore } from "@/store/company-store";
-import { Building2 } from "lucide-react";
+import { Building2, Globe, Mail } from "lucide-react";
 import Link from "next/link";
 
 interface CompanyTag {
@@ -109,6 +109,9 @@ export function CompanyTable({
               <th className="p-3 text-left text-xs font-semibold text-[var(--primary)]">
                 태그
               </th>
+              <th className="p-3 text-left text-xs font-semibold text-[var(--primary)]">
+                검색
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -164,6 +167,34 @@ export function CompanyTable({
                         </span>
                       ) : null
                     )}
+                  </div>
+                </td>
+                <td className="p-3">
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `https://www.google.com/search?q=${encodeURIComponent(c.name + " 스마트공장 홈페이지")}`,
+                          "_blank"
+                        )
+                      }
+                      className="rounded border border-[var(--border)] p-1.5 text-gray-500 transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+                      title="웹 검색"
+                    >
+                      <Globe size={14} />
+                    </button>
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `https://www.google.com/search?q=${encodeURIComponent(c.name + " 이메일 연락처 대표메일")}`,
+                          "_blank"
+                        )
+                      }
+                      className="rounded border border-[var(--border)] p-1.5 text-gray-500 transition hover:border-[var(--secondary)] hover:text-[var(--secondary)]"
+                      title="이메일 찾기"
+                    >
+                      <Mail size={14} />
+                    </button>
                   </div>
                 </td>
               </tr>
