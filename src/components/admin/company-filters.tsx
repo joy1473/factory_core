@@ -9,6 +9,7 @@ interface Region {
 }
 
 interface CompanyFiltersProps {
+  initialFilters?: { sido: string; sigungu: string; search: string };
   onFilterChange: (filters: {
     sido: string;
     sigungu: string;
@@ -16,13 +17,14 @@ interface CompanyFiltersProps {
   }) => void;
 }
 
-export function CompanyFilters({ onFilterChange }: CompanyFiltersProps) {
+export function CompanyFilters({ initialFilters, onFilterChange }: CompanyFiltersProps) {
   const [sidos, setSidos] = useState<Region[]>([]);
   const [sigungus, setSigungus] = useState<Region[]>([]);
-  const [sido, setSido] = useState("");
-  const [sigungu, setSigungu] = useState("");
-  const [search, setSearch] = useState("");
-  const [searchDebounced, setSearchDebounced] = useState("");
+  const [sido, setSido] = useState(initialFilters?.sido || "");
+  const [sigungu, setSigungu] = useState(initialFilters?.sigungu || "");
+  const [search, setSearch] = useState(initialFilters?.search || "");
+  const [searchDebounced, setSearchDebounced] = useState(initialFilters?.search || "");
+  const [initialized, setInitialized] = useState(false);
 
   // Fetch 시도 목록
   useEffect(() => {
@@ -36,15 +38,18 @@ export function CompanyFilters({ onFilterChange }: CompanyFiltersProps) {
   useEffect(() => {
     if (!sido) {
       setSigungus([]);
-      setSigungu("");
+      if (initialized) setSigungu("");
       return;
     }
     fetch(`/api/companies/regions?sido=${encodeURIComponent(sido)}`)
       .then((r) => r.json())
-      .then(setSigungus)
+      .then((data) => {
+        setSigungus(data);
+        setInitialized(true);
+      })
       .catch(() => {});
-    setSigungu("");
-  }, [sido]);
+    if (initialized) setSigungu("");
+  }, [sido, initialized]);
 
   // 검색어 디바운스
   useEffect(() => {

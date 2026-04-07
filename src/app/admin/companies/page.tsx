@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { CompanyFilters } from "@/components/admin/company-filters";
 import { CompanyTable } from "@/components/admin/company-table";
 import { useCompanyStore } from "@/store/company-store";
@@ -23,29 +24,48 @@ interface CompanyRow {
 }
 
 export default function CompaniesPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // URL에서 초기 필터값 읽기
+  const initialFilters: Filters = {
+    sido: searchParams.get("sido") || "",
+    sigungu: searchParams.get("sigungu") || "",
+    search: searchParams.get("search") || "",
+  };
+  const initialPage = parseInt(searchParams.get("page") || "1");
+
   const [companies, setCompanies] = useState([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<Filters>({
-    sido: "",
-    sigungu: "",
-    search: "",
-  });
+  const [filters, setFilters] = useState<Filters>(initialFilters);
   const { selectedIds } = useCompanyStore();
   const [allTags, setAllTags] = useState<
     { id: string; name: string; type: string; color: string }[]
   >([]);
   const [showTagMenu, setShowTagMenu] = useState(false);
   const [tagging, setTagging] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
-  // Fetch tags for bulk assign
   useEffect(() => {
     fetch("/api/tags")
       .then((r) => r.json())
       .then((d) => Array.isArray(d) && setAllTags(d))
       .catch(() => {});
   }, []);
+
+  // URL 파라미터 동기화
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (filters.sido) params.set("sido", filters.sido);
+    if (filters.sigungu) params.set("sigungu", filters.sigungu);
+    if (filters.search) params.set("search", filters.search);
+    if (page > 1) params.set("page", String(page));
+    const qs = params.toString();
+    const newUrl = qs ? `/admin/companies?${qs}` : "/admin/companies";
+    router.replace(newUrl, { scroll: false });
+  }, [filters, page, router]);
 
   async function handleBulkTag(tagId: string, action: "add" | "remove") {
     if (selectedIds.size === 0) return;
@@ -98,10 +118,7 @@ export default function CompaniesPage() {
     setPage(1);
   }, []);
 
-  const [exporting, setExporting] = useState(false);
-
   async function handleExportCSV() {
-    // 선택된 기업이 있으면 선택한 것만
     if (selectedIds.size > 0) {
       const selected = companies.filter((c: { id: string }) =>
         selectedIds.has(c.id)
@@ -110,7 +127,6 @@ export default function CompaniesPage() {
       return;
     }
 
-    // 선택 없으면 검색 조건에 맞는 전체 데이터 가져오기
     setExporting(true);
     try {
       const allRows: CompanyRow[] = [];
@@ -159,7 +175,6 @@ export default function CompaniesPage() {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-white">기업 관리</h1>
         <div className="flex gap-2">
-          {/* Bulk Tag */}
           <div className="relative">
             <button
               onClick={() =>
@@ -217,24 +232,26 @@ export default function CompaniesPage() {
               </div>
             )}
           </div>
-          {/* CSV Export */}
-        <button
-          onClick={handleExportCSV}
-          disabled={exporting}
-          className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-gray-300 transition hover:border-[var(--primary)] hover:text-[var(--primary)] disabled:opacity-50"
-        >
-          <Download size={16} />
-          {exporting
-            ? "내보내는 중..."
-            : selectedIds.size > 0
-              ? `선택 ${selectedIds.size}개 내보내기`
-              : `전체 ${total.toLocaleString()}개 내보내기`}
-        </button>
+          <button
+            onClick={handleExportCSV}
+            disabled={exporting}
+            className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-gray-300 transition hover:border-[var(--primary)] hover:text-[var(--primary)] disabled:opacity-50"
+          >
+            <Download size={16} />
+            {exporting
+              ? "내보내는 중..."
+              : selectedIds.size > 0
+                ? `선택 ${selectedIds.size}개 내보내기`
+                : `전체 ${total.toLocaleString()}개 내보내기`}
+          </button>
         </div>
       </div>
 
       <div className="mb-4">
-        <CompanyFilters onFilterChange={handleFilterChange} />
+        <CompanyFilters
+          initialFilters={initialFilters}
+          onFilterChange={handleFilterChange}
+        />
       </div>
 
       {loading ? (
