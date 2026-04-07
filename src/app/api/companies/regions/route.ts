@@ -19,15 +19,25 @@ export async function GET(request: NextRequest) {
       p_sido: sido,
     });
 
-    // fallback: RPC 없으면 직접 쿼리
+    // fallback: RPC 없으면 직접 쿼리 (페이지네이션)
     if (!data) {
-      const { data: companies } = await supabase
-        .from("companies")
-        .select("sigungu")
-        .eq("sido", sido);
+      const allSgg = [];
+      let from = 0;
+      const batchSize = 1000;
+      while (true) {
+        const { data: batch } = await supabase
+          .from("companies")
+          .select("sigungu")
+          .eq("sido", sido)
+          .range(from, from + batchSize - 1);
+        if (!batch || batch.length === 0) break;
+        allSgg.push(...batch);
+        if (batch.length < batchSize) break;
+        from += batchSize;
+      }
 
       const counts: Record<string, number> = {};
-      companies?.forEach((c) => {
+      allSgg.forEach((c) => {
         counts[c.sigungu] = (counts[c.sigungu] || 0) + 1;
       });
 
@@ -41,13 +51,25 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   }
 
-  // 시도 목록 + 카운트
-  const { data: companies } = await supabase
-    .from("companies")
-    .select("sido");
+  // 시도 목록 + 카운트 (전체 데이터 순회)
+  const allCompanies = [];
+  let from = 0;
+  const batchSize = 1000;
+
+  while (true) {
+    const { data: batch } = await supabase
+      .from("companies")
+      .select("sido")
+      .range(from, from + batchSize - 1);
+
+    if (!batch || batch.length === 0) break;
+    allCompanies.push(...batch);
+    if (batch.length < batchSize) break;
+    from += batchSize;
+  }
 
   const counts: Record<string, number> = {};
-  companies?.forEach((c) => {
+  allCompanies.forEach((c) => {
     counts[c.sido] = (counts[c.sido] || 0) + 1;
   });
 
