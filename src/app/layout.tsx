@@ -26,6 +26,29 @@ export const metadata: Metadata = {
     "중소기업",
     "제조AI",
   ],
+  icons: {
+    icon: [
+      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+      { url: "/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon-96x96.png", type: "image/png", sizes: "96x96" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180" },
+      { url: "/apple-touch-icon-152x152.png", sizes: "152x152" },
+      { url: "/apple-touch-icon-120x120.png", sizes: "120x120" },
+    ],
+    other: [
+      { rel: "mask-icon", url: "/icon.svg", color: "#00ff41" },
+    ],
+  },
+  manifest: "/site.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Factory Core",
+  },
   openGraph: {
     title: "Factory Core | 팩토리코어",
     description: "중소제조기업을 위한 Agentic AI 솔루션",
@@ -33,6 +56,18 @@ export const metadata: Metadata = {
     siteName: "Factory Core",
     locale: "ko_KR",
     type: "website",
+    images: [
+      {
+        url: "/og-icon.png",
+        width: 1200,
+        height: 1200,
+        alt: "Factory Core",
+      },
+    ],
+  },
+  other: {
+    "msapplication-TileColor": "#000000",
+    "msapplication-config": "/browserconfig.xml",
   },
 };
 
