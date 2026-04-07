@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { CompanyFilters } from "@/components/admin/company-filters";
 import { CompanyTable } from "@/components/admin/company-table";
 import { useCompanyStore } from "@/store/company-store";
-import { Download } from "lucide-react";
+import { Download, Tags, Plus, Minus } from "lucide-react";
 
 interface Filters {
   sido: string;
@@ -33,6 +33,39 @@ export default function CompaniesPage() {
     search: "",
   });
   const { selectedIds } = useCompanyStore();
+  const [allTags, setAllTags] = useState<
+    { id: string; name: string; type: string; color: string }[]
+  >([]);
+  const [showTagMenu, setShowTagMenu] = useState(false);
+  const [tagging, setTagging] = useState(false);
+
+  // Fetch tags for bulk assign
+  useEffect(() => {
+    fetch("/api/tags")
+      .then((r) => r.json())
+      .then((d) => Array.isArray(d) && setAllTags(d))
+      .catch(() => {});
+  }, []);
+
+  async function handleBulkTag(tagId: string, action: "add" | "remove") {
+    if (selectedIds.size === 0) return;
+    setTagging(true);
+    try {
+      await fetch("/api/companies/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_ids: Array.from(selectedIds),
+          tag_id: tagId,
+          action,
+        }),
+      });
+      fetchCompanies();
+    } finally {
+      setTagging(false);
+      setShowTagMenu(false);
+    }
+  }
 
   const fetchCompanies = useCallback(async () => {
     setLoading(true);
@@ -123,8 +156,68 @@ export default function CompaniesPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-white">기업 관리</h1>
+        <div className="flex gap-2">
+          {/* Bulk Tag */}
+          <div className="relative">
+            <button
+              onClick={() =>
+                selectedIds.size > 0 && setShowTagMenu(!showTagMenu)
+              }
+              disabled={selectedIds.size === 0 || tagging}
+              className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-gray-300 transition hover:border-[var(--secondary)] hover:text-[var(--secondary)] disabled:opacity-30"
+            >
+              <Tags size={16} />
+              태그 부여 ({selectedIds.size})
+            </button>
+            {showTagMenu && (
+              <div className="absolute right-0 top-full z-50 mt-1 w-64 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-3 shadow-xl">
+                <p className="mb-2 text-xs text-gray-500">
+                  선택 {selectedIds.size}개 기업에 태그:
+                </p>
+                <div className="max-h-60 space-y-1 overflow-y-auto">
+                  {allTags.map((tag) => (
+                    <div
+                      key={tag.id}
+                      className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-white/5"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: tag.color }}
+                        />
+                        <span className="text-sm text-white">{tag.name}</span>
+                      </div>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => handleBulkTag(tag.id, "add")}
+                          className="rounded p-1 text-gray-500 hover:bg-green-500/10 hover:text-green-400"
+                          title="태그 부여"
+                        >
+                          <Plus size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleBulkTag(tag.id, "remove")}
+                          className="rounded p-1 text-gray-500 hover:bg-red-500/10 hover:text-red-400"
+                          title="태그 제거"
+                        >
+                          <Minus size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setShowTagMenu(false)}
+                  className="mt-2 w-full rounded-lg border border-[var(--border)] py-1 text-xs text-gray-500 hover:text-gray-300"
+                >
+                  닫기
+                </button>
+              </div>
+            )}
+          </div>
+          {/* CSV Export */}
         <button
           onClick={handleExportCSV}
           disabled={exporting}
@@ -137,6 +230,7 @@ export default function CompaniesPage() {
               ? `선택 ${selectedIds.size}개 내보내기`
               : `전체 ${total.toLocaleString()}개 내보내기`}
         </button>
+        </div>
       </div>
 
       <div className="mb-4">
