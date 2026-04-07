@@ -11,6 +11,8 @@ import {
   MapPin,
   User,
   Save,
+  Sparkles,
+  Loader2,
   Send,
   Tag,
   Plus,
@@ -73,6 +75,12 @@ export default function CompanyDetailPage() {
   const [allTags, setAllTags] = useState<TagItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [enriching, setEnriching] = useState(false);
+  const [enrichResult, setEnrichResult] = useState<{
+    website: string | null;
+    emails: string[];
+    searchResults: { title: string; url: string }[];
+  } | null>(null);
   const [edit, setEdit] = useState({
     email: "",
     website: "",
@@ -80,6 +88,31 @@ export default function CompanyDetailPage() {
     phone: "",
     contact_person: "",
   });
+
+  async function handleEnrich() {
+    setEnriching(true);
+    setEnrichResult(null);
+    try {
+      const res = await fetch(`/api/companies/${id}/enrich`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      setEnrichResult(data);
+      // 자동으로 edit 필드에 채우기
+      if (data.website && !edit.website) {
+        setEdit((prev) => ({ ...prev, website: data.website }));
+      }
+      if (data.emails?.length > 0 && !edit.email) {
+        setEdit((prev) => ({ ...prev, email: data.emails[0] }));
+      }
+      // DB에 이미 저장됨 → 새로고침
+      fetchCompany();
+    } catch {
+      setEnrichResult(null);
+    } finally {
+      setEnriching(false);
+    }
+  }
 
   const fetchCompany = useCallback(async () => {
     setLoading(true);
@@ -351,6 +384,87 @@ export default function CompanyDetailPage() {
                 );
               })}
             </div>
+          </div>
+
+          {/* Auto Enrich */}
+          <div className="rounded-xl border border-[var(--primary)]/20 bg-[var(--surface)] p-5">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--primary)]">
+              <Sparkles size={14} /> 자동 찾기
+            </h2>
+            <p className="mb-3 text-xs text-gray-500">
+              Google 검색 → 홈페이지 찾기 → 이메일 자동 추출
+            </p>
+            <button
+              onClick={handleEnrich}
+              disabled={enriching}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-black transition hover:brightness-110 disabled:opacity-50"
+            >
+              {enriching ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  검색 중...
+                </>
+              ) : (
+                <>
+                  <Sparkles size={16} />
+                  홈페이지 + 이메일 자동 찾기
+                </>
+              )}
+            </button>
+            {enrichResult && (
+              <div className="mt-3 space-y-2 text-xs">
+                {enrichResult.website && (
+                  <div className="flex items-center gap-2 text-[var(--secondary)]">
+                    <Globe size={12} />
+                    <a
+                      href={enrichResult.website}
+                      target="_blank"
+                      className="underline"
+                    >
+                      {enrichResult.website}
+                    </a>
+                  </div>
+                )}
+                {enrichResult.emails?.length > 0 && (
+                  <div className="space-y-1">
+                    {enrichResult.emails.map((e) => (
+                      <div
+                        key={e}
+                        className="flex items-center gap-2 text-[var(--accent)]"
+                      >
+                        <Mail size={12} />
+                        {e}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {enrichResult.emails?.length === 0 &&
+                  enrichResult.website && (
+                    <p className="text-gray-500">
+                      이메일을 찾지 못했습니다
+                    </p>
+                  )}
+                {enrichResult.searchResults?.length > 0 && (
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-gray-500 hover:text-gray-300">
+                      검색 결과 {enrichResult.searchResults.length}건
+                    </summary>
+                    <div className="mt-1 space-y-1">
+                      {enrichResult.searchResults.map((r, i) => (
+                        <a
+                          key={i}
+                          href={r.url}
+                          target="_blank"
+                          className="block truncate text-gray-400 hover:text-[var(--primary)]"
+                        >
+                          {r.title}
+                        </a>
+                      ))}
+                    </div>
+                  </details>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Quick Actions */}
