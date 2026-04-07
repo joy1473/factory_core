@@ -1,29 +1,30 @@
-import { createServerSupabase } from "@/lib/supabase/server";
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Building2, Tags, Send, MessageSquare } from "lucide-react";
 
-async function getStats() {
-  const supabase = await createServerSupabase();
-
-  const [companies, tags, history, inquiries] = await Promise.all([
-    supabase.from("companies").select("*", { count: "exact", head: true }),
-    supabase.from("tags").select("*", { count: "exact", head: true }),
-    supabase.from("send_history").select("*", { count: "exact", head: true }),
-    supabase
-      .from("inquiries")
-      .select("*", { count: "exact", head: true })
-      .eq("is_read", false),
-  ]);
-
-  return {
-    companies: companies.count || 0,
-    tags: tags.count || 0,
-    sent: history.count || 0,
-    unreadInquiries: inquiries.count || 0,
-  };
+interface Stats {
+  companies: number;
+  tags: number;
+  sent: number;
+  unreadInquiries: number;
 }
 
-export default async function AdminDashboard() {
-  const stats = await getStats();
+export default function AdminDashboard() {
+  const [stats, setStats] = useState<Stats>({
+    companies: 0,
+    tags: 0,
+    sent: 0,
+    unreadInquiries: 0,
+  });
+
+  useEffect(() => {
+    fetch("/api/admin/stats")
+      .then((r) => r.json())
+      .then(setStats)
+      .catch(() => {});
+  }, []);
 
   const cards = [
     {
@@ -62,7 +63,7 @@ export default async function AdminDashboard() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
-          <a
+          <Link
             key={c.label}
             href={c.href}
             className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 transition hover:border-opacity-50"
@@ -71,20 +72,17 @@ export default async function AdminDashboard() {
               <c.icon size={20} style={{ color: c.color }} />
               <span className="text-sm text-gray-400">{c.label}</span>
             </div>
-            <div
-              className="text-3xl font-black"
-              style={{ color: c.color }}
-            >
+            <div className="text-3xl font-black" style={{ color: c.color }}>
               {c.value}
             </div>
-          </a>
+          </Link>
         ))}
       </div>
 
       <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
         <h2 className="mb-4 text-lg font-bold text-white">빠른 시작</h2>
         <div className="grid gap-3 sm:grid-cols-2">
-          <a
+          <Link
             href="/admin/companies"
             className="rounded-lg border border-[var(--border)] p-4 transition hover:border-[var(--primary)]/30"
           >
@@ -92,8 +90,8 @@ export default async function AdminDashboard() {
             <p className="text-sm text-gray-500">
               2,277개 스마트공장 공급기업 필터·검색·태그
             </p>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/admin/templates"
             className="rounded-lg border border-[var(--border)] p-4 transition hover:border-[var(--primary)]/30"
           >
@@ -101,8 +99,8 @@ export default async function AdminDashboard() {
             <p className="text-sm text-gray-500">
               업종별·규모별 알림톡 템플릿 작성
             </p>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/admin/send"
             className="rounded-lg border border-[var(--border)] p-4 transition hover:border-[var(--primary)]/30"
           >
@@ -110,8 +108,8 @@ export default async function AdminDashboard() {
             <p className="text-sm text-gray-500">
               기업 선택 → 템플릿 매칭 → 카카오 알림톡 발송
             </p>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/admin/inquiries"
             className="rounded-lg border border-[var(--border)] p-4 transition hover:border-[var(--primary)]/30"
           >
@@ -119,7 +117,7 @@ export default async function AdminDashboard() {
             <p className="text-sm text-gray-500">
               PoC 신청 및 일반 문의 접수 확인
             </p>
-          </a>
+          </Link>
         </div>
       </div>
     </div>

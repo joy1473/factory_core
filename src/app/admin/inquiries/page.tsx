@@ -1,17 +1,39 @@
-import { createServerSupabase } from "@/lib/supabase/server";
+"use client";
 
-export default async function InquiriesPage() {
-  const supabase = await createServerSupabase();
-  const { data: inquiries } = await supabase
-    .from("inquiries")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(50);
+import { useEffect, useState } from "react";
+
+interface Inquiry {
+  id: string;
+  company_name: string | null;
+  contact_name: string;
+  phone: string | null;
+  email: string | null;
+  message: string;
+  type: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export default function InquiriesPage() {
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/inquiries?admin=1")
+      .then((r) => r.json())
+      .then((d) => setInquiries(Array.isArray(d) ? d : []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div>
       <h1 className="mb-6 text-2xl font-bold text-white">문의 접수</h1>
-      {!inquiries || inquiries.length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center py-20">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+        </div>
+      ) : inquiries.length === 0 ? (
         <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-10 text-center text-gray-500">
           접수된 문의가 없습니다
         </div>
@@ -34,7 +56,11 @@ export default async function InquiriesPage() {
                       color: q.type === "poc" ? "#00d4ff" : "#ffaa00",
                     }}
                   >
-                    {q.type === "poc" ? "PoC" : q.type === "survey" ? "설문" : "일반"}
+                    {q.type === "poc"
+                      ? "PoC"
+                      : q.type === "survey"
+                        ? "설문"
+                        : "일반"}
                   </span>
                   <span className="text-sm font-semibold text-white">
                     {q.contact_name}
@@ -52,8 +78,16 @@ export default async function InquiriesPage() {
               <p className="text-sm text-gray-300">{q.message}</p>
               {(q.phone || q.email) && (
                 <div className="mt-2 flex gap-4 text-xs text-gray-500">
-                  {q.phone && <span>📞 {q.phone}</span>}
-                  {q.email && <span>📧 {q.email}</span>}
+                  {q.phone && (
+                    <a href={`tel:${q.phone}`} className="hover:text-[var(--primary)]">
+                      📞 {q.phone}
+                    </a>
+                  )}
+                  {q.email && (
+                    <a href={`mailto:${q.email}`} className="hover:text-[var(--primary)]">
+                      📧 {q.email}
+                    </a>
+                  )}
                 </div>
               )}
             </div>

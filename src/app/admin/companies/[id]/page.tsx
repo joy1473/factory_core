@@ -126,7 +126,7 @@ export default function CompanyDetailPage() {
       if (data.emails?.length > 0 && !edit.email) {
         setEdit((prev) => ({ ...prev, email: data.emails[0] }));
       }
-      fetchCompany();
+      fetchCompany(true);
     } catch (err) {
       console.error("Enrich error:", err);
       setEnrichResult(null);
@@ -135,8 +135,8 @@ export default function CompanyDetailPage() {
     }
   }
 
-  const fetchCompany = useCallback(async () => {
-    setLoading(true);
+  const fetchCompany = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const res = await fetch(`/api/companies/${id}`);
       if (!res.ok) {
@@ -173,7 +173,7 @@ export default function CompanyDetailPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(edit),
       });
-      fetchCompany();
+      fetchCompany(true);
     } finally {
       setSaving(false);
     }
@@ -189,7 +189,7 @@ export default function CompanyDetailPage() {
         action: hasTag ? "remove" : "add",
       }),
     });
-    fetchCompany();
+    fetchCompany(true);
   }
 
   if (loading) {

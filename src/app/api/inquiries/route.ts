@@ -1,6 +1,30 @@
 import { createClient } from "@supabase/supabase-js";
-import { NextResponse } from "next/server";
+import { createServerSupabase } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
 
+// Admin: 문의 목록 조회
+export async function GET(request: NextRequest) {
+  const isAdmin = request.nextUrl.searchParams.get("admin");
+  if (!isAdmin) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const supabase = await createServerSupabase();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { data } = await supabase
+    .from("inquiries")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  return NextResponse.json(data || []);
+}
+
+// Public: 문의 접수
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -28,7 +52,6 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      console.error("Inquiry insert error:", error);
       return NextResponse.json({ error: "저장 실패" }, { status: 500 });
     }
 
