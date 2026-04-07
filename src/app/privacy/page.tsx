@@ -64,8 +64,9 @@ export default function PrivacyPage() {
             <h2 className="mb-2 text-base font-semibold text-white">
               5. 개인정보 보호책임자
             </h2>
-            <p>회사: 조이텍 (JOYTECH)</p>
-            <p>이메일: info@joy.it.kr</p>
+            <p>회사: 조이텍 (JOYTEC)</p>
+            <p>사업자등록번호: 110-11-23776</p>
+            <p>이메일: joytec@naver.com</p>
           </section>
 
           <p className="text-xs text-gray-600">
