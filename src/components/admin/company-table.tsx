@@ -1,7 +1,7 @@
 "use client";
 
 import { useCompanyStore } from "@/store/company-store";
-import { Building2, Globe, Mail } from "lucide-react";
+import { Building2, Globe, Mail, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 interface CompanyTag {
@@ -15,6 +15,8 @@ interface Company {
   ceo: string | null;
   contact_person: string | null;
   phone: string | null;
+  email: string | null;
+  website: string | null;
   sido: string;
   sigungu: string;
   address: string | null;
@@ -95,9 +97,6 @@ export function CompanyTable({
                 기업명
               </th>
               <th className="p-3 text-left text-xs font-semibold text-[var(--primary)]">
-                대표자
-              </th>
-              <th className="p-3 text-left text-xs font-semibold text-[var(--primary)]">
                 담당자
               </th>
               <th className="p-3 text-left text-xs font-semibold text-[var(--primary)]">
@@ -107,10 +106,10 @@ export function CompanyTable({
                 지역
               </th>
               <th className="p-3 text-left text-xs font-semibold text-[var(--primary)]">
-                태그
+                홈페이지 / 이메일
               </th>
               <th className="p-3 text-left text-xs font-semibold text-[var(--primary)]">
-                검색
+                태그
               </th>
             </tr>
           </thead>
@@ -136,7 +135,6 @@ export function CompanyTable({
                     {c.name}
                   </Link>
                 </td>
-                <td className="p-3 text-sm text-gray-400">{c.ceo || "-"}</td>
                 <td className="p-3 text-sm text-gray-400">
                   {c.contact_person || "-"}
                 </td>
@@ -150,6 +148,59 @@ export function CompanyTable({
                   <span className="ml-1 text-xs text-gray-500">
                     {c.sigungu}
                   </span>
+                </td>
+                <td className="p-3">
+                  <div className="flex flex-col gap-1">
+                    {c.website ? (
+                      <a
+                        href={c.website}
+                        target="_blank"
+                        className="flex items-center gap-1 text-xs text-[var(--primary)] hover:underline"
+                        title={c.website}
+                      >
+                        <Globe size={12} />
+                        <span className="max-w-[140px] truncate">
+                          {c.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                        </span>
+                        <ExternalLink size={10} className="shrink-0 opacity-50" />
+                      </a>
+                    ) : (
+                      <button
+                        onClick={() =>
+                          window.open(
+                            `https://www.google.com/search?q=${encodeURIComponent(c.name + " 홈페이지")}`,
+                            "_blank"
+                          )
+                        }
+                        className="flex items-center gap-1 text-xs text-gray-600 hover:text-[var(--primary)]"
+                      >
+                        <Globe size={12} />
+                        <span>검색</span>
+                      </button>
+                    )}
+                    {c.email ? (
+                      <a
+                        href={`mailto:${c.email}`}
+                        className="flex items-center gap-1 text-xs text-[var(--secondary)] hover:underline"
+                      >
+                        <Mail size={12} />
+                        <span className="max-w-[140px] truncate">{c.email}</span>
+                      </a>
+                    ) : (
+                      <button
+                        onClick={() =>
+                          window.open(
+                            `https://www.google.com/search?q=${encodeURIComponent(c.name + " 이메일")}`,
+                            "_blank"
+                          )
+                        }
+                        className="flex items-center gap-1 text-xs text-gray-600 hover:text-[var(--secondary)]"
+                      >
+                        <Mail size={12} />
+                        <span>검색</span>
+                      </button>
+                    )}
+                  </div>
                 </td>
                 <td className="p-3">
                   <div className="flex flex-wrap gap-1">
@@ -169,41 +220,12 @@ export function CompanyTable({
                     )}
                   </div>
                 </td>
-                <td className="p-3">
-                  <div className="flex gap-1">
-                    <button
-                      onClick={() =>
-                        window.open(
-                          `https://www.google.com/search?q=${encodeURIComponent(c.name + " 스마트공장 홈페이지")}`,
-                          "_blank"
-                        )
-                      }
-                      className="rounded border border-[var(--border)] p-1.5 text-gray-500 transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
-                      title="웹 검색"
-                    >
-                      <Globe size={14} />
-                    </button>
-                    <button
-                      onClick={() =>
-                        window.open(
-                          `https://www.google.com/search?q=${encodeURIComponent(c.name + " 이메일 연락처 대표메일")}`,
-                          "_blank"
-                        )
-                      }
-                      className="rounded border border-[var(--border)] p-1.5 text-gray-500 transition hover:border-[var(--secondary)] hover:text-[var(--secondary)]"
-                      title="이메일 찾기"
-                    >
-                      <Mail size={14} />
-                    </button>
-                  </div>
-                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex items-center justify-center gap-2">
           <button
