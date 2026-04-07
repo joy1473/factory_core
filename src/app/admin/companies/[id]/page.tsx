@@ -91,57 +91,22 @@ export default function CompanyDetailPage() {
 
   async function handleEnrich() {
     if (!company) return;
+    const website = edit.website || "";
+
+    // 홈페이지 URL이 없으면 → 구글 검색 새 창 열기
+    if (!website) {
+      window.open(
+        `https://www.google.com/search?q=${encodeURIComponent(company.name + " 공식 홈페이지")}`,
+        "_blank"
+      );
+      return;
+    }
+
+    // 홈페이지 URL이 있으면 → 서버에서 이메일 추출
     setEnriching(true);
     setEnrichResult(null);
 
-    const SKIP_DOMAINS = [
-      "naver.com", "daum.net", "tistory.com", "wikipedia.org",
-      "facebook.com", "youtube.com", "instagram.com", "linkedin.com",
-      "twitter.com", "jobkorea.co.kr", "saramin.co.kr", "google.com",
-      "duckduckgo.com", "kakao.com", "zillinks.com", "remember.co.kr",
-    ];
-
     try {
-      // Step 1: 브라우저에서 DuckDuckGo 검색 (CORS 우회를 위해 프록시 불필요 — API 사용)
-      let website = edit.website || "";
-      const searchResults: { title: string; url: string }[] = [];
-
-      if (!website) {
-        // DuckDuckGo Instant Answer API (CORS 허용)
-        const ddgRes = await fetch(
-          `https://api.duckduckgo.com/?q=${encodeURIComponent(company.name + " 홈페이지")}&format=json&no_html=1`
-        );
-        const ddgData = await ddgRes.json();
-
-        // AbstractURL 또는 Results에서 URL 추출
-        if (ddgData.AbstractURL) {
-          website = ddgData.AbstractURL;
-          searchResults.push({ title: ddgData.AbstractSource || "", url: ddgData.AbstractURL });
-        }
-        if (ddgData.Results) {
-          for (const r of ddgData.Results) {
-            if (r.FirstURL) searchResults.push({ title: r.Text || "", url: r.FirstURL });
-          }
-        }
-        if (ddgData.RelatedTopics) {
-          for (const r of ddgData.RelatedTopics.slice(0, 5)) {
-            if (r.FirstURL) searchResults.push({ title: r.Text?.substring(0, 50) || "", url: r.FirstURL });
-          }
-        }
-
-        // 포털 제외하고 첫 번째 결과
-        if (!website) {
-          for (const r of searchResults) {
-            const isPortal = SKIP_DOMAINS.some((d) => r.url.includes(d));
-            if (!isPortal && r.url.startsWith("http")) {
-              website = r.url;
-              break;
-            }
-          }
-        }
-      }
-
-      // Step 2: 서버에 website 전달 → 이메일 추출 + 저장
       const res = await fetch(`/api/companies/${id}/enrich`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -152,7 +117,7 @@ export default function CompanyDetailPage() {
       setEnrichResult({
         website: data.website || website || null,
         emails: data.emails || [],
-        searchResults,
+        searchResults: data.searchResults || [],
       });
 
       if (data.website && !edit.website) {
@@ -448,7 +413,9 @@ export default function CompanyDetailPage() {
               <Sparkles size={14} /> 자동 찾기
             </h2>
             <p className="mb-3 text-xs text-gray-500">
-              Google 검색 → 홈페이지 찾기 → 이메일 자동 추출
+              {edit.website
+                ? "홈페이지에서 이메일을 자동 추출합니다"
+                : "① 홈페이지 URL을 아래에 입력하거나 검색으로 찾으세요"}
             </p>
             <button
               onClick={handleEnrich}
@@ -458,12 +425,17 @@ export default function CompanyDetailPage() {
               {enriching ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  검색 중...
+                  이메일 추출 중...
+                </>
+              ) : edit.website ? (
+                <>
+                  <Sparkles size={16} />
+                  이메일 자동 추출
                 </>
               ) : (
                 <>
-                  <Sparkles size={16} />
-                  홈페이지 + 이메일 자동 찾기
+                  <Globe size={16} />
+                  구글에서 홈페이지 검색
                 </>
               )}
             </button>
