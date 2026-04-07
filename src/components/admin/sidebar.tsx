@@ -32,7 +32,7 @@ export function AdminSidebar({ userEmail }: { userEmail: string }) {
   async function handleLogout() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    router.push("/admin/login");
+    router.push("/admin-login");
     router.refresh();
   }
 

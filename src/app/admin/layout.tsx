@@ -13,13 +13,13 @@ export default async function AdminLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/admin/login");
+    redirect("/admin-login");
   }
 
   // ADMIN_EMAIL 제한
   const adminEmail = process.env.ADMIN_EMAIL;
   if (adminEmail && user.email !== adminEmail) {
-    redirect("/admin/login");
+    redirect("/admin-login");
   }
 
   return (
