@@ -90,24 +90,80 @@ export default function CompanyDetailPage() {
   });
 
   async function handleEnrich() {
+    if (!company) return;
     setEnriching(true);
     setEnrichResult(null);
+
+    const SKIP_DOMAINS = [
+      "naver.com", "daum.net", "tistory.com", "wikipedia.org",
+      "facebook.com", "youtube.com", "instagram.com", "linkedin.com",
+      "twitter.com", "jobkorea.co.kr", "saramin.co.kr", "google.com",
+      "duckduckgo.com", "kakao.com", "zillinks.com", "remember.co.kr",
+    ];
+
     try {
+      // Step 1: 브라우저에서 DuckDuckGo 검색 (CORS 우회를 위해 프록시 불필요 — API 사용)
+      let website = edit.website || "";
+      const searchResults: { title: string; url: string }[] = [];
+
+      if (!website) {
+        // DuckDuckGo Instant Answer API (CORS 허용)
+        const ddgRes = await fetch(
+          `https://api.duckduckgo.com/?q=${encodeURIComponent(company.name + " 홈페이지")}&format=json&no_html=1`
+        );
+        const ddgData = await ddgRes.json();
+
+        // AbstractURL 또는 Results에서 URL 추출
+        if (ddgData.AbstractURL) {
+          website = ddgData.AbstractURL;
+          searchResults.push({ title: ddgData.AbstractSource || "", url: ddgData.AbstractURL });
+        }
+        if (ddgData.Results) {
+          for (const r of ddgData.Results) {
+            if (r.FirstURL) searchResults.push({ title: r.Text || "", url: r.FirstURL });
+          }
+        }
+        if (ddgData.RelatedTopics) {
+          for (const r of ddgData.RelatedTopics.slice(0, 5)) {
+            if (r.FirstURL) searchResults.push({ title: r.Text?.substring(0, 50) || "", url: r.FirstURL });
+          }
+        }
+
+        // 포털 제외하고 첫 번째 결과
+        if (!website) {
+          for (const r of searchResults) {
+            const isPortal = SKIP_DOMAINS.some((d) => r.url.includes(d));
+            if (!isPortal && r.url.startsWith("http")) {
+              website = r.url;
+              break;
+            }
+          }
+        }
+      }
+
+      // Step 2: 서버에 website 전달 → 이메일 추출 + 저장
       const res = await fetch(`/api/companies/${id}/enrich`, {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ website }),
       });
       const data = await res.json();
-      setEnrichResult(data);
-      // 자동으로 edit 필드에 채우기
+
+      setEnrichResult({
+        website: data.website || website || null,
+        emails: data.emails || [],
+        searchResults,
+      });
+
       if (data.website && !edit.website) {
         setEdit((prev) => ({ ...prev, website: data.website }));
       }
       if (data.emails?.length > 0 && !edit.email) {
         setEdit((prev) => ({ ...prev, email: data.emails[0] }));
       }
-      // DB에 이미 저장됨 → 새로고침
       fetchCompany();
-    } catch {
+    } catch (err) {
+      console.error("Enrich error:", err);
       setEnrichResult(null);
     } finally {
       setEnriching(false);
@@ -441,9 +497,27 @@ export default function CompanyDetailPage() {
                 {enrichResult.emails?.length === 0 &&
                   enrichResult.website && (
                     <p className="text-gray-500">
-                      이메일을 찾지 못했습니다
+                      홈페이지에서 이메일을 찾지 못했습니다
                     </p>
                   )}
+                {!enrichResult.website && (
+                  <div className="space-y-1">
+                    <p className="text-gray-500">
+                      홈페이지를 자동으로 찾지 못했습니다
+                    </p>
+                    <button
+                      onClick={() =>
+                        window.open(
+                          `https://www.google.com/search?q=${encodeURIComponent(company.name + " 공식 홈페이지")}`,
+                          "_blank"
+                        )
+                      }
+                      className="text-xs text-[var(--primary)] underline"
+                    >
+                      → 구글에서 직접 검색하기
+                    </button>
+                  </div>
+                )}
                 {enrichResult.searchResults?.length > 0 && (
                   <details className="mt-2">
                     <summary className="cursor-pointer text-gray-500 hover:text-gray-300">
