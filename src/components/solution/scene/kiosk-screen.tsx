@@ -41,38 +41,38 @@ export function KioskScreen({ position, showReport, scrollProgress }: KioskScree
         <meshStandardMaterial color="#111" metalness={0.8} roughness={0.3} />
       </mesh>
 
-      {/* Screen display */}
+      {/* Screen display — dark when chat shows */}
       <mesh ref={screenRef} position={[0, 1.8, 0.045]}>
         <planeGeometry args={[2.6, 1.8]} />
         <meshStandardMaterial
-          color="#ffffff"
-          emissive={showReport ? "#aaccff" : "#111122"}
-          emissiveIntensity={0.3}
+          color={showReport ? "#111111" : "#222222"}
+          emissive={showReport ? "#112244" : "#111122"}
+          emissiveIntensity={0.1}
         />
       </mesh>
 
-      {/* HTML overlay on screen — large and readable */}
+      {/* HTML overlay on screen */}
       {showReport && (
         <Html
-          position={[0, 1.8, 0.06]}
+          position={[0, 1.8, 0.055]}
           transform
+          distanceFactor={3}
           style={{
-            width: "400px",
-            height: "280px",
             pointerEvents: "none",
           }}
-          scale={0.0065}
         >
-          <KioskChat progress={scrollProgress} />
+          <div style={{ width: "350px", height: "260px" }}>
+            <KioskChat progress={scrollProgress} />
+          </div>
         </Html>
       )}
 
       {/* Screen glow */}
       <pointLight
         color={showReport ? "#4488ff" : "#111122"}
-        intensity={showReport ? 1.5 : 0.2}
-        distance={4}
-        position={[0, 1.8, 0.5]}
+        intensity={showReport ? 0.5 : 0.1}
+        distance={2}
+        position={[0, 1.8, 0.3]}
       />
     </group>
   );
@@ -123,8 +123,8 @@ function KioskChat({ progress }: { progress: number }) {
         background: "#f5f7fa",
         fontFamily: "-apple-system, 'Pretendard', sans-serif",
         fontSize: "11px",
-        width: "400px",
-        height: "280px",
+        width: "350px",
+        height: "260px",
         borderRadius: "8px",
         display: "flex",
         flexDirection: "column",
