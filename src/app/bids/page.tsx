@@ -10,6 +10,7 @@ import {
   Clock,
   CheckCircle,
   Send,
+  Search,
   FileText,
   Presentation,
   Briefcase,
@@ -107,10 +108,17 @@ export default function BidsPage() {
           <h1 className="mb-4 text-3xl font-bold text-white">
             스마트공장 지원사업 공고
           </h1>
-          <p className="mx-auto max-w-lg text-gray-400">
+          <p className="mx-auto mb-4 max-w-lg text-gray-400">
             정부 스마트공장 지원사업을 확인하고, 제안서 작성부터 발표까지
             전문 지원을 받으세요.
           </p>
+          <a
+            href="/bids/track"
+            className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-gray-400 transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+          >
+            <Search size={14} />
+            문의 진행 상태 조회
+          </a>
         </div>
 
         {loading ? (
