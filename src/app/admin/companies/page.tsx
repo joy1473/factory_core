@@ -1,17 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { CompanyFilters } from "@/components/admin/company-filters";
 import { CompanyTable } from "@/components/admin/company-table";
 import { useCompanyStore } from "@/store/company-store";
+import { useFilterStore } from "@/store/filter-store";
 import { Download, Tags, Plus, Minus } from "lucide-react";
-
-interface Filters {
-  sido: string;
-  sigungu: string;
-  search: string;
-}
 
 interface CompanyRow {
   name: string;
@@ -24,23 +18,11 @@ interface CompanyRow {
 }
 
 export default function CompaniesPage() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  // URL에서 초기 필터값 읽기
-  const initialFilters: Filters = {
-    sido: searchParams.get("sido") || "",
-    sigungu: searchParams.get("sigungu") || "",
-    search: searchParams.get("search") || "",
-  };
-  const initialPage = parseInt(searchParams.get("page") || "1");
-
   const [companies, setCompanies] = useState([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(initialPage);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<Filters>(initialFilters);
   const { selectedIds } = useCompanyStore();
+  const { sido, sigungu, search, page, setPage } = useFilterStore();
   const [allTags, setAllTags] = useState<
     { id: string; name: string; type: string; color: string }[]
   >([]);
@@ -54,18 +36,6 @@ export default function CompaniesPage() {
       .then((d) => Array.isArray(d) && setAllTags(d))
       .catch(() => {});
   }, []);
-
-  // URL 파라미터 동기화
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (filters.sido) params.set("sido", filters.sido);
-    if (filters.sigungu) params.set("sigungu", filters.sigungu);
-    if (filters.search) params.set("search", filters.search);
-    if (page > 1) params.set("page", String(page));
-    const qs = params.toString();
-    const newUrl = qs ? `/admin/companies?${qs}` : "/admin/companies";
-    router.replace(newUrl, { scroll: false });
-  }, [filters, page, router]);
 
   async function handleBulkTag(tagId: string, action: "add" | "remove") {
     if (selectedIds.size === 0) return;
@@ -92,9 +62,9 @@ export default function CompaniesPage() {
     const params = new URLSearchParams();
     params.set("page", String(page));
     params.set("limit", "50");
-    if (filters.sido) params.set("sido", filters.sido);
-    if (filters.sigungu) params.set("sigungu", filters.sigungu);
-    if (filters.search) params.set("search", filters.search);
+    if (sido) params.set("sido", sido);
+    if (sigungu) params.set("sigungu", sigungu);
+    if (search) params.set("search", search);
 
     try {
       const res = await fetch(`/api/companies?${params}`);
@@ -107,16 +77,11 @@ export default function CompaniesPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, filters]);
+  }, [page, sido, sigungu, search]);
 
   useEffect(() => {
     fetchCompanies();
   }, [fetchCompanies]);
-
-  const handleFilterChange = useCallback((f: Filters) => {
-    setFilters(f);
-    setPage(1);
-  }, []);
 
   async function handleExportCSV() {
     if (selectedIds.size > 0) {
@@ -136,9 +101,9 @@ export default function CompaniesPage() {
         const params = new URLSearchParams();
         params.set("page", String(p));
         params.set("limit", String(batchSize));
-        if (filters.sido) params.set("sido", filters.sido);
-        if (filters.sigungu) params.set("sigungu", filters.sigungu);
-        if (filters.search) params.set("search", filters.search);
+        if (sido) params.set("sido", sido);
+        if (sigungu) params.set("sigungu", sigungu);
+        if (search) params.set("search", search);
 
         const res = await fetch(`/api/companies?${params}`);
         const json = await res.json();
@@ -147,7 +112,7 @@ export default function CompaniesPage() {
         if (batch.length < batchSize) break;
         p++;
       }
-      downloadCSV(allRows, filters.sido || "all");
+      downloadCSV(allRows, sido || "all");
     } finally {
       setExporting(false);
     }
@@ -248,10 +213,7 @@ export default function CompaniesPage() {
       </div>
 
       <div className="mb-4">
-        <CompanyFilters
-          initialFilters={initialFilters}
-          onFilterChange={handleFilterChange}
-        />
+        <CompanyFilters />
       </div>
 
       {loading ? (
