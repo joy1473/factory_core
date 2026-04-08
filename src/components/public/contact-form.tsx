@@ -22,6 +22,7 @@ export function ContactForm({
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const [trackingCode, setTrackingCode] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,6 +36,8 @@ export function ContactForm({
         body: JSON.stringify({ ...form, type }),
       });
       if (!res.ok) throw new Error("전송 실패");
+      const data = await res.json();
+      setTrackingCode(data.tracking_code || "");
       setSent(true);
     } catch {
       setError("전송에 실패했습니다. 다시 시도해주세요.");
@@ -50,9 +53,23 @@ export function ContactForm({
         <h3 className="mb-2 text-xl font-bold text-white">
           접수되었습니다!
         </h3>
-        <p className="text-gray-400">
+        {trackingCode && (
+          <div className="mx-auto mb-4 max-w-xs rounded-lg bg-[var(--primary)]/10 p-3">
+            <p className="text-xs text-gray-400">추적 코드</p>
+            <p className="font-mono text-lg font-bold text-[var(--primary)]">
+              {trackingCode}
+            </p>
+          </div>
+        )}
+        <p className="mb-4 text-gray-400">
           빠른 시일 내에 연락드리겠습니다. 감사합니다.
         </p>
+        <a
+          href={`/bids/track${trackingCode ? `?code=${trackingCode}` : ""}`}
+          className="inline-block rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-gray-400 transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+        >
+          진행 상태 조회 →
+        </a>
       </div>
     );
   }

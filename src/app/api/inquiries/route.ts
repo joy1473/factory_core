@@ -2,29 +2,50 @@ import { createClient } from "@supabase/supabase-js";
 import { createServerSupabase } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 
-// Admin: 문의 목록 조회
+// Admin: 문의 목록 / Public: 추적코드 조회
 export async function GET(request: NextRequest) {
   const isAdmin = request.nextUrl.searchParams.get("admin");
-  if (!isAdmin) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const code = request.nextUrl.searchParams.get("code");
+  const phone = request.nextUrl.searchParams.get("phone");
+
+  // Public: 추적코드 또는 전화번호로 조회
+  if (code || phone) {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    let query = supabase
+      .from("inquiries")
+      .select("tracking_code, type, company_name, contact_name, message, status, admin_note, created_at, updated_at")
+      .order("created_at", { ascending: false });
+
+    if (code) query = query.eq("tracking_code", code);
+    else if (phone) query = query.eq("phone", phone);
+
+    const { data } = await query;
+    return NextResponse.json(data || []);
   }
 
-  const supabase = await createServerSupabase();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Admin: 전체 목록
+  if (isAdmin) {
+    const supabase = await createServerSupabase();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const { data } = await supabase
+      .from("inquiries")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
+
+    return NextResponse.json(data || []);
   }
 
-  const { data } = await supabase
-    .from("inquiries")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  return NextResponse.json(data || []);
+  return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 }
 
-// Public: 문의 접수
+// Public: 문의 접수 (tracking_code 반환)
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -42,20 +63,27 @@ export async function POST(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    const { error } = await supabase.from("inquiries").insert({
-      company_name: company_name || null,
-      contact_name,
-      phone: phone || null,
-      email: email || null,
-      message,
-      type: type || "general",
-    });
+    const { data, error } = await supabase
+      .from("inquiries")
+      .insert({
+        company_name: company_name || null,
+        contact_name,
+        phone: phone || null,
+        email: email || null,
+        message,
+        type: type || "general",
+      })
+      .select("tracking_code")
+      .single();
 
     if (error) {
       return NextResponse.json({ error: "저장 실패" }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      tracking_code: data?.tracking_code,
+    });
   } catch {
     return NextResponse.json({ error: "서버 오류" }, { status: 500 });
   }

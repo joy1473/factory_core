@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/public/header";
 import { Footer } from "@/components/public/footer";
 import { Search, Clock, CheckCircle, Loader2, FileText, AlertCircle } from "lucide-react";
@@ -15,6 +15,8 @@ interface InquiryStatus {
   created_at: string;
   updated_at: string;
   bids: { title: string; organization: string; field: string } | null;
+  type?: string;
+  _source?: string;
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string; icon: typeof Clock }> = {
@@ -34,9 +36,31 @@ const SERVICE_LABELS: Record<string, string> = {
 export default function TrackPage() {
   const [searchType, setSearchType] = useState<"code" | "phone">("code");
   const [searchValue, setSearchValue] = useState("");
+  const [autoSearched, setAutoSearched] = useState(false);
   const [results, setResults] = useState<InquiryStatus[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+
+  const formRef = useRef<HTMLFormElement>(null);
+
+  // URL 파라미터에서 자동 검색
+  useEffect(() => {
+    if (autoSearched) return;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const phone = params.get("phone");
+    if (code) {
+      setSearchType("code");
+      setSearchValue(code);
+      setAutoSearched(true);
+      setTimeout(() => formRef.current?.requestSubmit(), 100);
+    } else if (phone) {
+      setSearchType("phone");
+      setSearchValue(phone);
+      setAutoSearched(true);
+      setTimeout(() => formRef.current?.requestSubmit(), 100);
+    }
+  }, [autoSearched]);
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -46,9 +70,20 @@ export default function TrackPage() {
 
     const param = searchType === "code" ? `code=${searchValue.trim()}` : `phone=${searchValue.trim()}`;
     try {
-      const res = await fetch(`/api/bids/inquire?${param}`);
-      const data = await res.json();
-      setResults(Array.isArray(data) ? data : []);
+      // 두 테이블 동시 조회 (bid_inquiries + inquiries)
+      const [bidRes, inqRes] = await Promise.all([
+        fetch(`/api/bids/inquire?${param}`),
+        fetch(`/api/inquiries?${param}`),
+      ]);
+      const bidData = await bidRes.json();
+      const inqData = await inqRes.json();
+
+      const allResults = [
+        ...(Array.isArray(bidData) ? bidData.map((d: InquiryStatus) => ({ ...d, _source: "bid" })) : []),
+        ...(Array.isArray(inqData) ? inqData.map((d: InquiryStatus) => ({ ...d, _source: "inquiry" })) : []),
+      ];
+      allResults.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setResults(allResults);
     } catch {
       setResults([]);
     } finally {
@@ -73,7 +108,7 @@ export default function TrackPage() {
         </div>
 
         {/* Search form */}
-        <form onSubmit={handleSearch} className="mb-8">
+        <form ref={formRef} onSubmit={handleSearch} className="mb-8">
           <div className="mb-3 flex justify-center gap-2">
             <button
               type="button"
@@ -144,6 +179,9 @@ export default function TrackPage() {
                     <div className="flex items-center gap-3">
                       <span className="rounded-lg bg-[var(--primary)]/10 px-3 py-1 font-mono text-sm font-bold text-[var(--primary)]">
                         {r.tracking_code}
+                      </span>
+                      <span className="rounded bg-white/5 px-2 py-0.5 text-[10px] text-gray-500">
+                        {r._source === "bid" ? "지원사업" : r.type === "poc" ? "PoC" : "일반문의"}
                       </span>
                       <span
                         className="flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold"
