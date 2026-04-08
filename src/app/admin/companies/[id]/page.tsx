@@ -89,6 +89,8 @@ export default function CompanyDetailPage() {
     email: "",
     website: "",
     address: "",
+    sido: "",
+    sigungu: "",
     memo: "",
   });
 
@@ -142,6 +144,8 @@ export default function CompanyDetailPage() {
         email: data.email || "",
         website: data.website || "",
         address: data.address || "",
+        sido: data.sido || "",
+        sigungu: data.sigungu || "",
         memo: data.memo || "",
       });
     } finally {
@@ -258,14 +262,30 @@ export default function CompanyDetailPage() {
                   className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
                 />
               </div>
+              <div className="flex items-center gap-3 text-sm">
+                <MapPin size={16} className="text-gray-500" />
+                <span className="text-gray-400">시도:</span>
+                <input
+                  value={edit.sido}
+                  onChange={(e) => setEdit({ ...edit, sido: e.target.value })}
+                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
+                />
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <MapPin size={16} className="text-gray-500" />
+                <span className="text-gray-400">시군구:</span>
+                <input
+                  value={edit.sigungu}
+                  onChange={(e) => setEdit({ ...edit, sigungu: e.target.value })}
+                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
+                />
+              </div>
               <div className="flex items-center gap-3 text-sm sm:col-span-2">
                 <MapPin size={16} className="shrink-0 text-gray-500" />
                 <span className="shrink-0 text-gray-400">주소:</span>
                 <input
                   value={edit.address}
-                  onChange={(e) =>
-                    setEdit({ ...edit, address: e.target.value })
-                  }
+                  onChange={(e) => setEdit({ ...edit, address: e.target.value })}
                   className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
                 />
               </div>
