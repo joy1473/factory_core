@@ -1,9 +1,10 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Header } from "@/components/public/header";
 import { SceneSelector } from "@/components/solution/scene-selector";
+import { SmartFactoryDiagram } from "@/components/solution/smart-factory-diagram";
 import Link from "next/link";
 
 const FactoryScene = dynamic(
@@ -26,6 +27,7 @@ const FactoryScene = dynamic(
 
 export default function SolutionPage() {
   const [sceneId, setSceneId] = useState("general");
+  const demoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -106,18 +108,26 @@ export default function SolutionPage() {
             </div>
           </div>
 
-          {/* CTA to 3D Demo */}
-          <div className="text-center">
-            <p className="mb-4 text-sm text-gray-400">
-              업종을 선택하고 Factory Guardian Agent가 어떻게 동작하는지 체험하세요
-            </p>
+          {/* Interactive System Diagram */}
+          <div className="mb-10">
+            <h3 className="mb-6 text-center text-lg font-bold text-white">
+              스마트공장 시스템 구조
+            </h3>
+            <SmartFactoryDiagram
+              onLayerClick={(layer) => {
+                setSceneId(layer);
+                window.history.replaceState(null, "", `/solution?scene=${layer}`);
+                demoRef.current?.scrollIntoView({ behavior: "smooth" });
+              }}
+            />
           </div>
         </div>
       </div>
 
-      <SceneSelector current={sceneId} onChange={handleSceneChange} />
-
-      <FactoryScene key={sceneId} sceneId={sceneId} />
+      <div ref={demoRef}>
+        <SceneSelector current={sceneId} onChange={handleSceneChange} />
+        <FactoryScene key={sceneId} sceneId={sceneId} />
+      </div>
 
       {/* Bottom nav */}
       <div className="relative z-20 bg-[#0a0a0a]">
