@@ -5,13 +5,22 @@ import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
+interface ChatMsg {
+  from: "user" | "ai";
+  text: string;
+  at: number;
+  alert?: boolean;
+  actions?: boolean;
+}
+
 interface KioskScreenProps {
   position: [number, number, number];
   showReport: boolean;
   scrollProgress: number;
+  chatMessages?: ChatMsg[];
 }
 
-export function KioskScreen({ position, showReport, scrollProgress }: KioskScreenProps) {
+export function KioskScreen({ position, showReport, scrollProgress, chatMessages }: KioskScreenProps) {
   const screenRef = useRef<THREE.Mesh>(null);
 
   useFrame(() => {
@@ -61,7 +70,7 @@ export function KioskScreen({ position, showReport, scrollProgress }: KioskScree
           zIndexRange={[100, 0]}
           style={{ pointerEvents: "none" }}
         >
-          <KioskChat progress={scrollProgress} />
+          <KioskChat progress={scrollProgress} messages={chatMessages} />
         </Html>
       )}
     </group>
@@ -103,7 +112,8 @@ const CHAT_MESSAGES = [
   },
 ];
 
-function KioskChat({ progress }: { progress: number }) {
+function KioskChat({ progress, messages }: { progress: number; messages?: ChatMsg[] }) {
+  const MSGS = messages || CHAT_MESSAGES;
   const chatProgress = Math.max(0, Math.min(1, (progress - 0.65) / 0.3));
 
   return (
@@ -158,7 +168,7 @@ function KioskChat({ progress }: { progress: number }) {
           gap: "5px",
         }}
       >
-        {CHAT_MESSAGES.map((msg, i) => {
+        {MSGS.map((msg, i) => {
           if (chatProgress < msg.at) return null;
           const opacity = Math.min(1, (chatProgress - msg.at) / 0.08);
 
