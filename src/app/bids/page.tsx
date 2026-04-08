@@ -60,7 +60,7 @@ export default function BidsPage() {
   const [trackingCode, setTrackingCode] = useState("");
   const [companySuggestions, setCompanySuggestions] = useState<{id:string;name:string;contact_person:string|null;phone:string|null;email:string|null;sido:string;sigungu:string}[]>([]);
   const [showCompanySuggestions, setShowCompanySuggestions] = useState(false);
-  const companyDebounce = useRef<ReturnType<typeof setTimeout>>();
+  const companyDebounce = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   function handleBidCompanyInput(value: string) {
     setInquiryForm({ ...inquiryForm, company_name: value });
