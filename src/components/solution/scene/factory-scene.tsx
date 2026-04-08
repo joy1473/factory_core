@@ -93,7 +93,7 @@ export function FactoryScene() {
 
       {/* Scroll spacer + DOM overlay */}
       <div className="relative z-10" style={{ height: "500vh" }}>
-        <OverlaySection top="10vh" align="left" progress={p} index={0}>
+        <OverlaySection top="25vh" align="left" progress={p} index={0}>
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#00d4ff]">
             Factory Guardian Agent
           </p>
@@ -107,7 +107,7 @@ export function FactoryScene() {
           </p>
         </OverlaySection>
 
-        <OverlaySection top="110vh" align="left" progress={p} index={1}>
+        <OverlaySection top="125vh" align="left" progress={p} index={1}>
           <p className="mb-2 text-5xl font-black text-[#00ff41] md:text-6xl">$1</p>
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
             스마트 스티커, 붙이면 끝
@@ -119,7 +119,7 @@ export function FactoryScene() {
           </p>
         </OverlaySection>
 
-        <OverlaySection top="210vh" align="right" progress={p} index={2}>
+        <OverlaySection top="225vh" align="right" progress={p} index={2}>
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
             AI가 눈과 귀가 되어
             <br />
@@ -132,7 +132,7 @@ export function FactoryScene() {
           </p>
         </OverlaySection>
 
-        <OverlaySection top="310vh" align="left" progress={p} index={3}>
+        <OverlaySection top="325vh" align="left" progress={p} index={3}>
           <p className="mb-2 animate-pulse text-sm font-bold uppercase tracking-widest text-[#ff4444]">
             ⚠ Alert
           </p>
@@ -146,7 +146,7 @@ export function FactoryScene() {
         </OverlaySection>
 
         {/* CTA at very end */}
-        <OverlaySection top="420vh" align="center" progress={p} index={4}>
+        <OverlaySection top="430vh" align="center" progress={p} index={4}>
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
             대화 한 마디로<br />
             <span className="text-[#00d4ff]">공장이 달라집니다</span>

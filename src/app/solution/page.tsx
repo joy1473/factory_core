@@ -39,8 +39,9 @@ export default function SolutionPage() {
       {/* 3D Interactive Scene (scroll-driven) */}
       <FactoryScene />
 
-      {/* DOM Sections below 3D scene */}
-      <div className="relative z-20 bg-[#0a0a0a]">
+      {/* Fade transition from 3D to DOM */}
+      <div className="relative z-20">
+        <div className="h-32 bg-gradient-to-b from-transparent to-[#050508]" />
         <PainPointSection />
         <BeforeAfterSection />
         <ComparisonSection />
