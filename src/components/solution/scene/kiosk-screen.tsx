@@ -36,14 +36,14 @@ export function KioskScreen({ position, showReport, scrollProgress }: KioskScree
       </mesh>
 
       {/* Screen frame */}
-      <mesh position={[0, 1.5, 0]}>
-        <boxGeometry args={[1.6, 1.2, 0.08]} />
+      <mesh position={[0, 1.8, 0]}>
+        <boxGeometry args={[2.8, 2, 0.08]} />
         <meshStandardMaterial color="#111" metalness={0.8} roughness={0.3} />
       </mesh>
 
       {/* Screen display */}
-      <mesh ref={screenRef} position={[0, 1.5, 0.045]}>
-        <planeGeometry args={[1.4, 1]} />
+      <mesh ref={screenRef} position={[0, 1.8, 0.045]}>
+        <planeGeometry args={[2.6, 1.8]} />
         <meshStandardMaterial
           color="#ffffff"
           emissive={showReport ? "#aaccff" : "#111122"}
@@ -51,18 +51,17 @@ export function KioskScreen({ position, showReport, scrollProgress }: KioskScree
         />
       </mesh>
 
-      {/* HTML overlay on screen */}
+      {/* HTML overlay on screen — large and readable */}
       {showReport && (
         <Html
-          position={[0, 1.5, 0.06]}
+          position={[0, 1.8, 0.06]}
           transform
-          occlude
           style={{
-            width: "280px",
-            height: "210px",
+            width: "400px",
+            height: "280px",
             pointerEvents: "none",
           }}
-          scale={0.005}
+          scale={0.0065}
         >
           <KioskChat progress={scrollProgress} />
         </Html>
@@ -71,9 +70,9 @@ export function KioskScreen({ position, showReport, scrollProgress }: KioskScree
       {/* Screen glow */}
       <pointLight
         color={showReport ? "#4488ff" : "#111122"}
-        intensity={showReport ? 1.2 : 0.2}
-        distance={3}
-        position={[0, 1.5, 0.3]}
+        intensity={showReport ? 1.5 : 0.2}
+        distance={4}
+        position={[0, 1.8, 0.5]}
       />
     </group>
   );
@@ -123,9 +122,9 @@ function KioskChat({ progress }: { progress: number }) {
       style={{
         background: "#f5f7fa",
         fontFamily: "-apple-system, 'Pretendard', sans-serif",
-        fontSize: "9px",
-        width: "280px",
-        height: "210px",
+        fontSize: "11px",
+        width: "400px",
+        height: "280px",
         borderRadius: "8px",
         display: "flex",
         flexDirection: "column",
