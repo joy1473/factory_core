@@ -1,6 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { Header } from "@/components/public/header";
+import { Footer } from "@/components/public/footer";
+import { PainPointSection } from "@/components/solution/sections/pain-point-section";
+import { BeforeAfterSection } from "@/components/solution/sections/before-after-section";
+import { ComparisonSection } from "@/components/solution/sections/comparison-section";
+import { PricingSection } from "@/components/solution/sections/pricing-section";
+import { FaqSection } from "@/components/solution/sections/faq-section";
+import { CtaSection } from "@/components/public/cta-section";
 
 const FactoryScene = dynamic(
   () =>
@@ -21,5 +29,26 @@ const FactoryScene = dynamic(
 );
 
 export default function SolutionPage() {
-  return <FactoryScene />;
+  return (
+    <>
+      {/* Header — fixed above everything */}
+      <div className="fixed left-0 right-0 top-0 z-50">
+        <Header />
+      </div>
+
+      {/* 3D Interactive Scene (scroll-driven) */}
+      <FactoryScene />
+
+      {/* DOM Sections below 3D scene */}
+      <div className="relative z-20 bg-[#0a0a0a]">
+        <PainPointSection />
+        <BeforeAfterSection />
+        <ComparisonSection />
+        <PricingSection />
+        <FaqSection />
+        <CtaSection />
+        <Footer />
+      </div>
+    </>
+  );
 }
