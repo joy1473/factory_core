@@ -14,6 +14,8 @@ import {
   Sparkles,
   Loader2,
   Send,
+  Wand2,
+  CheckCircle,
   Tag,
   Plus,
   Minus,
@@ -492,6 +494,14 @@ export default function CompanyDetailPage() {
             )}
           </div>
 
+          {/* AI Tag Extraction */}
+          <AiTagExtractor
+            companyId={id}
+            allTags={allTags}
+            currentTagIds={currentTagIds}
+            onTagApplied={() => fetchCompany(true)}
+          />
+
           {/* Quick Actions */}
           <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
             <h2 className="mb-4 text-sm font-semibold text-gray-300">
@@ -532,6 +542,204 @@ export default function CompanyDetailPage() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ─── AI Tag Extractor Component ───
+function AiTagExtractor({
+  companyId,
+  allTags,
+  currentTagIds,
+  onTagApplied,
+}: {
+  companyId: string;
+  allTags: TagItem[];
+  currentTagIds: Set<string>;
+  onTagApplied: () => void;
+}) {
+  const [extracting, setExtracting] = useState(false);
+  const [result, setResult] = useState<{
+    matched: { tagName: string; tagId: string; type: string; confidence: number; alreadyApplied: boolean }[];
+    suggested: { tagName: string; keywords: string[] }[];
+  } | null>(null);
+  const [applying, setApplying] = useState<string | null>(null);
+  const [creating, setCreating] = useState<string | null>(null);
+
+  async function handleExtract() {
+    setExtracting(true);
+    setResult(null);
+    try {
+      const res = await fetch(`/api/companies/${companyId}/extract-tags`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      setResult(data);
+    } finally {
+      setExtracting(false);
+    }
+  }
+
+  async function handleApplyTag(tagId: string) {
+    setApplying(tagId);
+    try {
+      await fetch("/api/companies/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_ids: [companyId],
+          tag_id: tagId,
+          action: "add",
+        }),
+      });
+      onTagApplied();
+      if (result) {
+        setResult({
+          ...result,
+          matched: result.matched.map((m) =>
+            m.tagId === tagId ? { ...m, alreadyApplied: true } : m
+          ),
+        });
+      }
+    } finally {
+      setApplying(null);
+    }
+  }
+
+  async function handleCreateAndApply(tagName: string) {
+    setCreating(tagName);
+    try {
+      // 태그 생성
+      const createRes = await fetch("/api/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: tagName, type: "industry", color: "#44ddff" }),
+      });
+      const newTag = await createRes.json();
+
+      // 기업에 부여
+      await fetch("/api/companies/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          company_ids: [companyId],
+          tag_id: newTag.id,
+          action: "add",
+        }),
+      });
+
+      onTagApplied();
+      // suggested에서 제거
+      if (result) {
+        setResult({
+          ...result,
+          suggested: result.suggested.filter((s) => s.tagName !== tagName),
+        });
+      }
+    } finally {
+      setCreating(null);
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-[var(--accent)]/20 bg-[var(--surface)] p-5">
+      <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--accent)]">
+        <Wand2 size={14} /> AI 태그 추출
+      </h2>
+      <p className="mb-3 text-xs text-gray-500">
+        메모 + 기업명에서 업종/규모 태그를 자동 추출합니다
+      </p>
+      <button
+        onClick={handleExtract}
+        disabled={extracting}
+        className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--accent)] px-4 py-2.5 text-sm font-semibold text-black transition hover:brightness-110 disabled:opacity-50"
+      >
+        {extracting ? (
+          <>
+            <Loader2 size={16} className="animate-spin" /> 분석 중...
+          </>
+        ) : (
+          <>
+            <Wand2 size={16} /> 태그 자동 추출
+          </>
+        )}
+      </button>
+
+      {result && (
+        <div className="mt-4 space-y-3">
+          {/* Matched tags */}
+          {result.matched.length > 0 && (
+            <div>
+              <p className="mb-2 text-xs font-semibold text-gray-400">
+                매칭된 태그 ({result.matched.length})
+              </p>
+              <div className="space-y-1.5">
+                {result.matched.map((m) => (
+                  <div
+                    key={m.tagId}
+                    className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-white">{m.tagName}</span>
+                      <span className="rounded bg-[var(--accent)]/10 px-1.5 py-0.5 text-[10px] text-[var(--accent)]">
+                        {Math.round(m.confidence * 100)}%
+                      </span>
+                    </div>
+                    {m.alreadyApplied ? (
+                      <CheckCircle size={16} className="text-[var(--secondary)]" />
+                    ) : (
+                      <button
+                        onClick={() => handleApplyTag(m.tagId)}
+                        disabled={applying === m.tagId}
+                        className="rounded bg-[var(--primary)] px-2 py-1 text-[10px] font-bold text-black hover:brightness-110 disabled:opacity-50"
+                      >
+                        {applying === m.tagId ? "..." : "+ 부여"}
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Suggested new tags */}
+          {result.suggested.length > 0 && (
+            <div>
+              <p className="mb-2 text-xs font-semibold text-gray-400">
+                새 태그 제안 ({result.suggested.length})
+              </p>
+              <div className="space-y-1.5">
+                {result.suggested.map((s) => (
+                  <div
+                    key={s.tagName}
+                    className="flex items-center justify-between rounded-lg border border-dashed border-[var(--border)] bg-[var(--background)] px-3 py-2"
+                  >
+                    <div>
+                      <span className="text-sm text-white">{s.tagName}</span>
+                      <span className="ml-2 text-[10px] text-gray-600">
+                        ({s.keywords.join(", ")})
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => handleCreateAndApply(s.tagName)}
+                      disabled={creating === s.tagName}
+                      className="rounded border border-[var(--accent)] px-2 py-1 text-[10px] font-bold text-[var(--accent)] hover:bg-[var(--accent)]/10 disabled:opacity-50"
+                    >
+                      {creating === s.tagName ? "..." : "+ 생성 & 부여"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {result.matched.length === 0 && result.suggested.length === 0 && (
+            <p className="text-xs text-gray-500">
+              메모에서 태그를 추출할 수 없습니다. 메모를 추가해주세요.
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
