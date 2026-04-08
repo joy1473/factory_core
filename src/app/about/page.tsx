@@ -1,13 +1,42 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Header } from "@/components/public/header";
 import { Footer } from "@/components/public/footer";
 import { Building2, MapPin, Mail, Phone, FileText } from "lucide-react";
 
-export const metadata = {
-  title: "회사 소개 | Factory Core - 조이텍",
-  description: "조이텍(JOYTEC) 회사 소개. 스마트팩토리 Agentic AI 솔루션 Factory Core를 개발합니다.",
-};
+interface CompanyInfo {
+  company_name: string;
+  company_name_en: string;
+  ceo_name: string;
+  business_number: string;
+  address: string;
+  email: string;
+  phone: string;
+  description: string;
+}
 
 export default function AboutPage() {
+  const [info, setInfo] = useState<CompanyInfo | null>(null);
+
+  useEffect(() => {
+    fetch("/api/content/company-info")
+      .then((r) => r.json())
+      .then((d) => d.company_name && setInfo(d))
+      .catch(() => {});
+  }, []);
+
+  const co = info || {
+    company_name: "조이텍",
+    company_name_en: "JOYTEC",
+    ceo_name: "조은아",
+    business_number: "110-11-23776",
+    address: "서울특별시 강서구 양천로49길 39-59, 203호",
+    email: "joytec@naver.com",
+    phone: "010-2648-6726",
+    description: "스마트팩토리 Agentic AI 솔루션",
+  };
+
   return (
     <>
       <Header />
@@ -25,16 +54,16 @@ export default function AboutPage() {
               <Building2 className="h-6 w-6 text-black" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">조이텍 (JOYTEC)</h2>
-              <p className="text-sm text-gray-400">
-                스마트팩토리 Agentic AI 솔루션
-              </p>
+              <h2 className="text-xl font-bold text-white">
+                {co.company_name} ({co.company_name_en})
+              </h2>
+              <p className="text-sm text-gray-400">{co.description}</p>
             </div>
           </div>
 
           <div className="mb-8 text-sm leading-relaxed text-gray-300">
             <p className="mb-4">
-              조이텍은 2005년 설립 이래 IT 기술 기반의 솔루션을 개발해온
+              {co.company_name}은 2005년 설립 이래 IT 기술 기반의 솔루션을 개발해온
               기업입니다. 현재는 중소 제조기업을 위한 AI 기반 설비관리 솔루션
               &quot;Factory Core&quot;를 개발하고 있습니다.
             </p>
@@ -49,58 +78,19 @@ export default function AboutPage() {
             사업자 정보
           </h3>
           <div className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-5">
-            <div className="flex items-center gap-3 text-sm">
-              <Building2 size={16} className="shrink-0 text-[var(--primary)]" />
-              <span className="text-gray-400">상호:</span>
-              <span className="text-white">조이텍 (JOYTEC)</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <FileText size={16} className="shrink-0 text-[var(--primary)]" />
-              <span className="text-gray-400">대표:</span>
-              <span className="text-white">조은아</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <FileText size={16} className="shrink-0 text-[var(--primary)]" />
-              <span className="text-gray-400">사업자등록번호:</span>
-              <span className="text-white">110-11-23776</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <MapPin size={16} className="shrink-0 text-[var(--primary)]" />
-              <span className="text-gray-400">주소:</span>
-              <span className="text-white">
-                서울특별시 강서구 양천로49길 39-59, 203호
-              </span>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <Mail size={16} className="shrink-0 text-[var(--primary)]" />
-              <span className="text-gray-400">이메일:</span>
-              <a
-                href="mailto:joytec@naver.com"
-                className="text-[var(--primary)] hover:underline"
-              >
-                joytec@naver.com
-              </a>
-            </div>
-            <div className="flex items-center gap-3 text-sm">
-              <Phone size={16} className="shrink-0 text-[var(--primary)]" />
-              <span className="text-gray-400">전화:</span>
-              <a
-                href="tel:010-2648-6726"
-                className="text-[var(--primary)] hover:underline"
-              >
-                010-2648-6726
-              </a>
-            </div>
+            <InfoRow icon={Building2} label="상호" value={`${co.company_name} (${co.company_name_en})`} />
+            <InfoRow icon={FileText} label="대표" value={co.ceo_name} />
+            <InfoRow icon={FileText} label="사업자등록번호" value={co.business_number} />
+            <InfoRow icon={MapPin} label="주소" value={co.address} />
+            <InfoRow icon={Mail} label="이메일" value={co.email} href={`mailto:${co.email}`} />
+            <InfoRow icon={Phone} label="전화" value={co.phone} href={`tel:${co.phone}`} />
           </div>
 
           <div className="mt-6 text-xs text-gray-600">
             <p>설립일: 2005년 4월 27일</p>
             <p>
               홈페이지:{" "}
-              <a
-                href="https://joy.it.kr"
-                className="text-[var(--primary)] hover:underline"
-              >
+              <a href="https://joy.it.kr" className="text-[var(--primary)] hover:underline">
                 https://joy.it.kr
               </a>
             </p>
@@ -109,5 +99,32 @@ export default function AboutPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+function InfoRow({
+  icon: Icon,
+  label,
+  value,
+  href,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  label: string;
+  value: string;
+  href?: string;
+}) {
+  if (!value) return null;
+  return (
+    <div className="flex items-center gap-3 text-sm">
+      <Icon size={16} className="shrink-0 text-[var(--primary)]" />
+      <span className="text-gray-400">{label}:</span>
+      {href ? (
+        <a href={href} className="text-[var(--primary)] hover:underline">
+          {value}
+        </a>
+      ) : (
+        <span className="text-white">{value}</span>
+      )}
+    </div>
   );
 }

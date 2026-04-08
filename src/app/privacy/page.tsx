@@ -1,11 +1,39 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Header } from "@/components/public/header";
 import { Footer } from "@/components/public/footer";
 
-export const metadata = {
-  title: "개인정보처리방침 | Factory Core",
-};
+interface CompanyInfo {
+  company_name: string;
+  company_name_en: string;
+  ceo_name: string;
+  business_number: string;
+  address: string;
+  email: string;
+  phone: string;
+}
 
 export default function PrivacyPage() {
+  const [co, setCo] = useState<CompanyInfo | null>(null);
+
+  useEffect(() => {
+    fetch("/api/content/company-info")
+      .then((r) => r.json())
+      .then((d) => d.company_name && setCo(d))
+      .catch(() => {});
+  }, []);
+
+  const info = co || {
+    company_name: "조이텍",
+    company_name_en: "JOYTEC",
+    ceo_name: "조은아",
+    business_number: "110-11-23776",
+    address: "서울특별시 강서구 양천로49길 39-59, 203호",
+    email: "joytec@naver.com",
+    phone: "010-2648-6726",
+  };
+
   return (
     <>
       <Header />
@@ -19,7 +47,7 @@ export default function PrivacyPage() {
               1. 개인정보의 수집 및 이용 목적
             </h2>
             <p>
-              조이텍(이하 &quot;회사&quot;)은 Factory Core 서비스 운영을 위해
+              {info.company_name}(이하 &quot;회사&quot;)은 Factory Core 서비스 운영을 위해
               다음과 같은 목적으로 개인정보를 수집·이용합니다.
             </p>
             <ul className="mt-2 list-inside list-disc space-y-1">
@@ -64,12 +92,12 @@ export default function PrivacyPage() {
             <h2 className="mb-2 text-base font-semibold text-white">
               5. 개인정보 보호책임자
             </h2>
-            <p>회사: 조이텍 (JOYTEC)</p>
-            <p>대표: 조은아</p>
-            <p>사업자등록번호: 110-11-23776</p>
-            <p>주소: 서울특별시 강서구 양천로49길 39-59, 203호</p>
-            <p>이메일: joytec@naver.com</p>
-            <p>전화: 010-2648-6726</p>
+            <p>회사: {info.company_name} ({info.company_name_en})</p>
+            <p>대표: {info.ceo_name}</p>
+            <p>사업자등록번호: {info.business_number}</p>
+            <p>주소: {info.address}</p>
+            <p>이메일: {info.email}</p>
+            <p>전화: {info.phone}</p>
           </section>
 
           <p className="text-xs text-gray-600">
