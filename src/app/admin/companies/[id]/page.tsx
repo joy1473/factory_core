@@ -562,6 +562,7 @@ function AiTagExtractor({
   const [result, setResult] = useState<{
     matched: { tagName: string; tagId: string; type: string; confidence: number; alreadyApplied: boolean }[];
     suggested: { tagName: string; keywords: string[] }[];
+    sources?: { name: boolean; memo: boolean; website: boolean; websiteLength: number };
   } | null>(null);
   const [applying, setApplying] = useState<string | null>(null);
   const [creating, setCreating] = useState<string | null>(null);
@@ -733,9 +734,24 @@ function AiTagExtractor({
             </div>
           )}
 
+          {/* Sources info */}
+          {result.sources && (
+            <div className="flex flex-wrap gap-2 text-[10px]">
+              <span className={result.sources.name ? "text-[var(--secondary)]" : "text-gray-600"}>
+                {result.sources.name ? "✅" : "⬜"} 기업명
+              </span>
+              <span className={result.sources.memo ? "text-[var(--secondary)]" : "text-gray-600"}>
+                {result.sources.memo ? "✅" : "⬜"} 메모
+              </span>
+              <span className={result.sources.website ? "text-[var(--secondary)]" : "text-gray-600"}>
+                {result.sources.website ? `✅ 홈페이지 (${result.sources.websiteLength}자)` : "⬜ 홈페이지"}
+              </span>
+            </div>
+          )}
+
           {result.matched.length === 0 && result.suggested.length === 0 && (
             <p className="text-xs text-gray-500">
-              메모에서 태그를 추출할 수 없습니다. 메모를 추가해주세요.
+              태그를 추출할 수 없습니다. 메모를 추가하거나 홈페이지를 먼저 등록해주세요.
             </p>
           )}
         </div>

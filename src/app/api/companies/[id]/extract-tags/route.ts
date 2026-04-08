@@ -93,7 +93,7 @@ export async function POST(
   // 기업 정보 가져오기
   const { data: company } = await supabase
     .from("companies")
-    .select("name, memo, address, company_tags(tag_id)")
+    .select("name, memo, address, website, company_tags(tag_id)")
     .eq("id", id)
     .single();
 
@@ -101,11 +101,36 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  // 분석할 텍스트 조합
+  // 홈페이지에서 텍스트 추출
+  let websiteText = "";
+  if (company.website) {
+    try {
+      const res = await fetch(company.website, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
+        signal: AbortSignal.timeout(8000),
+        redirect: "follow",
+      });
+      if (res.ok) {
+        const html = await res.text();
+        // HTML 태그 제거, 텍스트만 추출
+        websiteText = html
+          .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+          .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+          .replace(/<[^>]+>/g, " ")
+          .replace(/\s+/g, " ")
+          .substring(0, 3000); // 최대 3000자
+      }
+    } catch {
+      // 홈페이지 접근 실패 무시
+    }
+  }
+
+  // 분석할 텍스트 조합 (기업명 + 메모 + 주소 + 홈페이지 텍스트)
   const textToAnalyze = [
     company.name,
     company.memo || "",
     company.address || "",
+    websiteText,
   ].join(" ");
 
   const { matched, suggested } = extractTagsFromText(textToAnalyze);
@@ -151,6 +176,11 @@ export async function POST(
   return NextResponse.json({
     matched: tagsToApply,
     suggested: finalSuggested,
-    analyzedText: textToAnalyze.substring(0, 200),
+    sources: {
+      name: !!company.name,
+      memo: !!company.memo,
+      website: !!websiteText,
+      websiteLength: websiteText.length,
+    },
   });
 }
