@@ -32,7 +32,13 @@ const EXTRA_TAG_SUGGESTIONS: Record<string, string[]> = {
   "건설/플랜트": ["건설", "플랜트", "토목", "시공"],
 };
 
-function extractTagsFromText(text: string): {
+interface DbKeyword {
+  tag_name: string;
+  keyword_type: string;
+  keywords: string[];
+}
+
+function extractTagsFromText(text: string, dbKeywords: DbKeyword[]): {
   matched: { tagName: string; type: "industry" | "size"; confidence: number }[];
   suggested: { tagName: string; keywords: string[] }[];
 } {
@@ -40,41 +46,41 @@ function extractTagsFromText(text: string): {
   const matched: { tagName: string; type: "industry" | "size"; confidence: number }[] = [];
   const suggested: { tagName: string; keywords: string[] }[] = [];
 
-  // 업종 태그 매칭
-  for (const [tagName, keywords] of Object.entries(TAG_KEYWORDS)) {
-    const hits = keywords.filter((kw) => lower.includes(kw));
+  // DB 키워드 우선, 없으면 하드코딩 fallback
+  const industryKw = dbKeywords.length > 0
+    ? dbKeywords.filter(k => k.keyword_type === "industry")
+    : Object.entries(TAG_KEYWORDS).map(([tag_name, keywords]) => ({ tag_name, keyword_type: "industry", keywords }));
+
+  const sizeKw = dbKeywords.length > 0
+    ? dbKeywords.filter(k => k.keyword_type === "size")
+    : Object.entries(SIZE_KEYWORDS).map(([tag_name, keywords]) => ({ tag_name, keyword_type: "size", keywords }));
+
+  const businessKw = dbKeywords.length > 0
+    ? dbKeywords.filter(k => k.keyword_type === "business")
+    : Object.entries(EXTRA_TAG_SUGGESTIONS).map(([tag_name, keywords]) => ({ tag_name, keyword_type: "business", keywords }));
+
+  for (const kw of industryKw) {
+    const hits = kw.keywords.filter((k) => lower.includes(k));
     if (hits.length > 0) {
-      matched.push({
-        tagName,
-        type: "industry",
-        confidence: Math.min(1, hits.length * 0.3 + 0.2),
-      });
+      matched.push({ tagName: kw.tag_name, type: "industry", confidence: Math.min(1, hits.length * 0.3 + 0.2) });
     }
   }
 
-  // 규모 태그 매칭
-  for (const [tagName, keywords] of Object.entries(SIZE_KEYWORDS)) {
-    const hits = keywords.filter((kw) => lower.includes(kw));
+  for (const kw of sizeKw) {
+    const hits = kw.keywords.filter((k) => lower.includes(k));
     if (hits.length > 0) {
-      matched.push({
-        tagName,
-        type: "size",
-        confidence: Math.min(1, hits.length * 0.4),
-      });
+      matched.push({ tagName: kw.tag_name, type: "size", confidence: Math.min(1, hits.length * 0.4) });
     }
   }
 
-  // 추가 태그 제안 (기존 태그에 없는 것)
-  for (const [tagName, keywords] of Object.entries(EXTRA_TAG_SUGGESTIONS)) {
-    const hits = keywords.filter((kw) => lower.includes(kw));
+  for (const kw of businessKw) {
+    const hits = kw.keywords.filter((k) => lower.includes(k));
     if (hits.length > 0) {
-      suggested.push({ tagName, keywords: hits });
+      suggested.push({ tagName: kw.tag_name, keywords: hits });
     }
   }
 
-  // 신뢰도 순 정렬
   matched.sort((a, b) => b.confidence - a.confidence);
-
   return { matched, suggested };
 }
 
@@ -133,7 +139,10 @@ export async function POST(
     websiteText,
   ].join(" ");
 
-  const { matched, suggested } = extractTagsFromText(textToAnalyze);
+  // DB에서 키워드 사전 가져오기
+  const { data: dbKeywords } = await supabase.from("tag_keywords").select("tag_name, keyword_type, keywords");
+
+  const { matched, suggested } = extractTagsFromText(textToAnalyze, dbKeywords || []);
 
   // 기존 태그 목록 가져오기
   const { data: allTags } = await supabase.from("tags").select("id, name, type");
