@@ -65,8 +65,11 @@ export default function PrivacyPage() {
               5. 개인정보 보호책임자
             </h2>
             <p>회사: 조이텍 (JOYTEC)</p>
+            <p>대표: 조은아</p>
             <p>사업자등록번호: 110-11-23776</p>
+            <p>주소: 서울특별시 강서구 양천로49길 39-59, 203호</p>
             <p>이메일: joytec@naver.com</p>
+            <p>전화: 010-2648-6726</p>
           </section>
 
           <p className="text-xs text-gray-600">

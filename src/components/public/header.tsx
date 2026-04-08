@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 const NAV = [
   { href: "/", label: "홈" },
   { href: "/solution", label: "솔루션" },
+  { href: "/about", label: "회사 소개" },
   { href: "/poc", label: "PoC 신청" },
   { href: "/contact", label: "문의" },
 ];

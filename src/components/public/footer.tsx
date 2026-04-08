@@ -51,10 +51,12 @@ export function Footer() {
           {/* Company Info */}
           <div className="text-sm text-gray-500">
             <p className="mb-3 font-semibold text-gray-300">회사 정보</p>
-            <p>조이텍 (JOYTEC)</p>
+            <p className="font-semibold">조이텍 (JOYTEC)</p>
+            <p>대표: 조은아</p>
             <p>사업자등록번호: 110-11-23776</p>
-            <p className="mt-2">서울특별시 강서구</p>
+            <p>주소: 서울특별시 강서구 양천로49길 39-59, 203호</p>
             <p>이메일: joytec@naver.com</p>
+            <p>전화: 010-2648-6726</p>
           </div>
         </div>
 
