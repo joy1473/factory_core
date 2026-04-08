@@ -1,0 +1,313 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Header } from "@/components/public/header";
+import { Footer } from "@/components/public/footer";
+import {
+  Calendar,
+  ExternalLink,
+  Star,
+  Clock,
+  CheckCircle,
+  Send,
+  FileText,
+  Presentation,
+  Briefcase,
+  Package,
+} from "lucide-react";
+
+interface Bid {
+  id: string;
+  title: string;
+  organization: string;
+  field: string;
+  apply_start: string;
+  apply_end: string;
+  status: string;
+  detail_url: string;
+  summary: string;
+  is_featured: boolean;
+}
+
+const STATUS_MAP: Record<string, { label: string; color: string }> = {
+  active: { label: "접수중", color: "#00ff88" },
+  upcoming: { label: "예정", color: "#00d4ff" },
+  closed: { label: "마감", color: "#888888" },
+};
+
+const SERVICE_TYPES = [
+  { value: "proposal", label: "제안서 작성 대행", icon: FileText },
+  { value: "presentation", label: "발표 준비 지원", icon: Presentation },
+  { value: "consulting", label: "사업 컨설팅", icon: Briefcase },
+  { value: "full", label: "전체 대행 (제안서+발표+컨설팅)", icon: Package },
+];
+
+export default function BidsPage() {
+  const [bids, setBids] = useState<Bid[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedBid, setSelectedBid] = useState<Bid | null>(null);
+  const [inquiryForm, setInquiryForm] = useState({
+    company_name: "",
+    contact_name: "",
+    phone: "",
+    email: "",
+    message: "",
+    service_type: "proposal",
+  });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/bids")
+      .then((r) => r.json())
+      .then((d) => {
+        setBids(Array.isArray(d) ? d : []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  async function handleInquiry(e: React.FormEvent) {
+    e.preventDefault();
+    setSending(true);
+    try {
+      await fetch("/api/bids/inquire", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...inquiryForm,
+          bid_id: selectedBid?.id,
+          message: `[${selectedBid?.title}] ${inquiryForm.message}`,
+        }),
+      });
+      setSent(true);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  function daysLeft(dateStr: string) {
+    const diff = Math.ceil(
+      (new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+    );
+    return diff;
+  }
+
+  return (
+    <>
+      <Header />
+      <main className="mx-auto max-w-5xl px-5 py-20">
+        <div className="mb-10 text-center">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--accent)]">
+            Smart Factory Bids
+          </p>
+          <h1 className="mb-4 text-3xl font-bold text-white">
+            스마트공장 지원사업 공고
+          </h1>
+          <p className="mx-auto max-w-lg text-gray-400">
+            정부 스마트공장 지원사업을 확인하고, 제안서 작성부터 발표까지
+            전문 지원을 받으세요.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {bids.map((bid) => {
+              const s = STATUS_MAP[bid.status] || STATUS_MAP.active;
+              const days = daysLeft(bid.apply_end);
+              return (
+                <div
+                  key={bid.id}
+                  className={`rounded-xl border bg-[var(--surface)] p-6 transition ${
+                    bid.is_featured
+                      ? "border-[var(--accent)]/30"
+                      : "border-[var(--border)]"
+                  }`}
+                >
+                  <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      {bid.is_featured && (
+                        <Star size={14} className="text-[var(--accent)]" fill="var(--accent)" />
+                      )}
+                      <span
+                        className="rounded-full px-2 py-0.5 text-xs font-semibold"
+                        style={{
+                          backgroundColor: s.color + "15",
+                          color: s.color,
+                        }}
+                      >
+                        {s.label}
+                      </span>
+                      <span className="rounded bg-[var(--primary)]/10 px-2 py-0.5 text-xs text-[var(--primary)]">
+                        {bid.field}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {bid.organization}
+                      </span>
+                    </div>
+                    {bid.status === "active" && days > 0 && (
+                      <span className="flex items-center gap-1 text-xs text-[var(--accent)]">
+                        <Clock size={12} />
+                        D-{days}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="mb-2 text-lg font-bold text-white">
+                    {bid.title}
+                  </h3>
+                  <p className="mb-3 text-sm text-gray-400">{bid.summary}</p>
+
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
+                    <span className="flex items-center gap-1">
+                      <Calendar size={12} />
+                      {bid.apply_start} ~ {bid.apply_end}
+                    </span>
+                    {bid.detail_url && (
+                      <a
+                        href={bid.detail_url}
+                        target="_blank"
+                        className="flex items-center gap-1 text-[var(--primary)] hover:underline"
+                      >
+                        <ExternalLink size={12} />
+                        원문 보기
+                      </a>
+                    )}
+                    <button
+                      onClick={() => {
+                        setSelectedBid(bid);
+                        setSent(false);
+                      }}
+                      className="ml-auto flex items-center gap-1 rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-bold text-black transition hover:brightness-110"
+                    >
+                      <Send size={12} />
+                      지원 문의
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Inquiry Modal */}
+        {selectedBid && !sent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+            <div className="w-full max-w-lg rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
+              <h3 className="mb-1 text-lg font-bold text-white">지원 문의</h3>
+              <p className="mb-4 text-sm text-[var(--primary)]">
+                {selectedBid.title}
+              </p>
+
+              <form onSubmit={handleInquiry} className="space-y-3">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <input
+                    required
+                    value={inquiryForm.contact_name}
+                    onChange={(e) => setInquiryForm({ ...inquiryForm, contact_name: e.target.value })}
+                    placeholder="담당자명 *"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                  />
+                  <input
+                    value={inquiryForm.company_name}
+                    onChange={(e) => setInquiryForm({ ...inquiryForm, company_name: e.target.value })}
+                    placeholder="회사명"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                  />
+                  <input
+                    value={inquiryForm.phone}
+                    onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
+                    placeholder="연락처"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                  />
+                  <input
+                    value={inquiryForm.email}
+                    onChange={(e) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
+                    placeholder="이메일"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <p className="mb-2 text-xs text-gray-400">서비스 유형</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {SERVICE_TYPES.map((st) => (
+                      <button
+                        key={st.value}
+                        type="button"
+                        onClick={() => setInquiryForm({ ...inquiryForm, service_type: st.value })}
+                        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs transition ${
+                          inquiryForm.service_type === st.value
+                            ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                            : "border-[var(--border)] text-gray-400 hover:border-gray-500"
+                        }`}
+                      >
+                        <st.icon size={14} />
+                        {st.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <textarea
+                  required
+                  rows={3}
+                  value={inquiryForm.message}
+                  onChange={(e) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
+                  placeholder="문의 내용 (업종, 규모, 희망사항 등)"
+                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                />
+
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={sending}
+                    className="flex-1 rounded-lg bg-[var(--primary)] py-2.5 text-sm font-bold text-black hover:brightness-110 disabled:opacity-50"
+                  >
+                    {sending ? "전송 중..." : "문의 보내기"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedBid(null)}
+                    className="rounded-lg border border-[var(--border)] px-4 py-2.5 text-sm text-gray-400 hover:text-white"
+                  >
+                    닫기
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Sent confirmation */}
+        {sent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+            <div className="w-full max-w-sm rounded-xl border border-[var(--secondary)]/30 bg-[var(--surface)] p-8 text-center">
+              <CheckCircle className="mx-auto mb-4 h-12 w-12 text-[var(--secondary)]" />
+              <h3 className="mb-2 text-xl font-bold text-white">접수 완료!</h3>
+              <p className="mb-4 text-sm text-gray-400">
+                빠른 시일 내에 연락드리겠습니다.
+                <br />
+                제안서 작성부터 발표까지 함께 준비합니다.
+              </p>
+              <button
+                onClick={() => {
+                  setSelectedBid(null);
+                  setSent(false);
+                }}
+                className="rounded-lg bg-[var(--primary)] px-6 py-2 text-sm font-bold text-black"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        )}
+      </main>
+      <Footer />
+    </>
+  );
+}

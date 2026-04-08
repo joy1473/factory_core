@@ -8,6 +8,7 @@ const NAV = [
   { href: "/solution", label: "3D 데모" },
   { href: "/why", label: "왜 우리인가" },
   { href: "/pricing", label: "가격" },
+  { href: "/bids", label: "지원사업" },
   { href: "/about", label: "회사 소개" },
   { href: "/contact", label: "문의" },
 ];
