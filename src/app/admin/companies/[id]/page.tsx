@@ -83,11 +83,13 @@ export default function CompanyDetailPage() {
     searchResults: { title: string; url: string }[];
   } | null>(null);
   const [edit, setEdit] = useState({
+    ceo: "",
+    contact_person: "",
+    phone: "",
     email: "",
     website: "",
+    address: "",
     memo: "",
-    phone: "",
-    contact_person: "",
   });
 
   async function handleEnrich() {
@@ -134,11 +136,13 @@ export default function CompanyDetailPage() {
       const data = await res.json();
       setCompany(data);
       setEdit({
+        ceo: data.ceo || "",
+        contact_person: data.contact_person || "",
+        phone: data.phone || "",
         email: data.email || "",
         website: data.website || "",
+        address: data.address || "",
         memo: data.memo || "",
-        phone: data.phone || "",
-        contact_person: data.contact_person || "",
       });
     } finally {
       setLoading(false);
@@ -224,7 +228,13 @@ export default function CompanyDetailPage() {
               <div className="flex items-center gap-3 text-sm">
                 <Building2 size={16} className="text-gray-500" />
                 <span className="text-gray-400">대표자:</span>
-                <span className="text-white">{company.ceo || "-"}</span>
+                <input
+                  value={edit.ceo}
+                  onChange={(e) =>
+                    setEdit({ ...edit, ceo: e.target.value })
+                  }
+                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
+                />
               </div>
               <div className="flex items-center gap-3 text-sm">
                 <User size={16} className="text-gray-500" />
@@ -248,12 +258,16 @@ export default function CompanyDetailPage() {
                   className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
                 />
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <MapPin size={16} className="text-gray-500" />
-                <span className="text-gray-400">주소:</span>
-                <span className="text-white text-xs">
-                  {company.address || "-"}
-                </span>
+              <div className="flex items-center gap-3 text-sm sm:col-span-2">
+                <MapPin size={16} className="shrink-0 text-gray-500" />
+                <span className="shrink-0 text-gray-400">주소:</span>
+                <input
+                  value={edit.address}
+                  onChange={(e) =>
+                    setEdit({ ...edit, address: e.target.value })
+                  }
+                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
+                />
               </div>
             </div>
           </div>
