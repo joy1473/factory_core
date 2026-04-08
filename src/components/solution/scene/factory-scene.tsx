@@ -42,42 +42,39 @@ const scrollState = { progress: 0 };
 // ─── Main Component ───
 export function FactoryScene() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [, forceRender] = useState(0);
+  const [p, setP] = useState(0);
+  const rafRef = useRef<number>(0);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
     function handleScroll() {
-      const scrollTop = window.scrollY;
-      const maxScroll = document.body.scrollHeight - window.innerHeight;
-      scrollState.progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        const scrollTop = window.scrollY;
+        const maxScroll = document.body.scrollHeight - window.innerHeight;
+        const progress = maxScroll > 0 ? scrollTop / maxScroll : 0;
+        scrollState.progress = progress;
+        setP(progress);
+      });
     }
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll();
 
-    // Trigger initial render of overlay
-    const t = setInterval(() => forceRender((n) => n + 1), 100);
-    const t2 = setTimeout(() => clearInterval(t), 2000);
-
     return () => {
       window.removeEventListener("scroll", handleScroll);
-      clearInterval(t);
-      clearTimeout(t2);
+      cancelAnimationFrame(rafRef.current);
     };
   }, []);
 
-  const p = scrollState.progress;
-
   return (
     <div ref={containerRef}>
-      {/* Canvas: fixed background */}
-      <div className="fixed inset-0 z-0">
+      {/* Canvas: fixed background, no pointer events (scroll goes to DOM) */}
+      <div className="pointer-events-none fixed inset-0 z-0">
         <Canvas
           dpr={[1, 1.5]}
           camera={{ position: [12, 10, 12], fov: 50 }}
           gl={{ antialias: false, powerPreference: "high-performance" }}
+          style={{ pointerEvents: "none" }}
         >
           <Suspense fallback={null}>
             <SceneContent />
