@@ -29,11 +29,11 @@ const STICKER_POSITIONS: [number, number, number][] = [
 const KIOSK_POS: [number, number, number] = [6, 0, -3];
 
 const CAMERA_KEYFRAMES = [
-  { pos: new THREE.Vector3(12, 10, 12), target: new THREE.Vector3(0, 0, 0) },
-  { pos: new THREE.Vector3(2, 2.5, 3), target: new THREE.Vector3(-2, 1, 0) },
-  { pos: new THREE.Vector3(5, 3, 6), target: new THREE.Vector3(0, 1, 0) },
-  { pos: new THREE.Vector3(1, 2.5, -2), target: new THREE.Vector3(-5, 1, -3) },
-  { pos: new THREE.Vector3(6, 2, 2), target: new THREE.Vector3(6, 1.5, -3) },
+  { pos: new THREE.Vector3(12, 10, 12), target: new THREE.Vector3(0, 0, 0) },    // 0~20%: 전경
+  { pos: new THREE.Vector3(2, 2.5, 3), target: new THREE.Vector3(-2, 1, 0) },   // 20~40%: 스티커
+  { pos: new THREE.Vector3(5, 3, 6), target: new THREE.Vector3(0, 1, 0) },      // 40~60%: 작업자
+  { pos: new THREE.Vector3(1, 2.5, -2), target: new THREE.Vector3(-5, 1, -3) }, // 60~80%: 이상감지
+  { pos: new THREE.Vector3(8, 2, 0), target: new THREE.Vector3(6, 1.5, -3) },   // 80~100%: 키오스크 정면
 ];
 
 // ─── Shared scroll progress ───
@@ -266,7 +266,7 @@ function ScrollParticles({ from, index }: { from: [number, number, number]; inde
 function ScrollKiosk() {
   const ref = useRef(0);
   useFrame(() => { ref.current = scrollState.progress; });
-  return <KioskScreen position={KIOSK_POS} showReport={ref.current > 0.75} scrollProgress={ref.current} />;
+  return <KioskScreen position={KIOSK_POS} showReport={ref.current > 0.65} scrollProgress={ref.current} />;
 }
 
 // ─── Overlay Section ───

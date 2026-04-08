@@ -116,7 +116,7 @@ const CHAT_MESSAGES = [
 ];
 
 function KioskChat({ progress }: { progress: number }) {
-  const chatProgress = Math.max(0, Math.min(1, (progress - 0.75) / 0.2));
+  const chatProgress = Math.max(0, Math.min(1, (progress - 0.65) / 0.3));
 
   return (
     <div
