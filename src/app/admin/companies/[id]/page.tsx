@@ -269,8 +269,8 @@ export default function CompanyDetailPage() {
                 <RegionSelect
                   sido={edit.sido}
                   sigungu={edit.sigungu}
-                  onSidoChange={(v) => setEdit({ ...edit, sido: v, sigungu: "" })}
-                  onSigunguChange={(v) => setEdit({ ...edit, sigungu: v })}
+                  onSidoChange={(v) => setEdit((prev) => ({ ...prev, sido: v, sigungu: "" }))}
+                  onSigunguChange={(v) => setEdit((prev) => ({ ...prev, sigungu: v }))}
                   size="sm"
                 />
               </div>
