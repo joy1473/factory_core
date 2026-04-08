@@ -60,10 +60,17 @@ export default function BidsPage() {
   const [trackingCode, setTrackingCode] = useState("");
   const [companySuggestions, setCompanySuggestions] = useState<{id:string;name:string;contact_person:string|null;phone:string|null;email:string|null;sido:string;sigungu:string}[]>([]);
   const [showCompanySuggestions, setShowCompanySuggestions] = useState(false);
+  const [matchedBidCompany, setMatchedBidCompany] = useState<string | null>(null);
   const companyDebounce = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   function handleBidCompanyInput(value: string) {
-    setInquiryForm({ ...inquiryForm, company_name: value });
+    // 매칭 후 다른 회사명 입력 시 초기화 (message, service_type 제외)
+    if (matchedBidCompany && value !== matchedBidCompany) {
+      setInquiryForm({ ...inquiryForm, company_name: value, contact_name: "", phone: "", email: "" });
+      setMatchedBidCompany(null);
+    } else {
+      setInquiryForm({ ...inquiryForm, company_name: value });
+    }
     if (companyDebounce.current) clearTimeout(companyDebounce.current);
     if (value.length < 2) { setCompanySuggestions([]); setShowCompanySuggestions(false); return; }
     companyDebounce.current = setTimeout(async () => {
@@ -78,10 +85,11 @@ export default function BidsPage() {
     setInquiryForm({
       ...inquiryForm,
       company_name: c.name,
-      contact_name: inquiryForm.contact_name || c.contact_person || "",
-      phone: inquiryForm.phone || c.phone || "",
-      email: inquiryForm.email || (c.email ? c.email.split("\n")[0] : ""),
+      contact_name: c.contact_person || inquiryForm.contact_name || "",
+      phone: c.phone || inquiryForm.phone || "",
+      email: (c.email ? c.email.split("\n")[0] : "") || inquiryForm.email || "",
     });
+    setMatchedBidCompany(c.name);
     setShowCompanySuggestions(false);
   }
 
