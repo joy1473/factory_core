@@ -56,6 +56,7 @@ export default function BidsPage() {
   });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [trackingCode, setTrackingCode] = useState("");
 
   useEffect(() => {
     fetch("/api/bids")
@@ -71,7 +72,7 @@ export default function BidsPage() {
     e.preventDefault();
     setSending(true);
     try {
-      await fetch("/api/bids/inquire", {
+      const res = await fetch("/api/bids/inquire", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -80,6 +81,8 @@ export default function BidsPage() {
           message: `[${selectedBid?.title}] ${inquiryForm.message}`,
         }),
       });
+      const data = await res.json();
+      setTrackingCode(data.tracking_code || "");
       setSent(true);
     } finally {
       setSending(false);
@@ -289,20 +292,37 @@ export default function BidsPage() {
             <div className="w-full max-w-sm rounded-xl border border-[var(--secondary)]/30 bg-[var(--surface)] p-8 text-center">
               <CheckCircle className="mx-auto mb-4 h-12 w-12 text-[var(--secondary)]" />
               <h3 className="mb-2 text-xl font-bold text-white">접수 완료!</h3>
+              {trackingCode && (
+                <div className="mb-4 rounded-lg bg-[var(--primary)]/10 p-3">
+                  <p className="text-xs text-gray-400">추적 코드</p>
+                  <p className="font-mono text-lg font-bold text-[var(--primary)]">
+                    {trackingCode}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    이 코드로 진행 상태를 조회할 수 있습니다
+                  </p>
+                </div>
+              )}
               <p className="mb-4 text-sm text-gray-400">
                 빠른 시일 내에 연락드리겠습니다.
-                <br />
-                제안서 작성부터 발표까지 함께 준비합니다.
               </p>
-              <button
-                onClick={() => {
-                  setSelectedBid(null);
-                  setSent(false);
-                }}
-                className="rounded-lg bg-[var(--primary)] px-6 py-2 text-sm font-bold text-black"
-              >
-                확인
-              </button>
+              <div className="flex gap-2">
+                <a
+                  href={`/bids/track?code=${trackingCode}`}
+                  className="flex-1 rounded-lg bg-[var(--primary)] px-4 py-2 text-center text-sm font-bold text-black"
+                >
+                  진행 상태 조회
+                </a>
+                <button
+                  onClick={() => {
+                    setSelectedBid(null);
+                    setSent(false);
+                  }}
+                  className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-gray-400"
+                >
+                  닫기
+                </button>
+              </div>
             </div>
           </div>
         )}
