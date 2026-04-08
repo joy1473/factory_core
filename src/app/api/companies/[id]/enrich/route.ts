@@ -1,6 +1,5 @@
 import { createServerSupabase } from "@/lib/supabase/server";
-import { NextRequest, NextResponse } from "next/server";
-import { ddgSearch } from "@/lib/api/ddg-search";
+import { NextResponse } from "next/server";
 
 const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 
@@ -11,7 +10,7 @@ function extractEmails(html: string): string[] {
       matches.filter(
         (e) =>
           !/\.(png|jpg|gif|svg|webp|css|js)$/i.test(e) &&
-          !/(example|sentry|webpack|wixpress|w3\.org|schema\.org|cloudflare|googleapis)/i.test(e)
+          !/(example|sentry|webpack|wixpress|w3\.org|schema\.org|cloudflare|googleapis|noreply)/i.test(e)
       )
     ),
   ];
@@ -22,7 +21,7 @@ const SKIP_DOMAINS = [
   "facebook.com", "youtube.com", "instagram.com", "linkedin.com",
   "twitter.com", "jobkorea.co.kr", "saramin.co.kr", "catch.co.kr",
   "google.com", "duckduckgo.com", "data.go.kr", "kakao.com",
-  "zillinks.com", "remember.co.kr",
+  "zillinks.com", "remember.co.kr", "scribd.com",
 ];
 
 async function fetchPage(url: string): Promise<string> {
@@ -41,7 +40,7 @@ async function fetchPage(url: string): Promise<string> {
 }
 
 export async function POST(
-  request: NextRequest,
+  _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createServerSupabase();
@@ -51,8 +50,6 @@ export async function POST(
   }
 
   const { id } = await params;
-  const body = await request.json().catch(() => ({}));
-  const websiteFromClient = body.website || "";
 
   const { data: company } = await supabase
     .from("companies")
@@ -64,58 +61,83 @@ export async function POST(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  let website = company.website || websiteFromClient;
+  const serperKey = process.env.SERPER_API_KEY;
+  if (!serperKey) {
+    return NextResponse.json({ error: "Serper API not configured" }, { status: 500 });
+  }
+
+  let website = company.website || "";
   let emails: string[] = [];
   let searchResults: { title: string; url: string }[] = [];
 
-  // Step 1: 홈페이지 없으면 DDG 검색 (서버에서 시도)
-  if (!website) {
-    try {
-      const results = await ddgSearch(company.name + " 홈페이지");
-      searchResults = results.slice(0, 5);
+  try {
+    // Step 1: Serper로 Google 검색 → 홈페이지 찾기
+    if (!website) {
+      const res = await fetch("https://google.serper.dev/search", {
+        method: "POST",
+        headers: {
+          "X-API-KEY": serperKey,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          q: company.name + " 홈페이지",
+          gl: "kr",
+          hl: "ko",
+          num: 5,
+        }),
+      });
 
-      for (const item of results.slice(0, 5)) {
-        const isPortal = SKIP_DOMAINS.some((d) => item.url.includes(d));
-        if (!isPortal && item.url.startsWith("http")) {
-          website = item.url;
+      const data = await res.json();
+      const organic = data.organic || [];
+
+      searchResults = organic.map((r: { title: string; link: string }) => ({
+        title: r.title,
+        url: r.link,
+      }));
+
+      for (const item of organic) {
+        const url = item.link as string;
+        const isPortal = SKIP_DOMAINS.some((d) => url.includes(d));
+        if (!isPortal && url.startsWith("http")) {
+          website = url;
           break;
         }
       }
-    } catch {
-      // DDG 검색 실패 (Vercel에서 차단될 수 있음) → 클라이언트에서 재시도
     }
-  }
 
-  // Step 2: 홈페이지에서 이메일 추출
-  if (website && !company.email) {
-    const mainHtml = await fetchPage(website);
-    if (mainHtml) {
-      emails.push(...extractEmails(mainHtml));
+    // Step 2: 홈페이지에서 이메일 추출
+    if (website && !company.email) {
+      const mainHtml = await fetchPage(website);
+      if (mainHtml) {
+        emails.push(...extractEmails(mainHtml));
 
-      try {
-        const baseUrl = new URL(website).origin;
-        for (const path of ["/contact", "/about", "/company", "/intro"]) {
-          const sub = await fetchPage(baseUrl + path);
-          if (sub) emails.push(...extractEmails(sub));
-        }
-      } catch { /* URL parse fail */ }
-      emails = [...new Set(emails)];
+        try {
+          const baseUrl = new URL(website).origin;
+          for (const path of ["/contact", "/about", "/company", "/intro"]) {
+            const sub = await fetchPage(baseUrl + path);
+            if (sub) emails.push(...extractEmails(sub));
+          }
+        } catch { /* URL parse fail */ }
+        emails = [...new Set(emails)];
+      }
     }
-  }
 
-  // Step 3: 저장
-  const updates: Record<string, string> = {};
-  if (website && !company.website) updates.website = website;
-  if (emails.length > 0 && !company.email) updates.email = emails[0];
-  if (Object.keys(updates).length > 0) {
-    updates.updated_at = new Date().toISOString();
-    await supabase.from("companies").update(updates).eq("id", id);
-  }
+    // Step 3: 저장
+    const updates: Record<string, string> = {};
+    if (website && !company.website) updates.website = website;
+    if (emails.length > 0 && !company.email) updates.email = emails[0];
+    if (Object.keys(updates).length > 0) {
+      updates.updated_at = new Date().toISOString();
+      await supabase.from("companies").update(updates).eq("id", id);
+    }
 
-  return NextResponse.json({
-    website: website || null,
-    emails,
-    updated: Object.keys(updates).length > 0,
-    searchResults,
-  });
+    return NextResponse.json({
+      website: website || null,
+      emails,
+      updated: Object.keys(updates).length > 0,
+      searchResults,
+    });
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 });
+  }
 }

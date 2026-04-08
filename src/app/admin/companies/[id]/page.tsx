@@ -90,31 +90,18 @@ export default function CompanyDetailPage() {
 
   async function handleEnrich() {
     if (!company) return;
-    const website = edit.website || "";
-
-    // 홈페이지 URL이 없으면 → 구글 검색 새 창 열기
-    if (!website) {
-      window.open(
-        `https://www.google.com/search?q=${encodeURIComponent(company.name + " 공식 홈페이지")}`,
-        "_blank"
-      );
-      return;
-    }
-
-    // 홈페이지 URL이 있으면 → 서버에서 이메일 추출
     setEnriching(true);
     setEnrichResult(null);
 
     try {
+      // Serper로 자동 검색 + 이메일 추출 (원클릭)
       const res = await fetch(`/api/companies/${id}/enrich`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ website }),
       });
       const data = await res.json();
 
       setEnrichResult({
-        website: data.website || website || null,
+        website: data.website || null,
         emails: data.emails || [],
         searchResults: data.searchResults || [],
       });
@@ -412,9 +399,7 @@ export default function CompanyDetailPage() {
               <Sparkles size={14} /> 자동 찾기
             </h2>
             <p className="mb-3 text-xs text-gray-500">
-              {edit.website
-                ? "홈페이지에서 이메일을 자동 추출합니다"
-                : "① 홈페이지 URL을 아래에 입력하거나 검색으로 찾으세요"}
+              Google 검색 → 홈페이지 찾기 → 이메일 자동 추출
             </p>
             <button
               onClick={handleEnrich}
@@ -424,17 +409,12 @@ export default function CompanyDetailPage() {
               {enriching ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  이메일 추출 중...
-                </>
-              ) : edit.website ? (
-                <>
-                  <Sparkles size={16} />
-                  이메일 자동 추출
+                  검색 + 추출 중...
                 </>
               ) : (
                 <>
-                  <Globe size={16} />
-                  구글에서 홈페이지 검색
+                  <Sparkles size={16} />
+                  홈페이지 + 이메일 자동 찾기
                 </>
               )}
             </button>
