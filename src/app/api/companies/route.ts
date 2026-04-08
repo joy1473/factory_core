@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   if (sido) query = query.eq("sido", sido);
   if (sigungu) query = query.eq("sigungu", sigungu);
   if (search) query = query.or(
-    `name.ilike.%${search}%,address.ilike.%${search}%,contact_person.ilike.%${search}%,ceo.ilike.%${search}%`
+    `name.ilike.%${search}%,address.ilike.%${search}%,contact_person.ilike.%${search}%,ceo.ilike.%${search}%,email.ilike.%${search}%,website.ilike.%${search}%,memo.ilike.%${search}%,phone.ilike.%${search}%`
   );
 
   query = query.order("name").range(offset, offset + limit - 1);

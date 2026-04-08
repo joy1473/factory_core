@@ -38,9 +38,8 @@ export async function POST(request: Request) {
     if (byName) companyId = byName.id;
   }
 
-  // 2. 없으면 신규 기업 자동 생성
+  // 2. 없으면 신규 기업 자동 생성 + "신규" 태그 부여
   if (!companyId && company_name) {
-    // RLS 때문에 insert 안 될 수 있음 — 무시하고 진행
     try {
       const { data: newCompany } = await supabase
         .from("companies")
@@ -49,15 +48,29 @@ export async function POST(request: Request) {
           contact_person: contact_name,
           phone: phone || null,
           email: email || null,
-          memo: `[자동 생성] 지원사업 문의를 통해 등록`,
+          memo: `[신규] 지원사업 문의를 통해 자동 등록`,
           sido: "기타",
           sigungu: "기타",
         })
         .select("id")
         .single();
-      if (newCompany) companyId = newCompany.id;
+      if (newCompany) {
+        companyId = newCompany.id;
+        // "신규" 태그 자동 부여
+        const { data: newTag } = await supabase
+          .from("tags")
+          .select("id")
+          .eq("name", "신규")
+          .single();
+        if (newTag) {
+          await supabase.from("company_tags").upsert({
+            company_id: newCompany.id,
+            tag_id: newTag.id,
+          }, { onConflict: "company_id,tag_id" });
+        }
+      }
     } catch {
-      // RLS block — company not created, continue without
+      // RLS block — continue without
     }
   }
 

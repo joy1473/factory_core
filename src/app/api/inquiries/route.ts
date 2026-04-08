@@ -63,6 +63,47 @@ export async function POST(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
+    // 신규 기업 자동 등록 (기존 DB에 없는 회사)
+    if (company_name) {
+      const { data: existing } = await supabase
+        .from("companies")
+        .select("id")
+        .or(`name.ilike.%${company_name}%,phone.eq.${phone || "NONE"}`)
+        .limit(1)
+        .single();
+
+      if (!existing) {
+        try {
+          const { data: newCo } = await supabase
+            .from("companies")
+            .insert({
+              name: company_name,
+              contact_person: contact_name,
+              phone: phone || null,
+              email: email || null,
+              memo: `[신규] ${type === "poc" ? "PoC" : "일반"} 문의를 통해 자동 등록`,
+              sido: "기타",
+              sigungu: "기타",
+            })
+            .select("id")
+            .single();
+          if (newCo) {
+            const { data: newTag } = await supabase
+              .from("tags")
+              .select("id")
+              .eq("name", "신규")
+              .single();
+            if (newTag) {
+              await supabase.from("company_tags").upsert({
+                company_id: newCo.id,
+                tag_id: newTag.id,
+              }, { onConflict: "company_id,tag_id" });
+            }
+          }
+        } catch { /* RLS block */ }
+      }
+    }
+
     const { data, error } = await supabase
       .from("inquiries")
       .insert({
