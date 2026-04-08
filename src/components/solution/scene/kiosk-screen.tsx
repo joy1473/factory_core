@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
 interface KioskScreenProps {
@@ -10,13 +11,13 @@ interface KioskScreenProps {
   scrollProgress: number;
 }
 
-export function KioskScreen({ position, showReport }: KioskScreenProps) {
+export function KioskScreen({ position, showReport, scrollProgress }: KioskScreenProps) {
   const screenRef = useRef<THREE.Mesh>(null);
 
   useFrame(() => {
     if (screenRef.current) {
       const mat = screenRef.current.material as THREE.MeshStandardMaterial;
-      mat.emissiveIntensity = showReport ? 0.3 : 0.05;
+      mat.emissiveIntensity = 0; // No emissive = no bloom on screen
     }
   });
 
@@ -37,80 +38,66 @@ export function KioskScreen({ position, showReport }: KioskScreenProps) {
       {/* Screen frame */}
       <mesh position={[0, 1.8, 0]}>
         <boxGeometry args={[2.8, 2, 0.08]} />
-        <meshStandardMaterial color="#111" metalness={0.8} roughness={0.3} />
+        <meshStandardMaterial color="#222" metalness={0.8} roughness={0.3} />
       </mesh>
 
-      {/* Screen display — dark, no bloom */}
+      {/* Screen surface — completely dark, emissive 0 to avoid bloom */}
       <mesh ref={screenRef} position={[0, 1.8, 0.045]}>
         <planeGeometry args={[2.6, 1.8]} />
         <meshStandardMaterial
-          color="#0a1628"
-          emissive="#0a1628"
-          emissiveIntensity={0.05}
+          color="#000000"
+          emissive="#000000"
+          emissiveIntensity={0}
+          toneMapped={false}
         />
       </mesh>
 
-      {/* Subtle edge glow */}
-      <pointLight
-        color="#2244aa"
-        intensity={showReport ? 0.3 : 0.05}
-        distance={2}
-        position={[0, 1.8, 0.2]}
-      />
+      {/* Html chat UI on screen */}
+      {showReport && (
+        <Html
+          position={[0, 1.8, 0.05]}
+          transform
+          distanceFactor={2.5}
+          zIndexRange={[100, 0]}
+          style={{ pointerEvents: "none" }}
+        >
+          <KioskChat progress={scrollProgress} />
+        </Html>
+      )}
     </group>
   );
 }
 
-// Export chat component for DOM overlay use
-export { KioskChatOverlay };
-
-function KioskChatOverlay({ progress }: { progress: number }) {
+// Re-export for DOM fallback if needed
+export function KioskChatOverlay({ progress }: { progress: number }) {
   const chatProgress = Math.max(0, Math.min(1, (progress - 0.65) / 0.3));
   if (chatProgress <= 0) return null;
-
   return (
-    <div
-      style={{
-        opacity: Math.min(1, chatProgress * 3),
-        transition: "opacity 0.3s",
-      }}
-    >
+    <div style={{ opacity: Math.min(1, chatProgress * 3) }}>
       <KioskChat progress={progress} />
     </div>
   );
 }
 
-// ─── Chat-style Kiosk UI ───
+// ─── Chat Messages ───
 const CHAT_MESSAGES = [
-  {
-    from: "user" as const,
-    text: "오늘 생산 현황 알려줘",
-    at: 0.0,
-  },
+  { from: "user" as const, text: "오늘 생산 현황 알려줘", at: 0.0 },
   {
     from: "ai" as const,
-    text: "CNC-1, CNC-2, 프레스 모두 정상 가동 중입니다. 사출기 #4에서 이상 징후가 감지되었습니다.",
+    text: "CNC-1, CNC-2, 프레스 정상 가동 중입니다.\n사출기 #4에서 이상 징후가 감지되었습니다.",
     at: 0.15,
   },
-  {
-    from: "user" as const,
-    text: "사출기 상태 자세히",
-    at: 0.35,
-  },
+  { from: "user" as const, text: "사출기 상태 자세히", at: 0.35 },
   {
     from: "ai" as const,
-    text: "⚠ 사출기 #4 베어링 마모 감지\n위험도: 82%\n권고: 3일 내 점검 필요\n예상 다운타임: 4시간",
+    text: "⚠ 사출기 #4 베어링 마모 감지\n위험도: 82%\n권고: 3일 내 점검 필요",
     alert: true,
     at: 0.5,
   },
-  {
-    from: "user" as const,
-    text: "보고서 만들어줘",
-    at: 0.7,
-  },
+  { from: "user" as const, text: "보고서 만들어줘", at: 0.7 },
   {
     from: "ai" as const,
-    text: "✅ 일일 설비 점검 보고서가 생성되었습니다. (0.3초)",
+    text: "✅ 일일 설비 점검 보고서 생성 완료 (0.3초)",
     at: 0.85,
     actions: true,
   },
@@ -124,13 +111,14 @@ function KioskChat({ progress }: { progress: number }) {
       style={{
         background: "#f5f7fa",
         fontFamily: "-apple-system, 'Pretendard', sans-serif",
-        fontSize: "11px",
-        width: "350px",
-        height: "260px",
-        borderRadius: "8px",
+        fontSize: "12px",
+        width: "380px",
+        height: "270px",
+        borderRadius: "10px",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
       }}
     >
       {/* Header */}
@@ -138,41 +126,41 @@ function KioskChat({ progress }: { progress: number }) {
         style={{
           background: "#0066ff",
           color: "#fff",
-          padding: "6px 10px",
+          padding: "8px 12px",
           display: "flex",
           alignItems: "center",
           gap: "6px",
-          fontSize: "10px",
+          fontSize: "12px",
           fontWeight: "bold",
         }}
       >
-        <span style={{ fontSize: "12px" }}>🏭</span>
+        <span style={{ fontSize: "14px" }}>🏭</span>
         Factory Guardian AI
         <span
           style={{
             marginLeft: "auto",
-            width: "6px",
-            height: "6px",
+            width: "7px",
+            height: "7px",
             borderRadius: "50%",
             background: "#00ff88",
           }}
         />
       </div>
 
-      {/* Chat messages */}
+      {/* Messages */}
       <div
         style={{
           flex: 1,
-          padding: "6px 8px",
+          padding: "8px 10px",
           overflowY: "hidden",
           display: "flex",
           flexDirection: "column",
-          gap: "4px",
+          gap: "5px",
         }}
       >
         {CHAT_MESSAGES.map((msg, i) => {
           if (chatProgress < msg.at) return null;
-          const opacity = Math.min(1, (chatProgress - msg.at) / 0.1);
+          const opacity = Math.min(1, (chatProgress - msg.at) / 0.08);
 
           if (msg.from === "user") {
             return (
@@ -182,11 +170,10 @@ function KioskChat({ progress }: { progress: number }) {
                   alignSelf: "flex-end",
                   background: "#0066ff",
                   color: "#fff",
-                  padding: "4px 8px",
-                  borderRadius: "8px 8px 2px 8px",
-                  maxWidth: "70%",
+                  padding: "5px 10px",
+                  borderRadius: "10px 10px 2px 10px",
+                  maxWidth: "65%",
                   opacity,
-                  fontSize: "9px",
                 }}
               >
                 {msg.text}
@@ -202,106 +189,74 @@ function KioskChat({ progress }: { progress: number }) {
                 background: msg.alert ? "#fff0f0" : "#fff",
                 border: msg.alert ? "1px solid #ffcccc" : "1px solid #e8e8e8",
                 color: "#333",
-                padding: "5px 8px",
-                borderRadius: "8px 8px 8px 2px",
+                padding: "6px 10px",
+                borderRadius: "10px 10px 10px 2px",
                 maxWidth: "80%",
                 opacity,
-                fontSize: "9px",
-                lineHeight: "1.4",
+                lineHeight: "1.5",
                 whiteSpace: "pre-line",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "3px", marginBottom: "2px" }}>
-                <span style={{ fontSize: "8px", background: "#0066ff", color: "#fff", borderRadius: "3px", padding: "1px 3px", fontWeight: "bold" }}>
+              <div style={{ display: "flex", gap: "4px", marginBottom: "3px" }}>
+                <span
+                  style={{
+                    fontSize: "9px",
+                    background: "#0066ff",
+                    color: "#fff",
+                    borderRadius: "3px",
+                    padding: "1px 4px",
+                    fontWeight: "bold",
+                  }}
+                >
                   AI
                 </span>
               </div>
               {msg.text}
-
-              {/* Action buttons for last message */}
               {msg.actions && chatProgress > 0.9 && (
-                <div style={{ display: "flex", gap: "3px", marginTop: "4px" }}>
-                  <div
-                    style={{
-                      padding: "3px 6px",
-                      background: "#0066ff",
-                      color: "#fff",
-                      borderRadius: "4px",
-                      fontSize: "7px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    📄 PDF
-                  </div>
-                  <div
-                    style={{
-                      padding: "3px 6px",
-                      background: "#ff6600",
-                      color: "#fff",
-                      borderRadius: "4px",
-                      fontSize: "7px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    🔧 정비요청
-                  </div>
-                  <div
-                    style={{
-                      padding: "3px 6px",
-                      background: "#22cc66",
-                      color: "#fff",
-                      borderRadius: "4px",
-                      fontSize: "7px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    📱 알림전송
-                  </div>
+                <div style={{ display: "flex", gap: "4px", marginTop: "5px" }}>
+                  {[
+                    { label: "📄 PDF", bg: "#0066ff" },
+                    { label: "🔧 정비요청", bg: "#ff6600" },
+                    { label: "📱 알림", bg: "#22cc66" },
+                  ].map((btn) => (
+                    <div
+                      key={btn.label}
+                      style={{
+                        padding: "3px 8px",
+                        background: btn.bg,
+                        color: "#fff",
+                        borderRadius: "4px",
+                        fontSize: "10px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {btn.label}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
           );
         })}
-
-        {/* Typing indicator */}
-        {chatProgress > 0.1 && chatProgress < 0.85 && (
-          <div
-            style={{
-              alignSelf: "flex-start",
-              background: "#fff",
-              border: "1px solid #e8e8e8",
-              padding: "4px 10px",
-              borderRadius: "8px",
-              fontSize: "10px",
-              color: "#999",
-              display: "flex",
-              gap: "2px",
-            }}
-          >
-            <span style={{ animation: "pulse 1s infinite" }}>●</span>
-            <span style={{ animation: "pulse 1s infinite 0.2s" }}>●</span>
-            <span style={{ animation: "pulse 1s infinite 0.4s" }}>●</span>
-          </div>
-        )}
       </div>
 
-      {/* Input bar */}
+      {/* Input */}
       <div
         style={{
           borderTop: "1px solid #e0e0e0",
-          padding: "5px 8px",
+          padding: "6px 10px",
           display: "flex",
-          gap: "4px",
+          gap: "6px",
           background: "#fff",
         }}
       >
         <div
           style={{
             flex: 1,
-            padding: "4px 8px",
+            padding: "5px 10px",
             background: "#f0f0f0",
-            borderRadius: "12px",
-            fontSize: "8px",
+            borderRadius: "14px",
+            fontSize: "11px",
             color: "#999",
           }}
         >
@@ -309,14 +264,16 @@ function KioskChat({ progress }: { progress: number }) {
         </div>
         <div
           style={{
-            width: "20px",
-            height: "20px",
+            width: "24px",
+            height: "24px",
             background: "#0066ff",
             borderRadius: "50%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: "10px",
+            color: "#fff",
+            fontSize: "12px",
+            fontWeight: "bold",
           }}
         >
           ↑

@@ -8,7 +8,7 @@ import { FactoryFloor } from "./factory-floor";
 import { Equipment } from "./equipment";
 import { IoTSticker } from "./iot-sticker";
 import { Worker } from "./worker";
-import { KioskScreen, KioskChatOverlay } from "./kiosk-screen";
+import { KioskScreen } from "./kiosk-screen";
 import { DataParticles, DustParticles } from "./data-particles";
 
 // ─── Config ───
@@ -80,8 +80,8 @@ export function FactoryScene() {
             <SceneContent />
             <EffectComposer>
               <Bloom
-                intensity={1.5}
-                luminanceThreshold={0.3}
+                intensity={1.2}
+                luminanceThreshold={0.9}
                 luminanceSmoothing={0.9}
                 mipmapBlur
               />
@@ -144,19 +144,6 @@ export function FactoryScene() {
             위험 확률 82% · 3일 내 점검 권고
           </p>
         </OverlaySection>
-
-        {/* Kiosk Chat UI — DOM overlay at bottom right */}
-        <div
-          className="fixed bottom-6 right-6 z-20 md:bottom-10 md:right-10"
-          style={{
-            opacity: p > 0.65 ? Math.min(1, (p - 0.65) / 0.1) : 0,
-            transform: p > 0.65 ? "translateY(0)" : "translateY(30px)",
-            transition: "opacity 0.5s, transform 0.5s",
-            pointerEvents: p > 0.7 ? "auto" : "none",
-          }}
-        >
-          <KioskChatOverlay progress={p} />
-        </div>
 
         {/* CTA at very end */}
         <OverlaySection top="420vh" align="center" progress={p} index={4}>
