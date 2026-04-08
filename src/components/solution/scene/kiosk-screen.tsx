@@ -2,7 +2,6 @@
 
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
 interface KioskScreenProps {
@@ -11,13 +10,13 @@ interface KioskScreenProps {
   scrollProgress: number;
 }
 
-export function KioskScreen({ position, showReport, scrollProgress }: KioskScreenProps) {
+export function KioskScreen({ position, showReport }: KioskScreenProps) {
   const screenRef = useRef<THREE.Mesh>(null);
 
   useFrame(() => {
     if (screenRef.current) {
       const mat = screenRef.current.material as THREE.MeshStandardMaterial;
-      mat.emissiveIntensity = showReport ? 0.5 : 0.2;
+      mat.emissiveIntensity = showReport ? 0.3 : 0.05;
     }
   });
 
@@ -41,40 +40,43 @@ export function KioskScreen({ position, showReport, scrollProgress }: KioskScree
         <meshStandardMaterial color="#111" metalness={0.8} roughness={0.3} />
       </mesh>
 
-      {/* Screen display — dark when chat shows */}
+      {/* Screen display — dark, no bloom */}
       <mesh ref={screenRef} position={[0, 1.8, 0.045]}>
         <planeGeometry args={[2.6, 1.8]} />
         <meshStandardMaterial
-          color={showReport ? "#111111" : "#222222"}
-          emissive={showReport ? "#112244" : "#111122"}
-          emissiveIntensity={0.1}
+          color="#0a1628"
+          emissive="#0a1628"
+          emissiveIntensity={0.05}
         />
       </mesh>
 
-      {/* HTML overlay on screen */}
-      {showReport && (
-        <Html
-          position={[0, 1.8, 0.055]}
-          transform
-          distanceFactor={3}
-          style={{
-            pointerEvents: "none",
-          }}
-        >
-          <div style={{ width: "350px", height: "260px" }}>
-            <KioskChat progress={scrollProgress} />
-          </div>
-        </Html>
-      )}
-
-      {/* Screen glow */}
+      {/* Subtle edge glow */}
       <pointLight
-        color={showReport ? "#4488ff" : "#111122"}
-        intensity={showReport ? 0.5 : 0.1}
+        color="#2244aa"
+        intensity={showReport ? 0.3 : 0.05}
         distance={2}
-        position={[0, 1.8, 0.3]}
+        position={[0, 1.8, 0.2]}
       />
     </group>
+  );
+}
+
+// Export chat component for DOM overlay use
+export { KioskChatOverlay };
+
+function KioskChatOverlay({ progress }: { progress: number }) {
+  const chatProgress = Math.max(0, Math.min(1, (progress - 0.65) / 0.3));
+  if (chatProgress <= 0) return null;
+
+  return (
+    <div
+      style={{
+        opacity: Math.min(1, chatProgress * 3),
+        transition: "opacity 0.3s",
+      }}
+    >
+      <KioskChat progress={progress} />
+    </div>
   );
 }
 

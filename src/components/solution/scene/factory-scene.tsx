@@ -8,7 +8,7 @@ import { FactoryFloor } from "./factory-floor";
 import { Equipment } from "./equipment";
 import { IoTSticker } from "./iot-sticker";
 import { Worker } from "./worker";
-import { KioskScreen } from "./kiosk-screen";
+import { KioskScreen, KioskChatOverlay } from "./kiosk-screen";
 import { DataParticles, DustParticles } from "./data-particles";
 
 // ─── Config ───
@@ -145,16 +145,31 @@ export function FactoryScene() {
           </p>
         </OverlaySection>
 
-        <OverlaySection top="410vh" align="center" progress={p} index={4}>
+        {/* Kiosk Chat UI — DOM overlay at bottom right */}
+        <div
+          className="fixed bottom-6 right-6 z-20 md:bottom-10 md:right-10"
+          style={{
+            opacity: p > 0.65 ? Math.min(1, (p - 0.65) / 0.1) : 0,
+            transform: p > 0.65 ? "translateY(0)" : "translateY(30px)",
+            transition: "opacity 0.5s, transform 0.5s",
+            pointerEvents: p > 0.7 ? "auto" : "none",
+          }}
+        >
+          <KioskChatOverlay progress={p} />
+        </div>
+
+        {/* CTA at very end */}
+        <OverlaySection top="420vh" align="center" progress={p} index={4}>
           <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
-            보고서 자동 생성
+            대화 한 마디로<br />
+            <span className="text-[#00d4ff]">공장이 달라집니다</span>
           </h2>
           <p className="mb-2 text-base text-gray-400 md:text-lg">
-            작성 시간{" "}
+            보고서 작성 시간{" "}
             <span className="text-2xl font-black text-[#00ff41]">80%</span> 단축
           </p>
           <p className="mb-6 text-gray-500">
-            Excel 수작업 → AI가 0.3초 만에 자동 생성
+            AI 공장장에게 물어보세요. 바로 답합니다.
           </p>
           <a
             href="/poc"
