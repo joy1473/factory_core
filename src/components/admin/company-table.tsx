@@ -152,18 +152,21 @@ export function CompanyTable({
                 <td className="p-3">
                   <div className="flex flex-col gap-1">
                     {c.website ? (
-                      <a
-                        href={c.website}
-                        target="_blank"
-                        className="flex items-center gap-1 text-xs text-[var(--primary)] hover:underline"
-                        title={c.website}
-                      >
-                        <Globe size={12} />
-                        <span className="max-w-[140px] truncate">
-                          {c.website.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
-                        </span>
-                        <ExternalLink size={10} className="shrink-0 opacity-50" />
-                      </a>
+                      c.website.split(/[\n,;]+/).filter(Boolean).slice(0, 2).map((w, i) => (
+                        <a
+                          key={i}
+                          href={w.trim().startsWith("http") ? w.trim() : `https://${w.trim()}`}
+                          target="_blank"
+                          className="flex items-center gap-1 text-xs text-[var(--primary)] hover:underline"
+                          title={w.trim()}
+                        >
+                          <Globe size={12} />
+                          <span className="max-w-[140px] truncate">
+                            {w.trim().replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                          </span>
+                          <ExternalLink size={10} className="shrink-0 opacity-50" />
+                        </a>
+                      ))
                     ) : (
                       <button
                         onClick={() =>
@@ -179,13 +182,16 @@ export function CompanyTable({
                       </button>
                     )}
                     {c.email ? (
-                      <a
-                        href={`mailto:${c.email}`}
-                        className="flex items-center gap-1 text-xs text-[var(--secondary)] hover:underline"
-                      >
-                        <Mail size={12} />
-                        <span className="max-w-[140px] truncate">{c.email}</span>
-                      </a>
+                      c.email.split(/[\n,;]+/).filter(Boolean).slice(0, 2).map((e, i) => (
+                        <a
+                          key={i}
+                          href={`mailto:${e.trim()}`}
+                          className="flex items-center gap-1 text-xs text-[var(--secondary)] hover:underline"
+                        >
+                          <Mail size={12} />
+                          <span className="max-w-[140px] truncate">{e.trim()}</span>
+                        </a>
+                      ))
                     ) : (
                       <button
                         onClick={() =>

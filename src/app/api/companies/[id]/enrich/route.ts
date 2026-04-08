@@ -122,10 +122,12 @@ export async function POST(
       }
     }
 
-    // Step 3: 저장
+    // Step 3: 저장 (여러 이메일은 줄바꿈으로 구분)
     const updates: Record<string, string> = {};
     if (website && !company.website) updates.website = website;
-    if (emails.length > 0 && !company.email) updates.email = emails[0];
+    if (emails.length > 0 && !company.email) {
+      updates.email = emails.slice(0, 5).join("\n"); // 최대 5개
+    }
     if (Object.keys(updates).length > 0) {
       updates.updated_at = new Date().toISOString();
       await supabase.from("companies").update(updates).eq("id", id);

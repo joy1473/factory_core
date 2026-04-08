@@ -265,30 +265,63 @@ export default function CompanyDetailPage() {
             </h2>
             <div className="space-y-3">
               <div>
-                <label className="mb-1 flex items-center gap-2 text-xs text-gray-500">
-                  <Mail size={12} /> 이메일
+                <label className="mb-1 flex items-center justify-between text-xs text-gray-500">
+                  <span className="flex items-center gap-2"><Mail size={12} /> 이메일</span>
+                  <span className="text-[10px] text-gray-600">줄바꿈으로 여러 개 입력</span>
                 </label>
-                <input
+                <textarea
                   value={edit.email}
                   onChange={(e) =>
                     setEdit({ ...edit, email: e.target.value })
                   }
+                  rows={Math.max(1, (edit.email || "").split("\n").length)}
                   placeholder="info@company.com"
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                 />
+                {/* Email links */}
+                {edit.email && (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {edit.email.split(/[\n,;]+/).filter(Boolean).map((e, i) => (
+                      <a
+                        key={i}
+                        href={`mailto:${e.trim()}`}
+                        className="rounded bg-[var(--primary)]/10 px-2 py-0.5 text-[10px] text-[var(--primary)] hover:underline"
+                      >
+                        {e.trim()}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
-                <label className="mb-1 flex items-center gap-2 text-xs text-gray-500">
-                  <Globe size={12} /> 홈페이지
+                <label className="mb-1 flex items-center justify-between text-xs text-gray-500">
+                  <span className="flex items-center gap-2"><Globe size={12} /> 홈페이지</span>
+                  <span className="text-[10px] text-gray-600">줄바꿈으로 여러 개 입력</span>
                 </label>
-                <input
+                <textarea
                   value={edit.website}
                   onChange={(e) =>
                     setEdit({ ...edit, website: e.target.value })
                   }
+                  rows={Math.max(1, (edit.website || "").split("\n").length)}
                   placeholder="https://company.com"
-                  className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                 />
+                {/* Website links */}
+                {edit.website && (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {edit.website.split(/[\n,;]+/).filter(Boolean).map((w, i) => (
+                      <a
+                        key={i}
+                        href={w.trim().startsWith("http") ? w.trim() : `https://${w.trim()}`}
+                        target="_blank"
+                        className="rounded bg-[var(--secondary)]/10 px-2 py-0.5 text-[10px] text-[var(--secondary)] hover:underline"
+                      >
+                        {w.trim().replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "")}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="mb-1 text-xs text-gray-500">메모</label>
