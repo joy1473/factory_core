@@ -5,10 +5,10 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
 const NAV = [
-  { href: "/", label: "홈" },
-  { href: "/solution", label: "솔루션" },
+  { href: "/solution", label: "3D 데모" },
+  { href: "/why", label: "왜 우리인가" },
+  { href: "/pricing", label: "가격" },
   { href: "/about", label: "회사 소개" },
-  { href: "/poc", label: "PoC 신청" },
   { href: "/contact", label: "문의" },
 ];
 
