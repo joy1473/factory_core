@@ -28,6 +28,7 @@ interface InquiryItem {
   created_at: string;
   updated_at: string | null;
   bid_title?: string;
+  company_id?: string | null;
 }
 
 const STATUS_OPTIONS = [
@@ -59,6 +60,7 @@ export default function InquiriesPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [companyPanelId, setCompanyPanelId] = useState<string | null>(null);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
@@ -104,6 +106,7 @@ export default function InquiriesPage() {
               created_at: d.created_at as string,
               updated_at: d.updated_at as string | null,
               bid_title: (d.bids as Record<string, string>)?.title,
+              company_id: d.company_id as string | null,
             }))
           : []),
       ];
@@ -172,9 +175,18 @@ export default function InquiriesPage() {
                 setExpandedId(expandedId === item.id ? null : item.id)
               }
               onUpdate={fetchAll}
+              onCompanyClick={(companyId) => setCompanyPanelId(companyId)}
             />
           ))}
         </div>
+      )}
+
+      {/* Company detail slide panel */}
+      {companyPanelId && (
+        <CompanySlidePanel
+          companyId={companyPanelId}
+          onClose={() => setCompanyPanelId(null)}
+        />
       )}
     </div>
   );
@@ -185,11 +197,13 @@ function InquiryCard({
   expanded,
   onToggle,
   onUpdate,
+  onCompanyClick,
 }: {
   item: InquiryItem;
   expanded: boolean;
   onToggle: () => void;
   onUpdate: () => void;
+  onCompanyClick: (companyId: string) => void;
 }) {
   const [status, setStatus] = useState(item.status);
   const [note, setNote] = useState(item.admin_note || "");
@@ -259,9 +273,15 @@ function InquiryCard({
             {item.contact_name}
           </span>
           {item.company_name && (
-            <span className="text-sm text-gray-400">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (item.company_id) onCompanyClick(item.company_id);
+              }}
+              className={`text-sm ${item.company_id ? "text-[var(--primary)] hover:underline" : "text-gray-400"}`}
+            >
               ({item.company_name})
-            </span>
+            </button>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -359,5 +379,136 @@ function InquiryCard({
         </div>
       )}
     </div>
+  );
+}
+
+// ─── Company Slide Panel ───
+interface CompanyDetail {
+  id: string;
+  name: string;
+  ceo: string | null;
+  contact_person: string | null;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  address: string | null;
+  sido: string;
+  sigungu: string;
+  memo: string | null;
+  source_id: number | null;
+  created_at: string;
+  updated_at: string;
+  company_tags: { tag_id: string; tags: { name: string; color: string; type: string } | null }[];
+}
+
+function CompanySlidePanel({
+  companyId,
+  onClose,
+}: {
+  companyId: string;
+  onClose: () => void;
+}) {
+  const [company, setCompany] = useState<CompanyDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch(`/api/companies/${companyId}`)
+      .then((r) => r.json())
+      .then((d) => d.name && setCompany(d))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [companyId]);
+
+  const fields = company
+    ? [
+        { label: "기업명", value: company.name },
+        { label: "대표자", value: company.ceo },
+        { label: "담당자", value: company.contact_person },
+        { label: "연락처", value: company.phone, href: company.phone ? `tel:${company.phone}` : undefined },
+        { label: "이메일", value: company.email, href: company.email ? `mailto:${company.email.split("\n")[0]}` : undefined },
+        { label: "홈페이지", value: company.website, href: company.website?.split("\n")[0] },
+        { label: "시도", value: company.sido },
+        { label: "시군구", value: company.sigungu },
+        { label: "주소", value: company.address },
+        { label: "메모", value: company.memo },
+        { label: "등록일", value: company.created_at ? new Date(company.created_at).toLocaleDateString("ko-KR") : null },
+        { label: "수정일", value: company.updated_at ? new Date(company.updated_at).toLocaleDateString("ko-KR") : null },
+      ]
+    : [];
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
+      <div className="fixed bottom-0 right-0 top-0 z-50 w-full max-w-md overflow-y-auto border-l border-[var(--border)] bg-[var(--surface)] shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-5 py-4">
+          <h3 className="text-base font-bold text-white">기업 상세 정보</h3>
+          <div className="flex gap-2">
+            {company && (
+              <a
+                href={`/admin/companies/${companyId}`}
+                className="rounded-lg border border-[var(--border)] px-3 py-1 text-xs text-gray-400 hover:text-[var(--primary)]"
+              >
+                전체 보기 →
+              </a>
+            )}
+            <button
+              onClick={onClose}
+              className="rounded-lg border border-[var(--border)] px-3 py-1 text-xs text-gray-400 hover:text-white"
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
+          </div>
+        ) : !company ? (
+          <div className="p-5 text-center text-gray-500">기업 정보를 찾을 수 없습니다</div>
+        ) : (
+          <div className="p-5">
+            {company.company_tags?.length > 0 && (
+              <div className="mb-4 flex flex-wrap gap-1">
+                {company.company_tags.map((ct) =>
+                  ct.tags ? (
+                    <span
+                      key={ct.tag_id}
+                      className="rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                      style={{ backgroundColor: ct.tags.color + "20", color: ct.tags.color }}
+                    >
+                      {ct.tags.name}
+                    </span>
+                  ) : null
+                )}
+              </div>
+            )}
+            <div className="space-y-3">
+              {fields.map(
+                (f) =>
+                  f.value && (
+                    <div key={f.label} className="border-b border-[var(--border)]/30 pb-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-wider text-gray-600">
+                        {f.label}
+                      </p>
+                      {f.href ? (
+                        <a
+                          href={f.href}
+                          target={f.href.startsWith("http") ? "_blank" : undefined}
+                          className="text-sm text-[var(--primary)] hover:underline"
+                        >
+                          {f.value}
+                        </a>
+                      ) : (
+                        <p className="whitespace-pre-wrap text-sm text-white">{f.value}</p>
+                      )}
+                    </div>
+                  )
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }
