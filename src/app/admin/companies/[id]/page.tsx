@@ -19,7 +19,6 @@ import {
   Minus,
   Clock,
 } from "lucide-react";
-import Link from "next/link";
 
 interface CompanyTag {
   tag_id: string;
@@ -210,12 +209,12 @@ export default function CompanyDetailPage() {
     <div>
       {/* Header */}
       <div className="mb-6 flex items-center gap-4">
-        <Link
-          href="/admin/companies"
+        <button
+          onClick={() => router.back()}
           className="rounded-lg border border-[var(--border)] p-2 text-gray-400 hover:text-white"
         >
           <ArrowLeft size={20} />
-        </Link>
+        </button>
         <div>
           <h1 className="text-2xl font-bold text-white">{company.name}</h1>
           <p className="text-sm text-gray-500">
