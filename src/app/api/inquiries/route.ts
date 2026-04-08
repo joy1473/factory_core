@@ -63,16 +63,24 @@ export async function POST(request: Request) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // 신규 기업 자동 등록 (기존 DB에 없는 회사)
-    if (company_name) {
-      const { data: existing } = await supabase
-        .from("companies")
-        .select("id")
-        .or(`name.ilike.%${company_name}%,phone.eq.${phone || "NONE"}`)
-        .limit(1)
-        .single();
+    // 기업 매칭 또는 신규 생성
+    let companyId: string | null = null;
 
-      if (!existing) {
+    if (company_name) {
+      // 기존 기업 매칭 (전화번호 → 회사명)
+      if (phone) {
+        const { data: byPhone } = await supabase
+          .from("companies").select("id").eq("phone", phone).limit(1).single();
+        if (byPhone) companyId = byPhone.id;
+      }
+      if (!companyId) {
+        const { data: byName } = await supabase
+          .from("companies").select("id").ilike("name", `%${company_name}%`).limit(1).single();
+        if (byName) companyId = byName.id;
+      }
+
+      // 없으면 신규 생성 + "신규" 태그
+      if (!companyId) {
         try {
           const { data: newCo } = await supabase
             .from("companies")
@@ -88,11 +96,9 @@ export async function POST(request: Request) {
             .select("id")
             .single();
           if (newCo) {
+            companyId = newCo.id;
             const { data: newTag } = await supabase
-              .from("tags")
-              .select("id")
-              .eq("name", "신규")
-              .single();
+              .from("tags").select("id").eq("name", "신규").single();
             if (newTag) {
               await supabase.from("company_tags").upsert({
                 company_id: newCo.id,
@@ -113,6 +119,7 @@ export async function POST(request: Request) {
         email: email || null,
         message,
         type: type || "general",
+        company_id: companyId,
       })
       .select("tracking_code")
       .single();

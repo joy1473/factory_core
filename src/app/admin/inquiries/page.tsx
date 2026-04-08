@@ -113,6 +113,7 @@ export default function InquiriesPage() {
               admin_note: d.admin_note as string | null,
               created_at: d.created_at as string,
               updated_at: d.updated_at as string | null,
+              company_id: d.company_id as string | null,
             }))
           : []),
         ...(Array.isArray(bidData)
@@ -332,11 +333,26 @@ function InquiryCard({
           </span>
           {item.company_name && (
             <button
-              onClick={(e) => {
+              onClick={async (e) => {
                 e.stopPropagation();
-                if (item.company_id) onCompanyClick(item.company_id);
+                if (item.company_id) {
+                  onCompanyClick(item.company_id);
+                } else {
+                  // company_id 없으면 검색해서 연결 시도
+                  try {
+                    const res = await fetch(`/api/companies/search?q=${encodeURIComponent(item.company_name!)}`);
+                    const companies = await res.json();
+                    if (companies.length > 0) {
+                      onCompanyClick(companies[0].id);
+                    } else {
+                      alert("등록된 기업 정보를 찾을 수 없습니다.");
+                    }
+                  } catch {
+                    alert("검색 실패");
+                  }
+                }
               }}
-              className={`text-sm ${item.company_id ? "text-[var(--primary)] hover:underline" : "text-gray-400"}`}
+              className="text-sm text-[var(--primary)] hover:underline"
             >
               ({item.company_name})
             </button>
