@@ -54,7 +54,12 @@ export function ContactForm({
   }, []);
 
   function handleCompanyInput(value: string) {
-    setForm({ ...form, company_name: value });
+    // 매칭된 회사가 있었는데 회사명을 변경하면 → 다른 필드 초기화 (문의 내용 제외)
+    if (matchedCompany && value !== matchedCompany.name) {
+      setForm({ ...form, company_name: value, contact_name: "", phone: "", email: "" });
+    } else {
+      setForm({ ...form, company_name: value });
+    }
     setMatchedCompany(null);
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
