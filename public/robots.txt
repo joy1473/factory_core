@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://joy.it.kr/sitemap.xml
