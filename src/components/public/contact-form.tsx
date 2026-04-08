@@ -39,7 +39,7 @@ export function ContactForm({
   const [suggestions, setSuggestions] = useState<CompanyResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [matchedCompany, setMatchedCompany] = useState<CompanyResult | null>(null);
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Close suggestions on outside click
