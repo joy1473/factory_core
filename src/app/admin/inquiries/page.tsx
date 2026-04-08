@@ -55,6 +55,31 @@ const FILTER_TABS = [
   { value: "completed", label: "완료" },
 ];
 
+// 상태 × 유형별 기본 메시지
+const DEFAULT_MESSAGES: Record<string, Record<string, string>> = {
+  in_progress: {
+    general: "담당자가 배정되었습니다. 확인 후 1~2 영업일 내 연락드리겠습니다.",
+    poc: "PoC 신청이 접수되었습니다. 현장 방문 일정 조율을 위해 곧 연락드리겠습니다. (예상 소요: 1주 내 현장 진단 → 2주 내 PoC 제안서 전달)",
+    survey: "설문 요청이 확인되었습니다. 설문지 준비 후 발송 예정입니다.",
+    bid_proposal: "제안서 작성을 시작합니다. 사업 공고 분석 및 귀사 맞춤 제안서 초안을 준비 중입니다. (예상 소요: 3~5 영업일)",
+    bid_presentation: "발표 자료 준비를 시작합니다. 제안서 기반 발표 슬라이드 및 시연 시나리오를 작성 중입니다. (예상 소요: 2~3 영업일)",
+    bid_consulting: "컨설팅 일정을 조율 중입니다. 귀사 현황 분석 후 최적의 지원사업 매칭 및 전략을 수립하겠습니다.",
+    bid_full: "전체 대행 서비스를 시작합니다. 제안서 작성 → 발표 준비 → 현장 컨설팅까지 순차 진행합니다. 담당자가 곧 연락드리겠습니다.",
+  },
+  completed: {
+    general: "문의 답변이 완료되었습니다. 추가 문의는 동일 추적코드로 새 문의를 접수해주세요.",
+    poc: "PoC 제안서가 전달되었습니다. 검토 후 진행 여부를 알려주세요.",
+    survey: "설문 결과가 정리되었습니다. 감사합니다.",
+    bid_proposal: "제안서 최종본이 전달되었습니다. 수정 요청은 언제든 연락주세요.",
+    bid_presentation: "발표 자료가 전달되었습니다. 리허설이 필요하시면 별도 일정 잡겠습니다.",
+    bid_consulting: "컨설팅 보고서가 전달되었습니다. 지원사업 신청 대행이 필요하시면 알려주세요.",
+    bid_full: "전체 대행이 완료되었습니다. 결과 및 후속 조치 사항은 별도 보고서를 참고해주세요.",
+  },
+  cancelled: {
+    _default: "문의가 취소 처리되었습니다. 재문의가 필요하시면 언제든 연락주세요.",
+  },
+};
+
 export default function InquiriesPage() {
   const [items, setItems] = useState<InquiryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -217,6 +242,39 @@ function InquiryCard({
   const statusInfo =
     STATUS_OPTIONS.find((s) => s.value === item.status) || STATUS_OPTIONS[0];
 
+  function handleStatusChange(newStatus: string) {
+    setStatus(newStatus);
+    // 기본 메시지 제안
+    const messages = DEFAULT_MESSAGES[newStatus];
+    if (messages) {
+      const msg = messages[typeKey] || messages._default || "";
+      if (msg && !note) {
+        setNote(msg);
+      }
+    }
+  }
+
+  function getAvailableTemplates(): { label: string; message: string }[] {
+    const messages = DEFAULT_MESSAGES[status];
+    if (!messages) return [];
+    const templates: { label: string; message: string }[] = [];
+    // 현재 유형에 맞는 메시지
+    if (messages[typeKey]) {
+      templates.push({ label: `${typeInfo.label} 기본`, message: messages[typeKey] });
+    }
+    // 기본 메시지
+    if (messages._default) {
+      templates.push({ label: "공통", message: messages._default });
+    }
+    // 다른 유형 메시지도 선택 가능
+    for (const [key, msg] of Object.entries(messages)) {
+      if (key !== typeKey && key !== "_default" && TYPE_LABELS[key]) {
+        templates.push({ label: TYPE_LABELS[key].label, message: msg });
+      }
+    }
+    return templates;
+  }
+
   async function handleSave() {
     setSaving(true);
     try {
@@ -343,7 +401,7 @@ function InquiryCard({
               <label className="text-xs text-gray-500">상태:</label>
               <select
                 value={status}
-                onChange={(e) => setStatus(e.target.value)}
+                onChange={(e) => handleStatusChange(e.target.value)}
                 className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs text-white focus:border-[var(--primary)] focus:outline-none"
               >
                 {STATUS_OPTIONS.map((s) => (
@@ -353,6 +411,29 @@ function InquiryCard({
                 ))}
               </select>
             </div>
+
+            {/* Template message buttons */}
+            {getAvailableTemplates().length > 0 && (
+              <div>
+                <p className="mb-1.5 text-[10px] text-gray-600">기본 메시지 선택:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {getAvailableTemplates().map((t, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setNote(t.message)}
+                      className={`rounded-md border px-2.5 py-1 text-[10px] transition ${
+                        note === t.message
+                          ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                          : "border-[var(--border)] text-gray-500 hover:border-gray-500 hover:text-gray-300"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="mb-1 flex items-center gap-1 text-xs text-gray-500">
