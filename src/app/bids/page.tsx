@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Header } from "@/components/public/header";
 import { Footer } from "@/components/public/footer";
 import {
@@ -58,6 +58,32 @@ export default function BidsPage() {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [trackingCode, setTrackingCode] = useState("");
+  const [companySuggestions, setCompanySuggestions] = useState<{id:string;name:string;contact_person:string|null;phone:string|null;email:string|null;sido:string;sigungu:string}[]>([]);
+  const [showCompanySuggestions, setShowCompanySuggestions] = useState(false);
+  const companyDebounce = useRef<ReturnType<typeof setTimeout>>();
+
+  function handleBidCompanyInput(value: string) {
+    setInquiryForm({ ...inquiryForm, company_name: value });
+    if (companyDebounce.current) clearTimeout(companyDebounce.current);
+    if (value.length < 2) { setCompanySuggestions([]); setShowCompanySuggestions(false); return; }
+    companyDebounce.current = setTimeout(async () => {
+      const res = await fetch(`/api/companies/search?q=${encodeURIComponent(value)}`);
+      const data = await res.json();
+      setCompanySuggestions(Array.isArray(data) ? data : []);
+      setShowCompanySuggestions(data.length > 0);
+    }, 300);
+  }
+
+  function selectBidCompany(c: typeof companySuggestions[0]) {
+    setInquiryForm({
+      ...inquiryForm,
+      company_name: c.name,
+      contact_name: inquiryForm.contact_name || c.contact_person || "",
+      phone: inquiryForm.phone || c.phone || "",
+      email: inquiryForm.email || (c.email ? c.email.split("\n")[0] : ""),
+    });
+    setShowCompanySuggestions(false);
+  }
 
   useEffect(() => {
     fetch("/api/bids")
@@ -223,12 +249,31 @@ export default function BidsPage() {
                     placeholder="담당자명 *"
                     className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                   />
-                  <input
-                    value={inquiryForm.company_name}
-                    onChange={(e) => setInquiryForm({ ...inquiryForm, company_name: e.target.value })}
-                    placeholder="회사명"
-                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
-                  />
+                  <div className="relative">
+                    <input
+                      value={inquiryForm.company_name}
+                      onChange={(e) => handleBidCompanyInput(e.target.value)}
+                      onFocus={() => companySuggestions.length > 0 && setShowCompanySuggestions(true)}
+                      placeholder="회사명 (자동 검색)"
+                      autoComplete="off"
+                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                    />
+                    {showCompanySuggestions && (
+                      <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-xl">
+                        {companySuggestions.map((c) => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onClick={() => selectBidCompany(c)}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition hover:bg-white/5"
+                          >
+                            <span className="font-semibold text-white">{c.name}</span>
+                            <span className="text-gray-500">{c.sido}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <input
                     value={inquiryForm.phone}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}

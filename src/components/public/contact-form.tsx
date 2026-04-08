@@ -1,11 +1,22 @@
 "use client";
 
-import { useState } from "react";
-import { Send, CheckCircle } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Send, CheckCircle, Building2 } from "lucide-react";
 
 interface ContactFormProps {
   type?: "general" | "poc" | "survey";
   title?: string;
+}
+
+interface CompanyResult {
+  id: string;
+  name: string;
+  contact_person: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  sido: string;
+  sigungu: string;
 }
 
 export function ContactForm({
@@ -23,6 +34,60 @@ export function ContactForm({
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [trackingCode, setTrackingCode] = useState("");
+
+  // Company autocomplete
+  const [suggestions, setSuggestions] = useState<CompanyResult[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [matchedCompany, setMatchedCompany] = useState<CompanyResult | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  function handleCompanyInput(value: string) {
+    setForm({ ...form, company_name: value });
+    setMatchedCompany(null);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (value.length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/companies/search?q=${encodeURIComponent(value)}`);
+        const data = await res.json();
+        setSuggestions(Array.isArray(data) ? data : []);
+        setShowSuggestions(data.length > 0);
+      } catch {
+        setSuggestions([]);
+      }
+    }, 300);
+  }
+
+  function selectCompany(company: CompanyResult) {
+    setMatchedCompany(company);
+    setForm({
+      ...form,
+      company_name: company.name,
+      contact_name: form.contact_name || company.contact_person || "",
+      phone: form.phone || company.phone || "",
+      email: form.email || (company.email ? company.email.split("\n")[0] : ""),
+    });
+    setShowSuggestions(false);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -82,18 +147,49 @@ export function ContactForm({
       <h3 className="mb-6 text-xl font-bold text-white">{title}</h3>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <div>
+        {/* Company name with autocomplete */}
+        <div ref={wrapperRef} className="relative">
           <label className="mb-1 block text-sm text-gray-400">회사명</label>
           <input
             type="text"
             value={form.company_name}
-            onChange={(e) =>
-              setForm({ ...form, company_name: e.target.value })
-            }
+            onChange={(e) => handleCompanyInput(e.target.value)}
+            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
             className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
-            placeholder="조이텍"
+            placeholder="회사명 입력 (자동 검색)"
+            autoComplete="off"
           />
+          {matchedCompany && (
+            <div className="mt-1 flex items-center gap-1 text-[10px] text-[var(--secondary)]">
+              <Building2 size={10} />
+              등록된 기업과 매칭됨 · {matchedCompany.sido} {matchedCompany.sigungu}
+            </div>
+          )}
+
+          {/* Suggestions dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-xl">
+              {suggestions.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => selectCompany(s)}
+                  className="flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-white/5"
+                >
+                  <Building2 size={14} className="mt-0.5 shrink-0 text-[var(--primary)]" />
+                  <div>
+                    <p className="text-sm font-semibold text-white">{s.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {s.sido} {s.sigungu}
+                      {s.contact_person && ` · ${s.contact_person}`}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
         <div>
           <label className="mb-1 block text-sm text-gray-400">
             담당자명 <span className="text-[var(--danger)]">*</span>
