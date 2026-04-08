@@ -116,7 +116,7 @@ export async function POST(
     (company.company_tags || []).map((ct: { tag_id: string }) => ct.tag_id)
   );
 
-  // 매칭된 태그 중 DB에 있고 아직 안 부여된 것
+  // 매칭된 태그 중 DB에 있는 것 (하드코딩 키워드 매칭)
   const tagsToApply = matched
     .map((m) => {
       const dbTag = allTags?.find((t) => t.name === m.tagName);
@@ -129,9 +129,28 @@ export async function POST(
     })
     .filter(Boolean);
 
+  // suggested 중 DB에 이미 태그가 존재하면 matched로 이동
+  const finalSuggested = [];
+  for (const s of suggested) {
+    const dbTag = allTags?.find((t) => t.name === s.tagName);
+    if (dbTag) {
+      // DB에 이미 있음 → matched로 이동
+      tagsToApply.push({
+        tagName: s.tagName,
+        type: "industry" as const,
+        confidence: 0.5,
+        tagId: dbTag.id,
+        alreadyApplied: existingTagIds.has(dbTag.id),
+      });
+    } else {
+      // DB에 없음 → 새 태그 제안 유지
+      finalSuggested.push(s);
+    }
+  }
+
   return NextResponse.json({
     matched: tagsToApply,
-    suggested,
+    suggested: finalSuggested,
     analyzedText: textToAnalyze.substring(0, 200),
   });
 }
