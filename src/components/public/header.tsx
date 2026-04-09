@@ -8,6 +8,7 @@ import { useTheme } from "@/components/theme-provider";
 const NAV = [
   { href: "/solution", label: "3D 데모" },
   { href: "/why", label: "왜 우리인가" },
+  { href: "/cases", label: "도입 효과" },
   { href: "/pricing", label: "가격" },
   { href: "/bids", label: "지원사업" },
   { href: "/about", label: "회사 소개" },
