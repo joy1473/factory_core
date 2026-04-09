@@ -37,7 +37,12 @@ export function SceneViewer({ splatUrl, devices, cameraPosition, cameraTarget, o
   useEffect(() => {
     if (!containerRef.current || !splatUrl) return;
 
-    const container = containerRef.current;
+    // GaussianSplats3D용 격리 div (React DOM과 충돌 방지)
+    const wrapper = containerRef.current;
+    const container = document.createElement("div");
+    container.style.width = "100%";
+    container.style.height = "100%";
+    wrapper.appendChild(container);
     const camPos = cameraPosition || { x: 0, y: 5, z: 10 };
     const camTarget = cameraTarget || { x: 0, y: 0, z: 0 };
 
@@ -76,10 +81,14 @@ export function SceneViewer({ splatUrl, devices, cameraPosition, cameraTarget, o
     init();
 
     return () => {
+      viewerRef.current = null;
       if (viewer) {
         try { viewer.dispose(); } catch {}
       }
-      viewerRef.current = null;
+      // 격리 div 통째로 제거
+      if (wrapper && container.parentNode === wrapper) {
+        try { wrapper.removeChild(container); } catch {}
+      }
     };
   }, [splatUrl, cameraPosition, cameraTarget]);
 
