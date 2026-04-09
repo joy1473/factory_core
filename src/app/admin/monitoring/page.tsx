@@ -342,8 +342,8 @@ export default function MonitoringPage() {
         {/* 3D + 오른쪽 패널 */}
         {anyActive && scene && (
           <div className="flex h-full">
-            {/* 3D 뷰어 — 마커만 표시 */}
-            <div className={`${selectedDevice && !editMode ? "flex-1" : "w-full"} transition-all`}>
+            {/* 3D 뷰어 — 핀 마커만 */}
+            <div className={`${selectedDevice ? "flex-1" : "w-full"} h-full transition-all`}>
               <SceneViewer
                 splatSource={scene.splat_url}
                 editMode={editMode}
@@ -352,10 +352,7 @@ export default function MonitoringPage() {
                   id: d.id,
                   name: d.name,
                   device_type: d.device_type,
-                  status: d.status,
                   position_3d: d.position_3d!,
-                  alertLevel: alerts.some((a) => a.device_id === d.id && a.severity === "critical") ? "critical" as const :
-                    alerts.some((a) => a.device_id === d.id) ? "warning" as const : "normal" as const,
                 }))}
                 onDeviceClick={(id) => setSelectedDevice(id === selectedDevice ? null : id)}
                 editTargetId={editMode ? selectedDevice : null}
@@ -367,23 +364,25 @@ export default function MonitoringPage() {
                   });
                   fetchData();
                 }}
-                onRemoveDevice={async (id) => {
-                  await fetch(`/api/devices/${id}/position`, {
-                    method: "PATCH",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ position_3d: null }),
-                  });
-                  fetchData();
-                }}
               />
             </div>
 
-            {/* 오른쪽 패널 — 설비 상세 (3D 밖) */}
-            {selectedDevice && !editMode && (
-              <div className="w-80 shrink-0 border-l border-[var(--border)] overflow-y-auto">
+            {/* 오른쪽 패널 — 마커 클릭 시 항상 표시 (편집/일반 모두) */}
+            {selectedDevice && (
+              <div className="w-80 shrink-0 border-l border-[var(--border)] overflow-y-auto bg-[var(--surface)]">
                 <DeviceDetailPanel
                   deviceId={selectedDevice}
+                  editMode={editMode}
                   onClose={() => setSelectedDevice(null)}
+                  onRemove={async () => {
+                    await fetch(`/api/devices/${selectedDevice}/position`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ position_3d: null }),
+                    });
+                    setSelectedDevice(null);
+                    fetchData();
+                  }}
                 />
               </div>
             )}
@@ -409,13 +408,13 @@ export default function MonitoringPage() {
 
       {/* ─── Core Chat Floating ─── */}
       {flags.core && !chatOpen && (
-        <button onClick={() => setChatOpen(true)} className="absolute bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition hover:scale-110" style={{ backgroundColor: "var(--corebot-core)", boxShadow: "0 4px 20px rgba(168,230,207,0.3)" }}>
+        <button onClick={() => setChatOpen(true)} className="absolute bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition hover:scale-110" style={{ backgroundColor: "var(--corebot-core)", boxShadow: "0 4px 20px rgba(168,230,207,0.3)" }}>
           <video src="/video/Core.mp4" autoPlay loop muted playsInline className="h-12 w-12 rounded-full object-cover" />
         </button>
       )}
 
       {flags.core && chatOpen && (
-        <div className="absolute bottom-6 right-6 z-40 flex h-[480px] w-80 flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-2xl">
+        <div className="absolute bottom-6 right-6 z-50 flex h-[480px] w-80 flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-2xl">
           {/* Header */}
           <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-2">
             <div className="flex items-center gap-2">

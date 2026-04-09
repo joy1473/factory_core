@@ -12,7 +12,6 @@ declare module "@react-three/fiber" {
   interface ThreeElements {
     lumaSplats: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
       source: string;
-      semanticsMask?: number;
       position?: [number, number, number];
       scale?: number;
     };
@@ -23,68 +22,50 @@ export interface DevicePosition {
   id: string;
   name: string;
   device_type: string;
-  status: string;
   position_3d: { x: number; y: number; z: number };
-  latestTemp?: number;
-  latestVib?: number;
-  latestRms?: number;
-  alertLevel: "normal" | "warning" | "critical";
 }
 
 interface SceneViewerProps {
   splatSource: string;
   devices: DevicePosition[];
+  selectedDeviceId?: string | null;
   editMode?: boolean;
   editTargetId?: string | null;
-  selectedDeviceId?: string | null;
   onDeviceClick?: (deviceId: string) => void;
   onPlaceDevice?: (deviceId: string, position: { x: number; y: number; z: number }) => void;
-  onRemoveDevice?: (deviceId: string) => void;
 }
 
-const ALERT_COLORS = { normal: "#4ade80", warning: "#fbbf24", critical: "#ef4444" };
-
-// ─── 3D 마커 ───
-function DeviceMarker3D({ device, selected, editMode, onClick, onRemove }: {
-  device: DevicePosition; selected?: boolean; editMode?: boolean; onClick: () => void; onRemove?: () => void;
+// ─── Pin Marker ───
+function PinMarker({ device, selected, onClick }: {
+  device: DevicePosition; selected?: boolean; onClick: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
-  const pos = device.position_3d;
-
   return (
-    <group>
-      <Html
-        position={[pos.x, pos.y + 0.5, pos.z]}
-        center
-        distanceFactor={6}
-        zIndexRange={[1000, 0]}
-        style={{ pointerEvents: "auto", userSelect: "none", cursor: "pointer" }}
-      >
-        <div
-          onClick={(e) => { e.stopPropagation(); onClick(); }}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          style={{ position: "relative", display: "inline-block" }}
-        >
-          {/* 핀 이미지만 — 모든 조작은 오른쪽 패널 */}
-          <img
-            src="/images/solution/25530.jpg"
-            alt="pin"
-            style={{
-              width: hovered || selected ? "28px" : "22px",
-              height: hovered || selected ? "36px" : "28px",
-              objectFit: "contain",
-              filter: selected ? "brightness(1.3) drop-shadow(0 0 6px white)" : "drop-shadow(0 2px 3px rgba(0,0,0,0.5))",
-              transition: "all 0.15s ease",
-            }}
-          />
-        </div>
-      </Html>
-    </group>
+    <Html
+      position={[device.position_3d.x, device.position_3d.y + 0.3, device.position_3d.z]}
+      center
+      distanceFactor={5}
+      zIndexRange={[1000, 0]}
+      style={{ pointerEvents: "auto", cursor: "pointer" }}
+    >
+      <img
+        src="/images/solution/25530.jpg"
+        alt={device.name}
+        onClick={(e) => { e.stopPropagation(); onClick(); }}
+        style={{
+          width: selected ? "32px" : "24px",
+          height: selected ? "40px" : "30px",
+          objectFit: "contain",
+          filter: selected
+            ? "drop-shadow(0 0 8px rgba(255,255,255,0.8))"
+            : "drop-shadow(0 2px 4px rgba(0,0,0,0.5))",
+          transition: "all 0.15s ease",
+        }}
+      />
+    </Html>
   );
 }
 
-// ─── 바닥 클릭 감지 (편집 모드) ───
+// ─── Floor Click (편집 모드) ───
 function FloorClickHandler({ onFloorClick }: { onFloorClick: (pos: { x: number; y: number; z: number }) => void }) {
   const { camera, gl } = useThree();
 
@@ -97,18 +78,17 @@ function FloorClickHandler({ onFloorClick }: { onFloorClick: (pos: { x: number; 
     const ray = new THREE.Raycaster();
     ray.setFromCamera(mouse, camera);
     const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-    const intersection = new THREE.Vector3();
-    const hit = ray.ray.intersectPlane(plane, intersection);
+    const hit = new THREE.Vector3();
+    ray.ray.intersectPlane(plane, hit);
     if (hit) {
       onFloorClick({
-        x: Math.round(intersection.x * 100) / 100,
+        x: Math.round(hit.x * 100) / 100,
         y: 0.5,
-        z: Math.round(intersection.z * 100) / 100,
+        z: Math.round(hit.z * 100) / 100,
       });
     }
   }, [camera, gl, onFloorClick]);
 
-  // Canvas 클릭 이벤트 등록
   useState(() => {
     gl.domElement.addEventListener("dblclick", handleClick);
     return () => gl.domElement.removeEventListener("dblclick", handleClick);
@@ -118,16 +98,16 @@ function FloorClickHandler({ onFloorClick }: { onFloorClick: (pos: { x: number; 
 }
 
 // ─── Main ───
-export function SceneViewer({ splatSource, devices, editMode, editTargetId, selectedDeviceId, onDeviceClick, onPlaceDevice, onRemoveDevice }: SceneViewerProps) {
+export function SceneViewer({ splatSource, devices, selectedDeviceId, editMode, editTargetId, onDeviceClick, onPlaceDevice }: SceneViewerProps) {
   const [loaded, setLoaded] = useState(false);
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-black" style={{ minHeight: "400px" }}>
+    <div className="relative h-full w-full bg-black">
       <Canvas
         camera={{ position: [0, 2, 5], fov: 50 }}
         gl={{ antialias: false, powerPreference: "high-performance" }}
         dpr={[1, 1.5]}
-        onCreated={() => setTimeout(() => setLoaded(true), 2000)}
+        onCreated={() => setTimeout(() => setLoaded(true), 2500)}
       >
         <OrbitControls
           maxPolarAngle={Math.PI * 0.85}
@@ -137,46 +117,33 @@ export function SceneViewer({ splatSource, devices, editMode, editTargetId, sele
           enableDamping
           dampingFactor={0.05}
         />
-
         <lumaSplats source={splatSource} position={[0, 0, 0]} scale={1} />
 
-        {loaded && devices.map((device) => (
-          <DeviceMarker3D
-            key={device.id}
-            device={device}
-            selected={selectedDeviceId === device.id}
-            editMode={editMode}
-            onClick={() => onDeviceClick?.(device.id)}
-            onRemove={() => onRemoveDevice?.(device.id)}
+        {loaded && devices.map((d) => (
+          <PinMarker
+            key={d.id}
+            device={d}
+            selected={selectedDeviceId === d.id}
+            onClick={() => onDeviceClick?.(d.id)}
           />
         ))}
 
-        {/* 편집 모드: 더블클릭으로 선택된 설비 이동 */}
         {editMode && editTargetId && loaded && (
           <FloorClickHandler onFloorClick={(pos) => onPlaceDevice?.(editTargetId, pos)} />
         )}
       </Canvas>
 
-      {/* Loading */}
       {!loaded && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/80">
           <div className="mb-3 h-10 w-10 animate-spin rounded-full border-2 border-[var(--corebot-core)] border-t-transparent" />
-          <p className="text-sm text-gray-400">3D 씬 로딩 중...</p>
+          <p className="text-sm text-gray-400">3D 로딩 중...</p>
         </div>
       )}
 
-      {/* Edit mode guide */}
       {editMode && loaded && (
-        <div className="absolute top-3 left-1/2 z-20 -translate-x-1/2 rounded-lg bg-[var(--accent)]/90 px-4 py-2 text-center text-xs font-semibold text-black">
-          {editTargetId
-            ? `설비를 이동할 위치를 더블클릭하세요`
-            : `이동할 설비 마커를 클릭하세요`}
+        <div className="absolute top-3 left-1/2 z-20 -translate-x-1/2 rounded-lg bg-[var(--accent)]/90 px-4 py-2 text-xs font-semibold text-black">
+          {editTargetId ? "마커를 배치할 위치를 더블클릭" : "상단에서 설비를 선택하세요"}
         </div>
-      )}
-
-      {/* 3D 위에 텍스트 없음 — 마커만 표시 */}
-      {false && (
-        <div />
       )}
     </div>
   );
