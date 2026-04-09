@@ -121,6 +121,17 @@ export default function MonitoringPage() {
     setFlags((prev) => {
       const updated = { ...prev, [key]: !prev[key] };
       localStorage.setItem("fc-features", JSON.stringify(updated));
+
+      // Ear 비활성화 시 마이크 정리
+      if (key === "ear" && !updated.ear) {
+        stopMic();
+        setAudioReadings([]);
+      }
+      // Core 비활성화 시 채팅 닫기
+      if (key === "core" && !updated.core) {
+        setChatOpen(false);
+      }
+
       return updated;
     });
   }
