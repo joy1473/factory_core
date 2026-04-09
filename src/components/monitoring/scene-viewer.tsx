@@ -97,10 +97,11 @@ function DeviceMarker3D({
 
   return (
     <group>
-      {/* 마커 구체 */}
+      {/* 마커 구체 — depthTest off로 항상 Splat 위에 표시 */}
       <mesh
         ref={meshRef}
         position={[pos.x, pos.y + 0.5, pos.z]}
+        renderOrder={999}
         onClick={(e) => { e.stopPropagation(); onClick(); }}
         onPointerOver={() => { setHovered(true); gl.domElement.style.cursor = editMode ? "grab" : "pointer"; }}
         onPointerOut={() => { setHovered(false); if (!dragging) gl.domElement.style.cursor = "auto"; }}
@@ -108,22 +109,14 @@ function DeviceMarker3D({
         onPointerUp={handlePointerUp as unknown as (e: any) => void}
         onPointerMove={handlePointerMove as unknown as (e: any) => void}
       >
-        <sphereGeometry args={[0.15, 16, 16]} />
-        <meshBasicMaterial color={color} transparent opacity={hovered || selected ? 1 : 0.8} />
+        <sphereGeometry args={[0.2, 16, 16]} />
+        <meshBasicMaterial color={color} transparent opacity={hovered || selected ? 1 : 0.85} depthTest={false} />
       </mesh>
 
-      {/* 글로우 */}
-      <pointLight
-        position={[pos.x, pos.y + 0.5, pos.z]}
-        color={color}
-        intensity={device.alertLevel === "critical" ? 2 : 0.5}
-        distance={2}
-      />
-
       {/* 바닥 연결선 */}
-      <mesh position={[pos.x, pos.y + 0.25, pos.z]}>
-        <cylinderGeometry args={[0.01, 0.01, 0.5, 4]} />
-        <meshBasicMaterial color={color} transparent opacity={0.4} />
+      <mesh position={[pos.x, pos.y + 0.25, pos.z]} renderOrder={998}>
+        <cylinderGeometry args={[0.015, 0.015, 0.5, 4]} />
+        <meshBasicMaterial color={color} transparent opacity={0.5} depthTest={false} />
       </mesh>
 
       {/* HTML 라벨 */}
@@ -131,6 +124,7 @@ function DeviceMarker3D({
         position={[pos.x, pos.y + 1.0, pos.z]}
         center
         distanceFactor={8}
+        zIndexRange={[1000, 0]}
         style={{ pointerEvents: "none", userSelect: "none" }}
       >
         <div style={{
