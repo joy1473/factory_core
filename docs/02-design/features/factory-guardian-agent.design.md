@@ -2,19 +2,46 @@
 
 > **Plan 참조**: `docs/01-plan/features/factory-guardian-agent.plan.md`
 > **Date**: 2026-04-09
-> **Status**: Draft — Phase 1 Touch MVP 집중
+> **Status**: Draft v2 — AWS Cloud SaaS 아키텍처 반영
 > **Scope**: 센서 시뮬레이터 + 시계열 DB + 실시간 대시보드 + 임계치 알림
 
 ---
 
-## 1. Phase 1 목표
-
-실제 센서 없이 **시뮬레이터로 가상 센서 데이터를 생성**하고, 이를 수집·저장·시각화·알림하는 전체 파이프라인 구축.
+## 0. 아키텍처 방향 (v2 수정)
 
 ```
-시뮬레이터 → API → DB → 실시간 대시보드
-                         ↓ (임계치 초과)
-                       알림 (이메일 + 화면 경고)
+Gen3 IoT 스티커 → BLE → Edge Gateway (RPi + BLE dongle)
+                              ↓
+                   AWS IoT Core (Greengrass)
+                              ↓
+              ┌───────────────┼───────────────┐
+              ↓               ↓               ↓
+         Supabase DB    SageMaker (AI)   SES (알림)
+              ↓
+     Factory Core 웹 (Next.js on Vercel)
+```
+
+| 레이어 | 역할 | 기술 |
+|--------|------|------|
+| **센서** | 온도/진동/습도 측정 | Gen3 IoT Pixel ($1 BLE passive) |
+| **Edge** | BLE 스캔/수집, 신호 필터링, buffering, 기본 threshold | RPi 5 + BLE dongle, AWS IoT Greengrass |
+| **Cloud AI** | 추세 분석, 이상 감지, 예측 유지보수, 보고서 생성 | AWS SageMaker, Claude API |
+| **SaaS 웹** | 대시보드, 키오스크, 관리자 화면 | Next.js (Vercel) + Supabase |
+| **알림** | 이메일, 푸시, 카카오 | AWS SES (기존), FCM |
+
+**확장 대비**: Wi-Fi/Cellular 직접 연결 active 센서 버전 추가 시 Edge Gateway 없이 AWS IoT Core 직접 연결 가능하도록 API 계층 분리
+
+---
+
+## 1. Phase 1 목표 (MVP)
+
+실제 센서/Edge 없이 **시뮬레이터로 전체 파이프라인 검증**. 나중에 시뮬레이터를 실제 Edge Gateway로 교체만 하면 됨.
+
+```
+[Phase 1: 시뮬레이터]          [Phase 5: 실제 배포]
+시뮬레이터 → API → DB          Edge Gateway → AWS IoT → API → DB
+                ↓                                          ↓
+          대시보드 + 알림                            대시보드 + 알림
 ```
 
 ---
