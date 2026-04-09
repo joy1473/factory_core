@@ -21,6 +21,8 @@
   --corebot-eye: var(--pastel-lavender);
   --corebot-ear: var(--pastel-peach);
   --corebot-touch: var(--pastel-yellow);
+  --muted: #9ca3af;
+  --muted-dim: #6b7280;
 }
 
 /* Light mode — 전구색 (warm white) */
@@ -34,6 +36,8 @@
   --danger: #c45c5c;
   --surface: #FFF8F0;
   --border: #e8ddd0;
+  --muted: #6b5e50;
+  --muted-dim: #8a7d6f;
 }
 
 @theme inline {
@@ -71,6 +75,12 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #00d4ff;
 }
+
+/* Light mode: strengthen muted grays for readability */
+[data-theme="light"] .text-gray-400 { color: #6b5e50 !important; }
+[data-theme="light"] .text-gray-500 { color: #5a4e42 !important; }
+[data-theme="light"] .text-gray-600 { color: #4a3f35 !important; }
+[data-theme="light"] .placeholder-gray-600::placeholder { color: #8a7d6f !important; }
 
 [data-theme="light"] ::-webkit-scrollbar-track {
   background: #FDF6EC;
