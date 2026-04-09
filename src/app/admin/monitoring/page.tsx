@@ -23,10 +23,10 @@ interface FeatureFlags {
 const DEFAULT_FLAGS: FeatureFlags = { touch: true, ear: true, eye: false, core: true };
 
 const FEATURE_META = [
-  { key: "touch" as const, label: "Touch (IoT 센서)", icon: Hand, plan: "Basic", color: "var(--corebot-touch)" },
-  { key: "ear" as const, label: "Ear (청각 AI)", icon: Ear, plan: "Standard", color: "var(--corebot-ear)" },
-  { key: "eye" as const, label: "Eye (시각 AI)", icon: Eye, plan: "Premium", color: "var(--corebot-eye)" },
-  { key: "core" as const, label: "Core (AI 공장장)", icon: Bot, plan: "Basic", color: "var(--corebot-core)" },
+  { key: "core" as const, label: "AI 공장장", desc: "모든 데이터를 통합·분석하고 자동 보고서 생성", video: "/video/Core.mp4", color: "#A8E6CF" },
+  { key: "eye" as const, label: "시각 AI", desc: "카메라·스마트글래스로 설비 상태를 자동 판별", video: "/video/Eye.mp4", color: "#DDA0DD" },
+  { key: "ear" as const, label: "청각 AI", desc: "설비 소리를 분석하여 이상 징후 조기 감지", video: "/video/Ear.mp4", color: "#FFD3B6" },
+  { key: "touch" as const, label: "IoT 촉각", desc: "$1 스티커 센서로 온도·습도·진동 실시간 감지", video: "/video/Touch.mp4", color: "#FDFD96" },
 ];
 
 // ─── Types ───
@@ -299,22 +299,47 @@ export default function MonitoringPage() {
           </div>
         </div>
 
-        {/* Settings Panel */}
+        {/* Settings Panel — CoreBot Family */}
         {showSettings && (
-          <div className="mb-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
-            <p className="mb-3 text-xs font-semibold text-[var(--foreground)]">기능 활성화 / 비활성화</p>
-            <div className="flex flex-wrap gap-3">
+          <div className="mb-4 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
+            <div className="mb-1 text-center">
+              <p className="text-sm font-bold text-[var(--foreground)]">CoreBot Family</p>
+              <p className="text-[10px] text-gray-500">Factory Guardian Agent를 구성하는 AI 요원들 — 개별 활성화/비활성화</p>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-4">
               {FEATURE_META.map((f) => {
-                const Icon = f.icon;
                 const active = flags[f.key];
+                const name = f.key.charAt(0).toUpperCase() + f.key.slice(1);
                 return (
-                  <button key={f.key} onClick={() => toggleFlag(f.key)} className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition ${active ? "border-opacity-50 bg-opacity-10" : "border-[var(--border)] text-gray-500 opacity-50"}`} style={active ? { borderColor: f.color, backgroundColor: f.color + "10", color: f.color } : undefined}>
-                    <Icon size={14} /> {f.label}
-                    <span className="rounded bg-[var(--border)] px-1.5 py-0.5 text-[8px]">{f.plan}</span>
+                  <button
+                    key={f.key}
+                    onClick={() => toggleFlag(f.key)}
+                    className={`relative flex flex-col items-center rounded-xl border p-4 text-center transition ${
+                      active ? "border-opacity-60" : "border-[var(--border)] opacity-40 grayscale"
+                    }`}
+                    style={active ? { borderColor: f.color, borderTopWidth: "3px" } : { borderTopWidth: "3px", borderTopColor: "var(--border)" }}
+                  >
+                    {/* 토글 표시 */}
+                    <div className={`absolute right-2 top-2 h-4 w-8 rounded-full transition ${active ? "" : "bg-gray-600"}`}
+                      style={active ? { backgroundColor: f.color } : undefined}>
+                      <div className={`h-3 w-3 rounded-full bg-white shadow transition-transform mt-0.5 ${active ? "translate-x-4 ml-0.5" : "translate-x-0.5"}`} />
+                    </div>
+
+                    {/* 캐릭터 영상 */}
+                    <div className="mb-2 h-14 w-14 overflow-hidden rounded-full" style={{ boxShadow: active ? `0 0 15px ${f.color}30` : "none" }}>
+                      <video src={f.video} autoPlay loop muted playsInline className="h-full w-full object-cover" />
+                    </div>
+
+                    <p className="text-[10px] font-bold" style={{ color: active ? f.color : "var(--muted)" }}>{name}</p>
+                    <p className="text-[11px] font-semibold text-[var(--foreground)]">{f.label}</p>
+                    <p className="mt-1 text-[9px] text-gray-500">{f.desc}</p>
                   </button>
                 );
               })}
             </div>
+            <p className="mt-3 text-center text-[9px] text-gray-600">
+              Core만 활성화 시 DB 데이터 기반 분석·보고서 생성 가능 — 센서 없이도 사용 가능
+            </p>
           </div>
         )}
 
