@@ -24,7 +24,7 @@ export default function WhyPage() {
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
               Why Factory Guardian?
             </p>
-            <h1 className="mb-4 text-3xl font-bold text-white md:text-4xl">
+            <h1 className="mb-4 text-3xl font-bold text-[var(--foreground)] md:text-4xl">
               왜 Factory Guardian인가?
             </h1>
             <p className="mx-auto max-w-lg text-gray-400">
@@ -39,13 +39,13 @@ export default function WhyPage() {
         {/* 3 Senses */}
         <section className="border-t border-[var(--border)]">
           <div className="mx-auto max-w-6xl px-5 py-20">
-            <h2 className="mb-12 text-center text-2xl font-bold text-white">
+            <h2 className="mb-12 text-center text-2xl font-bold text-[var(--foreground)]">
               세 가지 감각으로 설비를 감시합니다
             </h2>
             <div className="grid gap-6 md:grid-cols-3">
               <div className="rounded-xl border border-[var(--primary)]/20 bg-[var(--surface)] p-8">
                 <Eye className="mb-4 h-10 w-10 text-[var(--primary)]" />
-                <h3 className="mb-3 text-lg font-bold text-white">시각 AI</h3>
+                <h3 className="mb-3 text-lg font-bold text-[var(--foreground)]">시각 AI</h3>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li>스마트 글래스 / 폰 카메라</li>
                   <li>실시간 결함 감지 (균열, 누유, 변색)</li>
@@ -55,7 +55,7 @@ export default function WhyPage() {
               </div>
               <div className="rounded-xl border border-[var(--secondary)]/20 bg-[var(--surface)] p-8">
                 <Ear className="mb-4 h-10 w-10 text-[var(--secondary)]" />
-                <h3 className="mb-3 text-lg font-bold text-white">청각 AI</h3>
+                <h3 className="mb-3 text-lg font-bold text-[var(--foreground)]">청각 AI</h3>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li>마이크로 설비 소리 분석</li>
                   <li>베어링/모터 이상음 자동 판별</li>
@@ -65,7 +65,7 @@ export default function WhyPage() {
               </div>
               <div className="rounded-xl border border-[var(--accent)]/20 bg-[var(--surface)] p-8">
                 <Hand className="mb-4 h-10 w-10 text-[var(--accent)]" />
-                <h3 className="mb-3 text-lg font-bold text-white">촉각 IoT</h3>
+                <h3 className="mb-3 text-lg font-bold text-[var(--foreground)]">촉각 IoT</h3>
                 <ul className="space-y-2 text-sm text-gray-400">
                   <li>Gen3 IoT Pixel 스티커 센서</li>
                   <li>배터리 없음 — 붙이기만 하면 끝</li>

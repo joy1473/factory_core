@@ -44,7 +44,7 @@ export default function AboutPage() {
         <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
           About Us
         </p>
-        <h1 className="mb-10 text-center text-3xl font-bold text-white">
+        <h1 className="mb-10 text-center text-3xl font-bold text-[var(--foreground)]">
           회사 소개
         </h1>
 
@@ -54,7 +54,7 @@ export default function AboutPage() {
               <Building2 className="h-6 w-6 text-black" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-xl font-bold text-[var(--foreground)]">
                 {co.company_name} ({co.company_name_en})
               </h2>
               <p className="text-sm text-gray-400">{co.description}</p>
@@ -74,7 +74,7 @@ export default function AboutPage() {
             </p>
           </div>
 
-          <h3 className="mb-4 text-base font-semibold text-white">
+          <h3 className="mb-4 text-base font-semibold text-[var(--foreground)]">
             사업자 정보
           </h3>
           <div className="space-y-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-5">
@@ -123,7 +123,7 @@ function InfoRow({
           {value}
         </a>
       ) : (
-        <span className="text-white">{value}</span>
+        <span className="text-[var(--foreground)]">{value}</span>
       )}
     </div>
   );

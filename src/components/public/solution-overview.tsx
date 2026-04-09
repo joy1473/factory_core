@@ -52,7 +52,7 @@ export function SolutionOverview() {
       <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
         Solution
       </p>
-      <h2 className="mb-4 text-center text-2xl font-bold text-white md:text-3xl">
+      <h2 className="mb-4 text-center text-2xl font-bold text-[var(--foreground)] md:text-3xl">
         Factory Guardian Agent
       </h2>
       <p className="mx-auto mb-12 max-w-xl text-center text-gray-400">
@@ -74,7 +74,7 @@ export function SolutionOverview() {
               className="mb-3 h-7 w-7"
               style={{ color: f.color }}
             />
-            <h3 className="mb-2 text-base font-bold text-white">
+            <h3 className="mb-2 text-base font-bold text-[var(--foreground)]">
               {f.title}
             </h3>
             <p className="text-sm leading-relaxed text-gray-500">{f.desc}</p>

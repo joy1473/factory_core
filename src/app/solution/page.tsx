@@ -54,7 +54,7 @@ export default function SolutionPage() {
           <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
             Smart Factory Levels
           </p>
-          <h2 className="mb-4 text-center text-2xl font-bold text-white md:text-3xl">
+          <h2 className="mb-4 text-center text-2xl font-bold text-[var(--foreground)] md:text-3xl">
             스마트공장, 어디서부터 시작할까요?
           </h2>
           <p className="mx-auto mb-10 max-w-lg text-center text-sm text-gray-500">
@@ -78,7 +78,7 @@ export default function SolutionPage() {
                 <p className="mb-1 text-[10px] font-bold uppercase tracking-wider" style={{ color: l.color }}>
                   LEVEL {i}
                 </p>
-                <p className="mb-1 text-sm font-bold text-white">{l.level}</p>
+                <p className="mb-1 text-sm font-bold text-[var(--foreground)]">{l.level}</p>
                 <p className="mb-3 text-[10px] text-gray-500">{l.desc}</p>
                 <ul className="space-y-1 text-[10px] text-gray-400">
                   {l.items.map((item) => (
@@ -91,7 +91,7 @@ export default function SolutionPage() {
 
           {/* CoreBot Family — AI 기능 소개 */}
           <div className="mb-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-            <h3 className="mb-2 text-center text-sm font-bold text-white">CoreBot Family</h3>
+            <h3 className="mb-2 text-center text-sm font-bold text-[var(--foreground)]">CoreBot Family</h3>
             <p className="mb-5 text-center text-[10px] text-gray-500">Factory Guardian Agent를 구성하는 AI 요원들</p>
             <div className="grid gap-4 sm:grid-cols-4">
               {[
@@ -105,7 +105,7 @@ export default function SolutionPage() {
                     <video src={bot.video} autoPlay loop muted playsInline className="h-full w-full object-cover" />
                   </div>
                   <p className="text-xs font-bold" style={{ color: bot.color }}>{bot.name}</p>
-                  <p className="text-[11px] font-semibold text-white">{bot.role}</p>
+                  <p className="text-[11px] font-semibold text-[var(--foreground)]">{bot.role}</p>
                   <p className="mt-1 text-[10px] text-gray-500">{bot.desc}</p>
                 </div>
               ))}
@@ -114,7 +114,7 @@ export default function SolutionPage() {
 
           {/* Interactive System Diagram */}
           <div className="mb-10">
-            <h3 className="mb-6 text-center text-lg font-bold text-white">
+            <h3 className="mb-6 text-center text-lg font-bold text-[var(--foreground)]">
               스마트공장 시스템 구조
             </h3>
             <SmartFactoryDiagram
@@ -137,7 +137,7 @@ export default function SolutionPage() {
       <div className="relative z-20 bg-[var(--background)]">
         <div className="h-16 bg-gradient-to-b from-transparent to-[#0a0a0a]" />
         <div className="mx-auto max-w-4xl px-5 py-16 text-center">
-          <h2 className="mb-4 text-2xl font-bold text-white md:text-3xl">
+          <h2 className="mb-4 text-2xl font-bold text-[var(--foreground)] md:text-3xl">
             더 알아보기
           </h2>
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">

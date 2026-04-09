@@ -131,7 +131,7 @@ export function SmartFactoryDiagram({ onLayerClick }: SmartFactoryDiagramProps) 
               </div>
               <div className="flex-1 text-center">
                 <p className="text-xs font-bold uppercase tracking-widest text-[#A8E6CF]">지능형 기술</p>
-                <p className="mt-1 text-base font-black text-white">Factory Guardian Agent</p>
+                <p className="mt-1 text-base font-black text-[var(--foreground)]">Factory Guardian Agent</p>
                 <p className="mt-1 text-[11px] text-gray-400">모든 레이어의 데이터를 AI로 통합 · 예측 · 자동 보고</p>
                 <div className="mt-3 flex items-center justify-center gap-3">
                   {[
@@ -167,7 +167,7 @@ function Box({ label, sub, color, hl, small }: { label: string; sub?: string; co
       className={`rounded-md border text-center ${small ? "px-2 py-1.5" : "px-3 py-2"}`}
       style={{ borderColor: color + (hl ? "60" : "30"), backgroundColor: hl ? color + "0a" : "transparent", minWidth: small ? "60px" : "auto" }}
     >
-      <p className={`font-semibold text-white ${small ? "text-[10px]" : "text-[11px]"}`}>{label}</p>
+      <p className={`font-semibold text-[var(--foreground)] ${small ? "text-[10px]" : "text-[11px]"}`}>{label}</p>
       {sub && <p className="text-[9px]" style={{ color: color + "99" }}>{sub}</p>}
     </div>
   );

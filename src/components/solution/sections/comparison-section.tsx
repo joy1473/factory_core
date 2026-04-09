@@ -45,7 +45,7 @@ export function ComparisonSection() {
             </thead>
             <tbody>
               {FEATURES.map((f, i) => (
-                <tr key={f.name} className={`border-b border-[var(--border)]/30 ${i % 2 === 0 ? "bg-[#0a0a0a]" : ""}`}>
+                <tr key={f.name} className={`border-b border-[var(--border)]/30 ${i % 2 === 0 ? "bg-[var(--background)]" : ""}`}>
                   <td className="p-4 text-sm font-semibold text-white">{f.name}</td>
                   <td className="p-4 text-center text-sm font-semibold text-[var(--secondary)]">
                     <CellIcon value={f.ours} />

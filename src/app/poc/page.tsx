@@ -26,7 +26,7 @@ export default function PocPage() {
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
             Proof of Concept
           </p>
-          <h1 className="mb-4 text-3xl font-bold text-white">
+          <h1 className="mb-4 text-3xl font-bold text-[var(--foreground)]">
             무료 PoC 신청
           </h1>
           <p className="text-gray-400">
@@ -37,7 +37,7 @@ export default function PocPage() {
         <div className="grid gap-8 md:grid-cols-5">
           <div className="md:col-span-2">
             <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-              <h3 className="mb-4 text-base font-bold text-white">
+              <h3 className="mb-4 text-base font-bold text-[var(--foreground)]">
                 PoC 포함 사항
               </h3>
               <ul className="space-y-3">

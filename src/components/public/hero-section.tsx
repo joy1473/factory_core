@@ -102,7 +102,7 @@ export function HeroSection() {
                 />
               </div>
               <p className="text-[10px] font-bold" style={{ color: bot.color }}>{bot.name}</p>
-              <h3 className="mb-1 font-bold text-white">{bot.role}</h3>
+              <h3 className="mb-1 font-bold text-[var(--foreground)]">{bot.role}</h3>
               <p className="text-sm text-gray-500">{bot.desc}</p>
             </div>
           ))}

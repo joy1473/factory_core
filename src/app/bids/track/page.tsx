@@ -99,7 +99,7 @@ export default function TrackPage() {
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
             Track Your Inquiry
           </p>
-          <h1 className="mb-4 text-3xl font-bold text-white">
+          <h1 className="mb-4 text-3xl font-bold text-[var(--foreground)]">
             문의 진행 상태 조회
           </h1>
           <p className="text-gray-400">
@@ -138,7 +138,7 @@ export default function TrackPage() {
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               placeholder={searchType === "code" ? "FC-260409-a1b2" : "010-1234-5678"}
-              className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+              className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
             />
             <button
               type="submit"
@@ -199,7 +199,7 @@ export default function TrackPage() {
                   {/* Bid info */}
                   {r.bids && (
                     <div className="mb-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
-                      <p className="text-sm font-semibold text-white">{r.bids.title}</p>
+                      <p className="text-sm font-semibold text-[var(--foreground)]">{r.bids.title}</p>
                       <p className="text-xs text-gray-500">
                         {r.bids.organization} · {r.bids.field}
                       </p>
@@ -210,12 +210,12 @@ export default function TrackPage() {
                   <div className="grid gap-2 text-sm sm:grid-cols-2">
                     <div>
                       <span className="text-gray-500">담당자:</span>{" "}
-                      <span className="text-white">{r.contact_name}</span>
+                      <span className="text-[var(--foreground)]">{r.contact_name}</span>
                     </div>
                     {r.company_name && (
                       <div>
                         <span className="text-gray-500">회사:</span>{" "}
-                        <span className="text-white">{r.company_name}</span>
+                        <span className="text-[var(--foreground)]">{r.company_name}</span>
                       </div>
                     )}
                     <div>

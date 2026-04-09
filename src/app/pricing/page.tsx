@@ -44,7 +44,7 @@ export default function PricingPage() {
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--secondary)]">
               Pricing
             </p>
-            <h1 className="mb-4 text-3xl font-bold text-white md:text-4xl">
+            <h1 className="mb-4 text-3xl font-bold text-[var(--foreground)] md:text-4xl">
               가격 및 도입 안내
             </h1>
             <p className="mx-auto max-w-lg text-gray-400">
@@ -63,7 +63,7 @@ export default function PricingPage() {
               <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--accent)]">
                 Government Support
               </p>
-              <h2 className="mb-4 text-2xl font-bold text-white">
+              <h2 className="mb-4 text-2xl font-bold text-[var(--foreground)]">
                 정부가 비용을 줄여드립니다
               </h2>
               <p className="text-sm text-gray-500">
@@ -80,7 +80,7 @@ export default function PricingPage() {
                   <div className="flex items-start gap-3">
                     <Building2 size={18} className="mt-0.5 shrink-0 text-[var(--accent)]" />
                     <div>
-                      <p className="text-sm font-semibold text-white">{p.name}</p>
+                      <p className="text-sm font-semibold text-[var(--foreground)]">{p.name}</p>
                       <p className="text-xs text-gray-500">{p.desc}</p>
                     </div>
                   </div>
@@ -94,21 +94,21 @@ export default function PricingPage() {
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 text-center">
                 <Shield size={24} className="mx-auto mb-2 text-[var(--primary)]" />
-                <p className="text-sm font-semibold text-white">성과 보장</p>
+                <p className="text-sm font-semibold text-[var(--foreground)]">성과 보장</p>
                 <p className="mt-1 text-xs text-gray-500">
                   다운타임 20%+ 감소 시<br />PoC 비용 50% 본계약 전환
                 </p>
               </div>
               <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 text-center">
                 <Award size={24} className="mx-auto mb-2 text-[var(--secondary)]" />
-                <p className="text-sm font-semibold text-white">정부 연계 할인</p>
+                <p className="text-sm font-semibold text-[var(--foreground)]">정부 연계 할인</p>
                 <p className="mt-1 text-xs text-gray-500">
                   지원사업 매칭 시<br />최대 40% 추가 할인
                 </p>
               </div>
               <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5 text-center">
                 <Building2 size={24} className="mx-auto mb-2 text-[var(--accent)]" />
-                <p className="text-sm font-semibold text-white">유연한 계약</p>
+                <p className="text-sm font-semibold text-[var(--foreground)]">유연한 계약</p>
                 <p className="mt-1 text-xs text-gray-500">
                   월/연 구독 선택<br />언제든 해지 가능
                 </p>

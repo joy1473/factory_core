@@ -5,7 +5,7 @@ export function CtaSection() {
   return (
     <section className="border-y border-[var(--border)]">
       <div className="mx-auto max-w-6xl px-5 py-20 text-center">
-        <h2 className="mb-4 text-2xl font-bold text-white md:text-3xl">
+        <h2 className="mb-4 text-2xl font-bold text-[var(--foreground)] md:text-3xl">
           지금 바로 시작하세요
         </h2>
         <p className="mx-auto mb-8 max-w-lg text-gray-400">

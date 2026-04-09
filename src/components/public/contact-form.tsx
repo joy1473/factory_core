@@ -120,7 +120,7 @@ export function ContactForm({
     return (
       <div className="rounded-xl border border-[var(--secondary)]/30 bg-[var(--surface)] p-10 text-center">
         <CheckCircle className="mx-auto mb-4 h-12 w-12 text-[var(--secondary)]" />
-        <h3 className="mb-2 text-xl font-bold text-white">
+        <h3 className="mb-2 text-xl font-bold text-[var(--foreground)]">
           접수되었습니다!
         </h3>
         {trackingCode && (
@@ -149,7 +149,7 @@ export function ContactForm({
       onSubmit={handleSubmit}
       className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-8"
     >
-      <h3 className="mb-6 text-xl font-bold text-white">{title}</h3>
+      <h3 className="mb-6 text-xl font-bold text-[var(--foreground)]">{title}</h3>
 
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Company name with autocomplete */}
@@ -160,7 +160,7 @@ export function ContactForm({
             value={form.company_name}
             onChange={(e) => handleCompanyInput(e.target.value)}
             onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
             placeholder="회사명 입력 (자동 검색)"
             autoComplete="off"
           />
@@ -183,7 +183,7 @@ export function ContactForm({
                 >
                   <Building2 size={14} className="mt-0.5 shrink-0 text-[var(--primary)]" />
                   <div>
-                    <p className="text-sm font-semibold text-white">{s.name}</p>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">{s.name}</p>
                     <p className="text-xs text-gray-500">
                       {s.sido} {s.sigungu}
                       {s.contact_person && ` · ${s.contact_person}`}
@@ -206,7 +206,7 @@ export function ContactForm({
             onChange={(e) =>
               setForm({ ...form, contact_name: e.target.value })
             }
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
             placeholder="홍길동"
           />
         </div>
@@ -216,7 +216,7 @@ export function ContactForm({
             type="tel"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
             placeholder="010-1234-5678"
           />
         </div>
@@ -226,7 +226,7 @@ export function ContactForm({
             type="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
-            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+            className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
             placeholder="info@company.com"
           />
         </div>
@@ -241,7 +241,7 @@ export function ContactForm({
           rows={5}
           value={form.message}
           onChange={(e) => setForm({ ...form, message: e.target.value })}
-          className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+          className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
           placeholder={
             type === "poc"
               ? "설비 종류, 공장 규모, 희망 일정 등을 적어주세요."

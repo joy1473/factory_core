@@ -139,7 +139,7 @@ export default function BidsPage() {
           <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--accent)]">
             Smart Factory Bids
           </p>
-          <h1 className="mb-4 text-3xl font-bold text-white">
+          <h1 className="mb-4 text-3xl font-bold text-[var(--foreground)]">
             스마트공장 지원사업 공고
           </h1>
           <p className="mx-auto mb-4 max-w-lg text-gray-400">
@@ -202,7 +202,7 @@ export default function BidsPage() {
                     )}
                   </div>
 
-                  <h3 className="mb-2 text-lg font-bold text-white">
+                  <h3 className="mb-2 text-lg font-bold text-[var(--foreground)]">
                     {bid.title}
                   </h3>
                   <p className="mb-3 text-sm text-gray-400">{bid.summary}</p>
@@ -243,7 +243,7 @@ export default function BidsPage() {
         {selectedBid && !sent && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
             <div className="w-full max-w-lg rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-              <h3 className="mb-1 text-lg font-bold text-white">지원 문의</h3>
+              <h3 className="mb-1 text-lg font-bold text-[var(--foreground)]">지원 문의</h3>
               <p className="mb-4 text-sm text-[var(--primary)]">
                 {selectedBid.title}
               </p>
@@ -255,7 +255,7 @@ export default function BidsPage() {
                     value={inquiryForm.contact_name}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, contact_name: e.target.value })}
                     placeholder="담당자명 *"
-                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                   />
                   <div className="relative">
                     <input
@@ -264,7 +264,7 @@ export default function BidsPage() {
                       onFocus={() => companySuggestions.length > 0 && setShowCompanySuggestions(true)}
                       placeholder="회사명 (자동 검색)"
                       autoComplete="off"
-                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                      className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                     />
                     {showCompanySuggestions && (
                       <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] shadow-xl">
@@ -275,7 +275,7 @@ export default function BidsPage() {
                             onClick={() => selectBidCompany(c)}
                             className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs transition hover:bg-white/5"
                           >
-                            <span className="font-semibold text-white">{c.name}</span>
+                            <span className="font-semibold text-[var(--foreground)]">{c.name}</span>
                             <span className="text-gray-500">{c.sido}</span>
                           </button>
                         ))}
@@ -286,13 +286,13 @@ export default function BidsPage() {
                     value={inquiryForm.phone}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
                     placeholder="연락처"
-                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                   />
                   <input
                     value={inquiryForm.email}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
                     placeholder="이메일"
-                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                    className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                   />
                 </div>
 
@@ -323,7 +323,7 @@ export default function BidsPage() {
                   value={inquiryForm.message}
                   onChange={(e) => setInquiryForm({ ...inquiryForm, message: e.target.value })}
                   placeholder="문의 내용 (업종, 규모, 희망사항 등)"
-                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                 />
 
                 <div className="flex gap-3">
@@ -337,7 +337,7 @@ export default function BidsPage() {
                   <button
                     type="button"
                     onClick={() => setSelectedBid(null)}
-                    className="rounded-lg border border-[var(--border)] px-4 py-2.5 text-sm text-gray-400 hover:text-white"
+                    className="rounded-lg border border-[var(--border)] px-4 py-2.5 text-sm text-gray-400 hover:text-[var(--foreground)]"
                   >
                     닫기
                   </button>
@@ -352,7 +352,7 @@ export default function BidsPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
             <div className="w-full max-w-sm rounded-xl border border-[var(--secondary)]/30 bg-[var(--surface)] p-8 text-center">
               <CheckCircle className="mx-auto mb-4 h-12 w-12 text-[var(--secondary)]" />
-              <h3 className="mb-2 text-xl font-bold text-white">접수 완료!</h3>
+              <h3 className="mb-2 text-xl font-bold text-[var(--foreground)]">접수 완료!</h3>
               {trackingCode && (
                 <div className="mb-4 rounded-lg bg-[var(--primary)]/10 p-3">
                   <p className="text-xs text-gray-400">추적 코드</p>

@@ -28,7 +28,7 @@ export function StatsSection() {
         <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
           Market Data
         </p>
-        <h2 className="mb-10 text-center text-2xl font-bold text-white md:text-3xl">
+        <h2 className="mb-10 text-center text-2xl font-bold text-[var(--foreground)] md:text-3xl">
           중소 제조현장, 아직 AI가 도달하지 못했습니다
         </h2>
 
@@ -41,7 +41,7 @@ export function StatsSection() {
               <div className="mb-1 text-3xl font-black text-[var(--primary)]">
                 {s.num}
               </div>
-              <div className="text-sm font-semibold text-white">{s.label}</div>
+              <div className="text-sm font-semibold text-[var(--foreground)]">{s.label}</div>
               <div className="mt-1 text-xs text-gray-500">{s.sub}</div>
             </div>
           ))}

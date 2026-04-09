@@ -33,7 +33,7 @@ export function BeforeAfterSection() {
             </thead>
             <tbody>
               {COMPARISONS.map((c, i) => (
-                <tr key={c.item} className={`border-b border-[var(--border)]/30 ${i % 2 === 0 ? "bg-[#0a0a0a]" : ""}`}>
+                <tr key={c.item} className={`border-b border-[var(--border)]/30 ${i % 2 === 0 ? "bg-[var(--background)]" : ""}`}>
                   <td className="p-4 text-sm font-semibold text-white">{c.item}</td>
                   <td className="p-4 text-sm text-gray-400">{c.before}</td>
                   <td className="p-4 text-center text-gray-600">→</td>
