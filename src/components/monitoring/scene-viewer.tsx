@@ -49,65 +49,62 @@ function DeviceMarker3D({ device, selected, editMode, onClick, onRemove }: {
   device: DevicePosition; selected?: boolean; editMode?: boolean; onClick: () => void; onRemove?: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
-  const { gl } = useThree();
-  const color = ALERT_COLORS[device.alertLevel];
   const pos = device.position_3d;
 
   return (
     <group>
-      <mesh
+      <Html
         position={[pos.x, pos.y + 0.5, pos.z]}
-        renderOrder={999}
-        onClick={(e) => { e.stopPropagation(); onClick(); }}
-        onPointerOver={() => { setHovered(true); gl.domElement.style.cursor = "pointer"; }}
-        onPointerOut={() => { setHovered(false); gl.domElement.style.cursor = "auto"; }}
+        center
+        distanceFactor={6}
+        zIndexRange={[1000, 0]}
+        style={{ pointerEvents: "auto", userSelect: "none", cursor: "pointer" }}
       >
-        <sphereGeometry args={[hovered || selected ? 0.07 : 0.05, 12, 12]} />
-        <meshBasicMaterial color={selected ? "#ffffff" : color} transparent opacity={0.95} depthTest={false} />
-      </mesh>
-
-      <mesh position={[pos.x, pos.y + 0.25, pos.z]} renderOrder={998}>
-        <cylinderGeometry args={[0.005, 0.005, 0.5, 4]} />
-        <meshBasicMaterial color={color} transparent opacity={0.5} depthTest={false} />
-      </mesh>
-
-      <Html position={[pos.x, pos.y + 1.0, pos.z]} center distanceFactor={8} zIndexRange={[1000, 0]} style={{ pointerEvents: editMode && hovered ? "auto" : "none", userSelect: "none" }}>
-        <div style={{
-          background: selected ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.8)",
-          backdropFilter: "blur(8px)",
-          border: `1px solid ${selected ? "#fff" : color + "40"}`,
-          borderRadius: "8px",
-          padding: "6px 10px",
-          whiteSpace: "nowrap",
-          transform: "translateY(-100%)",
-          boxShadow: selected ? `0 0 15px ${color}60` : "none",
-          position: "relative",
-        }}>
-          {/* 편집 모드 + hover 시 X 버튼 */}
-          {editMode && hovered && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
-              style={{
-                position: "absolute", top: "-8px", right: "-8px",
-                width: "18px", height: "18px", borderRadius: "50%",
-                backgroundColor: "#FF9A9A", color: "#000", border: "none",
-                fontSize: "11px", fontWeight: "bold", cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                lineHeight: 1,
-              }}
-            >
-              ×
-            </button>
-          )}
-          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: color, boxShadow: `0 0 6px ${color}`, display: "inline-block" }} />
-            <span style={{ fontSize: "11px", fontWeight: "bold", color: selected ? "#000" : "#fff" }}>{device.name}</span>
+        <div
+          onClick={(e) => { e.stopPropagation(); onClick(); }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}
+        >
+          {/* 라벨 */}
+          <div style={{
+            background: selected ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.8)",
+            backdropFilter: "blur(8px)",
+            borderRadius: "6px",
+            padding: "4px 8px",
+            whiteSpace: "nowrap",
+            marginBottom: "2px",
+            boxShadow: selected ? "0 0 10px rgba(255,255,255,0.3)" : "none",
+            position: "relative",
+          }}>
+            {/* 편집 모드 X 버튼 */}
+            {editMode && hovered && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
+                style={{
+                  position: "absolute", top: "-6px", right: "-6px",
+                  width: "16px", height: "16px", borderRadius: "50%",
+                  backgroundColor: "#ef4444", color: "#fff", border: "none",
+                  fontSize: "10px", fontWeight: "bold", cursor: "pointer",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                }}
+              >×</button>
+            )}
+            <span style={{ fontSize: "10px", fontWeight: "bold", color: selected ? "#000" : "#fff" }}>{device.name}</span>
           </div>
-          <div style={{ fontSize: "9px", color: selected ? "#555" : "#aaa", marginTop: "2px" }}>
-            {device.latestTemp !== undefined && `${device.latestTemp}°C`}
-            {device.latestVib !== undefined && ` · ${device.latestVib}mm/s`}
-            {device.latestTemp === undefined && device.latestVib === undefined && device.device_type}
-          </div>
+
+          {/* 핀 이미지 */}
+          <img
+            src="/images/solution/25530.jpg"
+            alt="pin"
+            style={{
+              width: hovered ? "28px" : "24px",
+              height: hovered ? "36px" : "32px",
+              objectFit: "contain",
+              filter: selected ? "brightness(1.3) drop-shadow(0 0 4px white)" : "drop-shadow(0 2px 3px rgba(0,0,0,0.5))",
+              transition: "all 0.15s ease",
+            }}
+          />
         </div>
       </Html>
     </group>
