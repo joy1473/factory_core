@@ -1,21 +1,39 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 
-// AWS SES 발송 (SES 인증 완료 후 활성화)
+const ses = new SESClient({
+  region: process.env.AWS_SES_REGION || "ap-northeast-2",
+  credentials: {
+    accessKeyId: process.env.AWS_SES_ACCESS_KEY || "",
+    secretAccessKey: process.env.AWS_SES_SECRET_KEY || "",
+  },
+});
+
+const FROM_EMAIL = process.env.AWS_SES_FROM_EMAIL || "noreply@joy.it.kr";
+
 async function sendEmail(to: string, subject: string, body: string): Promise<boolean> {
-  // TODO: AWS SES 연동 후 실제 발송으로 교체
-  // 현재는 시뮬레이션 (항상 성공)
-  const SES_CONFIGURED = !!process.env.AWS_SES_ACCESS_KEY;
-
-  if (SES_CONFIGURED) {
-    // AWS SES SDK 호출
-    // const ses = new SESClient({ region: "ap-northeast-2" });
-    // await ses.send(new SendEmailCommand({...}));
+  if (!process.env.AWS_SES_ACCESS_KEY) {
+    console.log(`[EMAIL SIMULATE] To: ${to}, Subject: ${subject.substring(0, 50)}`);
     return true;
   }
 
-  // SES 미설정 시 로그만 남김
-  console.log(`[EMAIL SIMULATE] To: ${to}, Subject: ${subject.substring(0, 50)}`);
+  const command = new SendEmailCommand({
+    Source: FROM_EMAIL,
+    Destination: { ToAddresses: [to] },
+    Message: {
+      Subject: { Data: subject, Charset: "UTF-8" },
+      Body: {
+        Text: { Data: body, Charset: "UTF-8" },
+        Html: {
+          Data: body.replace(/\n/g, "<br>"),
+          Charset: "UTF-8",
+        },
+      },
+    },
+  });
+
+  await ses.send(command);
   return true;
 }
 
@@ -83,8 +101,16 @@ export async function POST(request: Request) {
 
       if (success) sent++;
       else failed++;
-    } catch {
+    } catch (err) {
       failed++;
+      // 실패 이력도 저장
+      await supabase.from("send_history").insert({
+        company_id: c.id,
+        template_id,
+        phone: email,
+        rendered_content: content,
+        status: "failed",
+      });
     }
   }
 
