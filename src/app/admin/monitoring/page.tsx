@@ -307,7 +307,8 @@ export default function MonitoringPage() {
                   alerts.some((a) => a.device_id === d.id) ? "warning" as const : "normal" as const,
               }))}
               onDeviceClick={(id) => setSelectedDevice(id === selectedDevice ? null : id)}
-              onDeviceMove={async (id, pos) => {
+              editTargetId={editMode ? selectedDevice : null}
+              onPlaceDevice={async (id, pos) => {
                 await fetch(`/api/devices/${id}/position`, {
                   method: "PATCH",
                   headers: { "Content-Type": "application/json" },
