@@ -50,7 +50,7 @@ export function PricingSection() {
         <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
           Pricing
         </p>
-        <h2 className="mb-4 text-center text-2xl font-bold text-white md:text-3xl">
+        <h2 className="mb-4 text-center text-2xl font-bold text-[var(--foreground)] md:text-3xl">
           투명한 가격 구조
         </h2>
         <p className="mx-auto mb-12 max-w-md text-center text-sm text-gray-500">
@@ -72,14 +72,14 @@ export function PricingSection() {
                   추천
                 </p>
               )}
-              <h3 className="mb-1 text-lg font-bold text-white">{plan.name}</h3>
+              <h3 className="mb-1 text-lg font-bold text-[var(--foreground)]">{plan.name}</h3>
               <p className="mb-1 text-2xl font-black text-[var(--primary)]">
                 {plan.price}
               </p>
               <p className="mb-4 text-xs text-gray-500">{plan.desc}</p>
               <ul className="mb-6 space-y-2">
                 {plan.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2 text-sm text-gray-300">
+                  <li key={f} className="flex items-start gap-2 text-sm text-[var(--muted)]">
                     <Check size={14} className="mt-0.5 shrink-0 text-[var(--secondary)]" />
                     {f}
                   </li>
@@ -90,7 +90,7 @@ export function PricingSection() {
                 className={`block rounded-lg py-2.5 text-center text-sm font-bold transition ${
                   plan.highlight
                     ? "bg-[var(--primary)] text-black hover:brightness-110"
-                    : "border border-[var(--border)] text-gray-300 hover:border-[var(--primary)] hover:text-[var(--primary)]"
+                    : "border border-[var(--border)] text-[var(--muted)] hover:border-[var(--primary)] hover:text-[var(--primary)]"
                 }`}
               >
                 {plan.cta}

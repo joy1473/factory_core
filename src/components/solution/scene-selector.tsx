@@ -70,8 +70,8 @@ export function SceneSelector({ current, onChange }: SceneSelectorProps) {
             onClick={() => onChange(t.id)}
             className={`shrink-0 rounded-lg px-4 py-2 text-xs font-semibold transition ${
               current === t.id
-                ? "text-[#1a1a1a]"
-                : "text-gray-400 hover:bg-white/5"
+                ? "text-[var(--background)]"
+                : "text-[var(--muted)] hover:bg-[var(--foreground)]/5"
             }`}
             style={
               current === t.id

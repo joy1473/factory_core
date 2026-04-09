@@ -89,7 +89,7 @@ export function FactoryScene({ sceneId = "general" }: FactorySceneProps) {
           >
             {i === 3 ? (
               <>
-                <p className="mb-2 animate-pulse text-sm font-bold uppercase tracking-widest text-[#FF9A9A]">
+                <p className="mb-2 animate-pulse text-sm font-bold uppercase tracking-widest text-[var(--pastel-alert)]">
                   ⚠ Alert
                 </p>
                 <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
@@ -99,7 +99,7 @@ export function FactoryScene({ sceneId = "general" }: FactorySceneProps) {
               </>
             ) : i === 0 ? (
               <>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#A8E6CF]">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--corebot-core)]">
                   Factory Guardian Agent
                 </p>
                 <h2 className="mb-3 text-3xl font-black leading-tight text-white md:text-4xl">
@@ -109,7 +109,7 @@ export function FactoryScene({ sceneId = "general" }: FactorySceneProps) {
               </>
             ) : i === 1 ? (
               <>
-                <p className="mb-2 text-5xl font-black text-[#A8E6CF] md:text-6xl">$1</p>
+                <p className="mb-2 text-5xl font-black text-[var(--corebot-core)] md:text-6xl">$1</p>
                 <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
                   {text.title}
                 </h2>
@@ -123,7 +123,7 @@ export function FactoryScene({ sceneId = "general" }: FactorySceneProps) {
                 <p className="mb-6 text-gray-400">{text.subtitle}</p>
                 <a
                   href="/poc"
-                  className="inline-block rounded-xl bg-[#A8E6CF] px-8 py-3.5 text-base font-bold text-[#1a1a1a] transition hover:brightness-110"
+                  className="inline-block rounded-xl bg-[var(--corebot-core)] px-8 py-3.5 text-base font-bold text-[var(--background)] transition hover:brightness-110"
                 >
                   지금 바로 도입하기 →
                 </a>
@@ -273,7 +273,7 @@ function OverlaySection({
       className={`absolute w-full px-6 md:px-16 ${alignClass}`}
       style={{ top, opacity, transform: `translateY(${translateY}px)`, pointerEvents: opacity > 0.5 ? "auto" : "none" }}
     >
-      <div className="max-w-lg rounded-xl bg-black/40 p-6 backdrop-blur-sm">{children}</div>
+      <div className="max-w-lg rounded-xl bg-[var(--background)]/60 p-6 backdrop-blur-sm">{children}</div>
     </div>
   );
 }

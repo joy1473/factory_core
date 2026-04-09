@@ -38,12 +38,12 @@ export default function PrivacyPage() {
     <>
       <Header />
       <main className="mx-auto max-w-3xl px-5 py-20">
-        <h1 className="mb-8 text-2xl font-bold text-white">
+        <h1 className="mb-8 text-2xl font-bold text-[var(--foreground)]">
           개인정보처리방침
         </h1>
         <div className="space-y-6 text-sm leading-relaxed text-gray-400">
           <section>
-            <h2 className="mb-2 text-base font-semibold text-white">
+            <h2 className="mb-2 text-base font-semibold text-[var(--foreground)]">
               1. 개인정보의 수집 및 이용 목적
             </h2>
             <p>
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-base font-semibold text-white">
+            <h2 className="mb-2 text-base font-semibold text-[var(--foreground)]">
               2. 수집하는 개인정보 항목
             </h2>
             <ul className="list-inside list-disc space-y-1">
@@ -68,7 +68,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-base font-semibold text-white">
+            <h2 className="mb-2 text-base font-semibold text-[var(--foreground)]">
               3. 개인정보의 보유 및 이용 기간
             </h2>
             <p>
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-base font-semibold text-white">
+            <h2 className="mb-2 text-base font-semibold text-[var(--foreground)]">
               4. 개인정보의 제3자 제공
             </h2>
             <p>
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-base font-semibold text-white">
+            <h2 className="mb-2 text-base font-semibold text-[var(--foreground)]">
               5. 개인정보 보호책임자
             </h2>
             <p>회사: {info.company_name} ({info.company_name_en})</p>

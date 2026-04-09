@@ -20,11 +20,11 @@ export function SmartFactoryDiagram({ onLayerClick }: SmartFactoryDiagramProps) 
             onClick={() => onLayerClick("office")}
             className="group relative mb-1 flex w-full items-stretch rounded-lg border border-[#DDA0DD]/30 transition hover:border-[#DDA0DD]/70 hover:shadow-[0_0_15px_rgba(221,160,221,0.08)]"
           >
-            <div className="flex w-24 shrink-0 items-center justify-center rounded-l-lg bg-[#1a0d1a] px-2">
+            <div className="flex w-24 shrink-0 items-center justify-center rounded-l-lg bg-[var(--surface)] px-2">
               <span className="text-[10px] font-bold leading-tight text-[#DDA0DD] [writing-mode:vertical-lr]">응용시스템 S/W</span>
             </div>
 
-            <div className="flex-1 bg-[#120d14] p-4">
+            <div className="flex-1 bg-[var(--surface)] p-4">
               <div className="mb-3 flex items-center justify-between gap-2">
                 <Box label="협력사" color="#DDA0DD" small />
                 <Arr />
@@ -43,7 +43,7 @@ export function SmartFactoryDiagram({ onLayerClick }: SmartFactoryDiagramProps) 
               </div>
             </div>
 
-            <div className="flex w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-r-lg bg-[#120d14] pr-3">
+            <div className="flex w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-r-lg bg-[var(--surface)] pr-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#DDA0DD]/15 text-lg">☁️</div>
               <span className="text-[9px] text-[#DDA0DD]">CLOUD</span>
             </div>
@@ -58,10 +58,10 @@ export function SmartFactoryDiagram({ onLayerClick }: SmartFactoryDiagramProps) 
             onClick={() => onLayerClick("electronics")}
             className="group relative mb-1 flex w-full items-stretch rounded-lg border border-[#FFD3B6]/30 transition hover:border-[#FFD3B6]/70 hover:shadow-[0_0_15px_rgba(255,211,182,0.08)]"
           >
-            <div className="flex w-24 shrink-0 items-center justify-center rounded-l-lg bg-[#1a140d] px-2">
+            <div className="flex w-24 shrink-0 items-center justify-center rounded-l-lg bg-[var(--surface)] px-2">
               <span className="text-[10px] font-bold leading-tight text-[#FFD3B6] [writing-mode:vertical-lr]">제어 자동화</span>
             </div>
-            <div className="flex flex-1 items-center gap-2 bg-[#14100d] p-4">
+            <div className="flex flex-1 items-center gap-2 bg-[var(--surface)] p-4">
               <Box label="공정제어" sub="PLC" color="#FFB89A" />
               <Arr />
               <Box label="인터페이스" sub="수집/변환" color="#FFB89A" />
@@ -70,7 +70,7 @@ export function SmartFactoryDiagram({ onLayerClick }: SmartFactoryDiagramProps) 
               <Arr />
               <Box label="산업용 통신" sub="OPC-UA" color="#FFB89A" />
             </div>
-            <div className="flex w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-r-lg bg-[#14100d] pr-3">
+            <div className="flex w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-r-lg bg-[var(--surface)] pr-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FFD3B6]/15 text-lg">📡</div>
               <span className="text-[9px] text-[#FFD3B6]">PPS</span>
             </div>
@@ -84,10 +84,10 @@ export function SmartFactoryDiagram({ onLayerClick }: SmartFactoryDiagramProps) 
             onClick={() => onLayerClick("general")}
             className="group relative mb-3 flex w-full items-stretch rounded-lg border border-[#FDFD96]/25 transition hover:border-[#FDFD96]/60 hover:shadow-[0_0_15px_rgba(253,253,150,0.08)]"
           >
-            <div className="flex w-24 shrink-0 items-center justify-center rounded-l-lg bg-[#1a1a0d] px-2">
+            <div className="flex w-24 shrink-0 items-center justify-center rounded-l-lg bg-[var(--surface)] px-2">
               <span className="text-[10px] font-bold leading-tight text-[#FDFD96] [writing-mode:vertical-lr]">현장 자동화</span>
             </div>
-            <div className="flex flex-1 items-center gap-2 bg-[#12120d] p-4">
+            <div className="flex flex-1 items-center gap-2 bg-[var(--surface)] p-4">
               <Box label="센서/태그" sub="IoT Pixel" color="#F0E68C" />
               <Arr />
               <Box label="로봇" sub="협동로봇" color="#F0E68C" />
@@ -96,7 +96,7 @@ export function SmartFactoryDiagram({ onLayerClick }: SmartFactoryDiagramProps) 
               <Arr />
               <Box label="계측/검사" sub="비전/진동" color="#F0E68C" />
             </div>
-            <div className="flex w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-r-lg bg-[#12120d] pr-3">
+            <div className="flex w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-r-lg bg-[var(--surface)] pr-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#FDFD96]/15 text-lg">⚙️</div>
               <span className="text-[9px] text-[#FDFD96]">설비</span>
             </div>
@@ -113,7 +113,7 @@ export function SmartFactoryDiagram({ onLayerClick }: SmartFactoryDiagramProps) 
             onClick={() => onLayerClick("metal")}
             className="group relative flex w-full items-stretch overflow-hidden rounded-xl border-2 border-dashed border-[#A8E6CF]/30 transition hover:border-[#A8E6CF]/70 hover:shadow-[0_0_25px_rgba(168,230,207,0.12)]"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0a1a14] via-[#0d1f18] to-[#0a1a14]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--surface)] via-[var(--surface)] to-[var(--surface)]" />
             <div className="relative flex w-full items-center gap-6 p-5">
               {/* Core 캐릭터 영상 */}
               <div className="flex shrink-0 flex-col items-center gap-1">

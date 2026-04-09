@@ -61,7 +61,7 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="mb-8 text-sm leading-relaxed text-gray-300">
+          <div className="mb-8 text-sm leading-relaxed text-[var(--muted)]">
             <p className="mb-4">
               {co.company_name}은 2005년 설립 이래 IT 기술 기반의 솔루션을 개발해온
               기업입니다. 현재는 중소 제조기업을 위한 AI 기반 설비관리 솔루션

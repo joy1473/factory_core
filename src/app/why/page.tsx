@@ -19,7 +19,7 @@ export default function WhyPage() {
       <Header />
       <main>
         {/* Hero */}
-        <section className="border-b border-[var(--border)] bg-gradient-to-b from-[#0a0a0a] to-[#050508]">
+        <section className="border-b border-[var(--border)] bg-gradient-to-b from-[var(--background)] to-[var(--surface)]">
           <div className="mx-auto max-w-4xl px-5 pb-16 pt-24 text-center">
             <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
               Why Factory Guardian?

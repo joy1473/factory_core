@@ -20,12 +20,12 @@ function CellIcon({ value }: { value: string | boolean }) {
 
 export function ComparisonSection() {
   return (
-    <section className="border-t border-[var(--border)] bg-[#050508]">
+    <section className="border-t border-[var(--border)] bg-[var(--surface)]">
       <div className="mx-auto max-w-5xl px-5 py-20">
         <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
           Comparison
         </p>
-        <h2 className="mb-12 text-center text-2xl font-bold text-white md:text-3xl">
+        <h2 className="mb-12 text-center text-2xl font-bold text-[var(--foreground)] md:text-3xl">
           왜 Factory Guardian인가?
         </h2>
 
@@ -46,7 +46,7 @@ export function ComparisonSection() {
             <tbody>
               {FEATURES.map((f, i) => (
                 <tr key={f.name} className={`border-b border-[var(--border)]/30 ${i % 2 === 0 ? "bg-[var(--background)]" : ""}`}>
-                  <td className="p-4 text-sm font-semibold text-white">{f.name}</td>
+                  <td className="p-4 text-sm font-semibold text-[var(--foreground)]">{f.name}</td>
                   <td className="p-4 text-center text-sm font-semibold text-[var(--secondary)]">
                     <CellIcon value={f.ours} />
                   </td>

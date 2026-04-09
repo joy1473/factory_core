@@ -38,12 +38,12 @@ export function FaqSection() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
-    <section className="border-t border-[var(--border)] bg-[#050508]">
+    <section className="border-t border-[var(--border)] bg-[var(--surface)]">
       <div className="mx-auto max-w-3xl px-5 py-20">
         <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
           FAQ
         </p>
-        <h2 className="mb-12 text-center text-2xl font-bold text-white md:text-3xl">
+        <h2 className="mb-12 text-center text-2xl font-bold text-[var(--foreground)] md:text-3xl">
           자주 묻는 질문
         </h2>
 
@@ -57,7 +57,7 @@ export function FaqSection() {
                 onClick={() => setOpenIdx(openIdx === i ? null : i)}
                 className="flex w-full items-center justify-between p-5 text-left"
               >
-                <span className="text-sm font-semibold text-white pr-4">{faq.q}</span>
+                <span className="text-sm font-semibold text-[var(--foreground)] pr-4">{faq.q}</span>
                 <ChevronDown
                   size={18}
                   className={`shrink-0 text-gray-500 transition-transform ${openIdx === i ? "rotate-180" : ""}`}

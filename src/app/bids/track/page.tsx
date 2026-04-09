@@ -20,9 +20,9 @@ interface InquiryStatus {
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string; icon: typeof Clock }> = {
-  new: { label: "접수 완료", color: "#00d4ff", icon: Clock },
-  in_progress: { label: "진행 중", color: "#ffaa00", icon: Loader2 },
-  completed: { label: "완료", color: "#00ff88", icon: CheckCircle },
+  new: { label: "접수 완료", color: "#DDA0DD", icon: Clock },
+  in_progress: { label: "진행 중", color: "#FFD3B6", icon: Loader2 },
+  completed: { label: "완료", color: "#A8E6CF", icon: CheckCircle },
   cancelled: { label: "취소", color: "#888888", icon: AlertCircle },
 };
 
@@ -232,7 +232,7 @@ export default function TrackPage() {
                       <p className="mb-1 flex items-center gap-1 text-xs font-semibold text-[var(--secondary)]">
                         <FileText size={12} /> 담당자 메모
                       </p>
-                      <p className="text-sm text-gray-300">{r.admin_note}</p>
+                      <p className="text-sm text-[var(--muted)]">{r.admin_note}</p>
                     </div>
                   )}
 

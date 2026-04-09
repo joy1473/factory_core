@@ -17,7 +17,7 @@ export function BeforeAfterSection() {
         <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
           Before → After
         </p>
-        <h2 className="mb-12 text-center text-2xl font-bold text-white md:text-3xl">
+        <h2 className="mb-12 text-center text-2xl font-bold text-[var(--foreground)] md:text-3xl">
           Factory Guardian이 바꿔드립니다
         </h2>
 
@@ -26,7 +26,7 @@ export function BeforeAfterSection() {
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface)]">
                 <th className="p-4 text-left text-xs font-semibold text-gray-400">항목</th>
-                <th className="p-4 text-left text-xs font-semibold text-[#ff4444]">현재</th>
+                <th className="p-4 text-left text-xs font-semibold text-[var(--danger)]">현재</th>
                 <th className="p-4 text-center text-xs text-gray-600"><ArrowRight size={14} /></th>
                 <th className="p-4 text-left text-xs font-semibold text-[var(--secondary)]">도입 후</th>
               </tr>
@@ -34,7 +34,7 @@ export function BeforeAfterSection() {
             <tbody>
               {COMPARISONS.map((c, i) => (
                 <tr key={c.item} className={`border-b border-[var(--border)]/30 ${i % 2 === 0 ? "bg-[var(--background)]" : ""}`}>
-                  <td className="p-4 text-sm font-semibold text-white">{c.item}</td>
+                  <td className="p-4 text-sm font-semibold text-[var(--foreground)]">{c.item}</td>
                   <td className="p-4 text-sm text-gray-400">{c.before}</td>
                   <td className="p-4 text-center text-gray-600">→</td>
                   <td className="p-4 text-sm font-semibold text-[var(--secondary)]">{c.after}</td>

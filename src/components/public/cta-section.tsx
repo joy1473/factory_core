@@ -28,7 +28,7 @@ export function CtaSection() {
           </Link>
           <Link
             href="/contact"
-            className="rounded-xl border border-[var(--border)] px-8 py-3.5 text-base font-semibold text-gray-300 transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
+            className="rounded-xl border border-[var(--border)] px-8 py-3.5 text-base font-semibold text-[var(--muted)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
           >
             일반 문의
           </Link>

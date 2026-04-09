@@ -58,7 +58,7 @@ export function Footer() {
           {/* Links */}
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="mb-3 font-semibold text-gray-300">솔루션</p>
+              <p className="mb-3 font-semibold text-[var(--muted)]">솔루션</p>
               <div className="flex flex-col gap-2 text-gray-500">
                 <Link href="/solution" className="hover:text-[var(--primary)]">
                   Factory Guardian Agent
@@ -69,7 +69,7 @@ export function Footer() {
               </div>
             </div>
             <div>
-              <p className="mb-3 font-semibold text-gray-300">지원</p>
+              <p className="mb-3 font-semibold text-[var(--muted)]">지원</p>
               <div className="flex flex-col gap-2 text-gray-500">
                 <Link href="/contact" className="hover:text-[var(--primary)]">
                   문의하기
@@ -83,7 +83,7 @@ export function Footer() {
 
           {/* Company Info from DB */}
           <div className="text-sm text-gray-500">
-            <p className="mb-3 font-semibold text-gray-300">회사 정보</p>
+            <p className="mb-3 font-semibold text-[var(--muted)]">회사 정보</p>
             <p className="font-semibold">
               {co.company_name} ({co.company_name_en})
             </p>

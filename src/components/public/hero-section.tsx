@@ -10,13 +10,13 @@ export function HeroSection() {
 
       <div className="relative mx-auto max-w-6xl px-5 pb-20 pt-24 text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-1.5 text-xs text-gray-400">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#A8E6CF] animate-pulse" />
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--corebot-core)] animate-pulse" />
           스마트팩토리 Agentic AI 솔루션
         </div>
 
         <h1 className="mb-6 text-4xl font-black leading-tight tracking-tight md:text-6xl">
           <span className="text-[var(--foreground)]">공장에 </span>
-          <span className="bg-gradient-to-r from-[#A8E6CF] to-[#DDA0DD] bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[var(--corebot-core)] to-[var(--corebot-eye)] bg-clip-text text-transparent">
             AI 공장장
           </span>
           <span className="text-[var(--foreground)]">을</span>
@@ -35,7 +35,7 @@ export function HeroSection() {
         <div className="mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Link
             href="/poc"
-            className="group flex items-center gap-2 rounded-xl bg-[#A8E6CF] px-8 py-3.5 text-base font-bold text-[#1a1a1a] transition hover:brightness-110"
+            className="group flex items-center gap-2 rounded-xl bg-[var(--corebot-core)] px-8 py-3.5 text-base font-bold text-[var(--background)] transition hover:brightness-110"
           >
             무료 PoC 신청
             <ArrowRight
@@ -45,7 +45,7 @@ export function HeroSection() {
           </Link>
           <Link
             href="/solution"
-            className="rounded-xl border border-[var(--border)] px-8 py-3.5 text-base font-semibold text-gray-300 transition hover:border-[#A8E6CF] hover:text-[#A8E6CF]"
+            className="rounded-xl border border-[var(--border)] px-8 py-3.5 text-base font-semibold text-[var(--muted)] transition hover:border-[var(--corebot-core)] hover:text-[var(--corebot-core)]"
           >
             솔루션 자세히 보기
           </Link>

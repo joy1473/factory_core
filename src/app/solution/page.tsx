@@ -17,7 +17,7 @@ const FactoryScene = dynamic(
     loading: () => (
       <div className="flex h-screen w-full items-center justify-center bg-[var(--background)]">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-[#A8E6CF] border-t-transparent" />
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-[var(--corebot-core)] border-t-transparent" />
           <p className="text-sm text-gray-500">3D 씬 로딩 중...</p>
         </div>
       </div>
@@ -100,7 +100,7 @@ export default function SolutionPage() {
                 { name: "Ear", role: "청각 AI", desc: "설비 소리를 분석하여 이상 징후 조기 감지", video: "/video/Ear.mp4", color: "#FFD3B6" },
                 { name: "Touch", role: "IoT 촉각", desc: "$1 스티커 센서로 온도·습도·진동 실시간 감지", video: "/video/Touch.mp4", color: "#FDFD96" },
               ].map((bot) => (
-                <div key={bot.name} className="flex flex-col items-center rounded-lg border border-[var(--border)] bg-black/20 p-4 text-center transition hover:border-opacity-60" style={{ borderTopColor: bot.color, borderTopWidth: "2px" }}>
+                <div key={bot.name} className="flex flex-col items-center rounded-lg border border-[var(--border)] bg-[var(--surface)]/40 p-4 text-center transition hover:border-opacity-60" style={{ borderTopColor: bot.color, borderTopWidth: "2px" }}>
                   <div className="mb-3 h-16 w-16 overflow-hidden rounded-full" style={{ boxShadow: `0 0 20px ${bot.color}20` }}>
                     <video src={bot.video} autoPlay loop muted playsInline className="h-full w-full object-cover" />
                   </div>
@@ -135,7 +135,7 @@ export default function SolutionPage() {
 
       {/* Bottom nav */}
       <div className="relative z-20 bg-[var(--background)]">
-        <div className="h-16 bg-gradient-to-b from-transparent to-[#0a0a0a]" />
+        <div className="h-16 bg-gradient-to-b from-transparent to-[var(--background)]" />
         <div className="mx-auto max-w-4xl px-5 py-16 text-center">
           <h2 className="mb-4 text-2xl font-bold text-[var(--foreground)] md:text-3xl">
             더 알아보기

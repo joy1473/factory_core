@@ -31,8 +31,8 @@ interface Bid {
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
-  active: { label: "접수중", color: "#00ff88" },
-  upcoming: { label: "예정", color: "#00d4ff" },
+  active: { label: "접수중", color: "#A8E6CF" },
+  upcoming: { label: "예정", color: "#DDA0DD" },
   closed: { label: "마감", color: "#888888" },
 };
 
@@ -241,7 +241,7 @@ export default function BidsPage() {
 
         {/* Inquiry Modal */}
         {selectedBid && !sent && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--background)]/80 p-4">
             <div className="w-full max-w-lg rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
               <h3 className="mb-1 text-lg font-bold text-[var(--foreground)]">지원 문의</h3>
               <p className="mb-4 text-sm text-[var(--primary)]">
@@ -349,7 +349,7 @@ export default function BidsPage() {
 
         {/* Sent confirmation */}
         {sent && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--background)]/80 p-4">
             <div className="w-full max-w-sm rounded-xl border border-[var(--secondary)]/30 bg-[var(--surface)] p-8 text-center">
               <CheckCircle className="mx-auto mb-4 h-12 w-12 text-[var(--secondary)]" />
               <h3 className="mb-2 text-xl font-bold text-[var(--foreground)]">접수 완료!</h3>

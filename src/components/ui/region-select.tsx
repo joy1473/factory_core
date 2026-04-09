@@ -48,8 +48,8 @@ export function RegionSelect({
   }, [sido]);
 
   const selectClass = size === "sm"
-    ? "rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
-    : "rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white focus:border-[var(--primary)] focus:outline-none";
+    ? "rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
+    : "rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none";
 
   return (
     <div className={`flex gap-2 ${className}`}>
