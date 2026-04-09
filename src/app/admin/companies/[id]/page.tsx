@@ -64,7 +64,7 @@ interface TagItem {
 
 const STATUS_LABELS: Record<string, { text: string; color: string }> = {
   pending: { text: "대기", color: "#888" },
-  sent: { text: "발송", color: "#00d4ff" },
+  sent: { text: "발송", color: "var(--primary)" },
   delivered: { text: "전달", color: "#00ff88" },
   failed: { text: "실패", color: "#ff4444" },
   read: { text: "읽음", color: "#ffaa00" },
@@ -209,12 +209,12 @@ export default function CompanyDetailPage() {
       <div className="mb-6 flex items-center gap-4">
         <button
           onClick={() => router.back()}
-          className="rounded-lg border border-[var(--border)] p-2 text-gray-400 hover:text-white"
+          className="rounded-lg border border-[var(--border)] p-2 text-gray-400 hover:text-[var(--foreground)]"
         >
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-white">{company.name}</h1>
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">{company.name}</h1>
           <p className="text-sm text-gray-500">
             {company.sido} {company.sigungu}
           </p>
@@ -238,7 +238,7 @@ export default function CompanyDetailPage() {
                   onChange={(e) =>
                     setEdit({ ...edit, ceo: e.target.value })
                   }
-                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
+                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
                 />
               </div>
               <div className="flex items-center gap-3 text-sm">
@@ -249,7 +249,7 @@ export default function CompanyDetailPage() {
                   onChange={(e) =>
                     setEdit({ ...edit, contact_person: e.target.value })
                   }
-                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
+                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
                 />
               </div>
               <div className="flex items-center gap-3 text-sm">
@@ -260,7 +260,7 @@ export default function CompanyDetailPage() {
                   onChange={(e) =>
                     setEdit({ ...edit, phone: e.target.value })
                   }
-                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
+                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
                 />
               </div>
               <div className="flex items-center gap-3 text-sm sm:col-span-2">
@@ -280,7 +280,7 @@ export default function CompanyDetailPage() {
                 <input
                   value={edit.address}
                   onChange={(e) => setEdit({ ...edit, address: e.target.value })}
-                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
+                  className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
                 />
               </div>
             </div>
@@ -304,7 +304,7 @@ export default function CompanyDetailPage() {
                   }
                   rows={Math.max(1, (edit.email || "").split("\n").length)}
                   placeholder="info@company.com"
-                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                 />
                 {/* Email links */}
                 {edit.email && (
@@ -333,7 +333,7 @@ export default function CompanyDetailPage() {
                   }
                   rows={Math.max(1, (edit.website || "").split("\n").length)}
                   placeholder="https://company.com"
-                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                 />
                 {/* Website links */}
                 {edit.website && (
@@ -360,7 +360,7 @@ export default function CompanyDetailPage() {
                   }
                   rows={3}
                   placeholder="이 기업에 대한 메모..."
-                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                  className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
                 />
               </div>
               <button
@@ -395,7 +395,7 @@ export default function CompanyDetailPage() {
                         <span className="text-xs text-gray-400">
                           {new Date(h.sent_at).toLocaleString("ko-KR")}
                         </span>
-                        <span className="text-sm text-white">
+                        <span className="text-sm text-[var(--foreground)]">
                           {h.message_templates?.name || "템플릿 없음"}
                         </span>
                       </div>
@@ -742,7 +742,7 @@ function AiTagExtractor({
                     className="flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-white">{m.tagName}</span>
+                      <span className="text-sm text-[var(--foreground)]">{m.tagName}</span>
                       <span className="rounded bg-[var(--accent)]/10 px-1.5 py-0.5 text-[10px] text-[var(--accent)]">
                         {Math.round(m.confidence * 100)}%
                       </span>
@@ -777,7 +777,7 @@ function AiTagExtractor({
                     className="flex items-center justify-between rounded-lg border border-dashed border-[var(--border)] bg-[var(--background)] px-3 py-2"
                   >
                     <div>
-                      <span className="text-sm text-white">{s.tagName}</span>
+                      <span className="text-sm text-[var(--foreground)]">{s.tagName}</span>
                       <span className="ml-2 text-[10px] text-gray-600">
                         ({s.keywords.join(", ")})
                       </span>

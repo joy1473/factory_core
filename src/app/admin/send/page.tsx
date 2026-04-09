@@ -79,7 +79,7 @@ export default function SendPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-white">이메일 발송</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[var(--foreground)]">이메일 발송</h1>
 
       {/* Steps indicator */}
       <div className="mb-8 flex items-center gap-2 text-sm">
@@ -98,7 +98,7 @@ export default function SendPage() {
             >
               {s.n}
             </span>
-            <span className={step >= s.n ? "text-white" : "text-gray-600"}>
+            <span className={step >= s.n ? "text-[var(--foreground)]" : "text-gray-600"}>
               {s.label}
             </span>
             {i < 2 && <ChevronRight size={14} className="text-gray-600" />}
@@ -110,7 +110,7 @@ export default function SendPage() {
       {step === 1 && (
         <div className="space-y-4">
           <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
               <Users size={16} className="text-[var(--primary)]" /> 선택된 기업
             </h2>
             {selectedIds.size === 0 ? (
@@ -128,7 +128,7 @@ export default function SendPage() {
           </div>
 
           <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
               <FileText size={16} className="text-[var(--accent)]" /> 템플릿 선택
             </h2>
             {templates.length === 0 ? (
@@ -152,7 +152,7 @@ export default function SendPage() {
                   >
                     <Mail size={16} className={selectedTemplate === t.id ? "text-[var(--primary)]" : "text-gray-500"} />
                     <div>
-                      <p className="text-sm font-semibold text-white">{t.name}</p>
+                      <p className="text-sm font-semibold text-[var(--foreground)]">{t.name}</p>
                       <p className="text-xs text-gray-500">{t.content.substring(0, 60)}...</p>
                     </div>
                   </button>
@@ -175,14 +175,14 @@ export default function SendPage() {
       {step === 2 && (
         <div className="space-y-4">
           <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-            <h2 className="mb-3 text-sm font-semibold text-white">
+            <h2 className="mb-3 text-sm font-semibold text-[var(--foreground)]">
               발송 미리보기 ({previewData.length}건)
             </h2>
             <div className="max-h-96 space-y-2 overflow-y-auto">
               {previewData.map((p, i) => (
                 <div key={i} className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-3">
                   <div className="mb-1 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-white">{p.name}</span>
+                    <span className="text-sm font-semibold text-[var(--foreground)]">{p.name}</span>
                     <span className={`text-xs ${p.email ? "text-[var(--secondary)]" : "text-red-400"}`}>
                       {p.email || "이메일 없음"}
                     </span>
@@ -215,7 +215,7 @@ export default function SendPage() {
       {step === 3 && result && (
         <div className="rounded-xl border border-[var(--secondary)]/30 bg-[var(--surface)] p-8 text-center">
           <CheckCircle className="mx-auto mb-4 h-12 w-12 text-[var(--secondary)]" />
-          <h2 className="mb-4 text-xl font-bold text-white">발송 완료</h2>
+          <h2 className="mb-4 text-xl font-bold text-[var(--foreground)]">발송 완료</h2>
           <div className="mx-auto grid max-w-sm gap-3 sm:grid-cols-3">
             <div className="rounded-lg bg-[var(--background)] p-3">
               <p className="text-2xl font-black text-[var(--secondary)]">{result.sent}</p>
@@ -233,7 +233,7 @@ export default function SendPage() {
           <div className="mt-6 flex justify-center gap-3">
             <a
               href="/admin/history"
-              className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-gray-400 hover:text-white"
+              className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm text-gray-400 hover:text-[var(--foreground)]"
             >
               발송 이력 보기
             </a>

@@ -84,7 +84,7 @@ export default function TemplatesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">이메일 템플릿</h1>
+        <h1 className="text-2xl font-bold text-[var(--foreground)]">이메일 템플릿</h1>
         <button
           onClick={() => setShowCreate(!showCreate)}
           className="flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-black hover:brightness-110"
@@ -96,7 +96,7 @@ export default function TemplatesPage() {
       {/* Create form */}
       {showCreate && (
         <div className="mb-6 rounded-xl border border-[var(--primary)]/30 bg-[var(--surface)] p-5">
-          <h2 className="mb-4 text-sm font-semibold text-white">새 템플릿 작성</h2>
+          <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">새 템플릿 작성</h2>
           <div className="space-y-3">
             <div>
               <label className="mb-1 block text-xs text-gray-500">템플릿명</label>
@@ -104,7 +104,7 @@ export default function TemplatesPage() {
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="예: 스마트공장 설문 요청"
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
               />
             </div>
             <div>
@@ -113,7 +113,7 @@ export default function TemplatesPage() {
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
                 placeholder="예: [Factory Core] {기업명} 스마트공장 도입 안내"
-                className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
               />
             </div>
             <div>
@@ -137,7 +137,7 @@ export default function TemplatesPage() {
                 onChange={(e) => setForm({ ...form, content: e.target.value })}
                 rows={10}
                 placeholder={`안녕하세요, {담당자}님.\n\nFactory Core에서 {기업명}의 스마트공장 도입을 지원하고자 연락드립니다.\n\n...`}
-                className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
               />
             </div>
             <div className="flex gap-2">
@@ -178,7 +178,7 @@ export default function TemplatesPage() {
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Mail size={16} className="text-[var(--primary)]" />
-                  <span className="text-sm font-semibold text-white">{t.name}</span>
+                  <span className="text-sm font-semibold text-[var(--foreground)]">{t.name}</span>
                   <span className="rounded bg-[var(--primary)]/10 px-2 py-0.5 text-[10px] text-[var(--primary)]">
                     {t.status}
                   </span>

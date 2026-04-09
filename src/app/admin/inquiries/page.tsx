@@ -32,7 +32,7 @@ interface InquiryItem {
 }
 
 const STATUS_OPTIONS = [
-  { value: "new", label: "신규", color: "#00d4ff" },
+  { value: "new", label: "신규", color: "var(--primary)" },
   { value: "in_progress", label: "진행 중", color: "#ffaa00" },
   { value: "completed", label: "완료", color: "#00ff88" },
   { value: "cancelled", label: "취소", color: "#888888" },
@@ -40,7 +40,7 @@ const STATUS_OPTIONS = [
 
 const TYPE_LABELS: Record<string, { label: string; color: string }> = {
   general: { label: "일반문의", color: "#888" },
-  poc: { label: "PoC", color: "#00d4ff" },
+  poc: { label: "PoC", color: "var(--primary)" },
   survey: { label: "설문", color: "#aa88ff" },
   bid_proposal: { label: "제안서 대행", color: "#ffaa00" },
   bid_presentation: { label: "발표 지원", color: "#ff6644" },
@@ -163,7 +163,7 @@ export default function InquiriesPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-white">문의 관리</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[var(--foreground)]">문의 관리</h1>
 
       {/* Filter tabs */}
       <div className="mb-4 flex gap-2">
@@ -174,7 +174,7 @@ export default function InquiriesPage() {
             className={`rounded-lg px-4 py-2 text-xs font-semibold transition ${
               filter === tab.value
                 ? "bg-[var(--primary)] text-black"
-                : "border border-[var(--border)] text-gray-400 hover:text-white"
+                : "border border-[var(--border)] text-gray-400 hover:text-[var(--foreground)]"
             }`}
           >
             {tab.label} ({counts[tab.value as keyof typeof counts] || 0})
@@ -328,7 +328,7 @@ function InquiryCard({
               {item.tracking_code}
             </span>
           )}
-          <span className="text-sm font-semibold text-white">
+          <span className="text-sm font-semibold text-[var(--foreground)]">
             {item.contact_name}
           </span>
           {item.company_name && (
@@ -397,7 +397,7 @@ function InquiryCard({
             <div className="mb-3 flex items-center gap-2 rounded-lg border border-[var(--accent)]/20 bg-[var(--accent)]/5 px-3 py-2 text-xs">
               <Briefcase size={12} className="text-[var(--accent)]" />
               <span className="text-[var(--accent)]">지원사업:</span>
-              <span className="text-white">{item.bid_title}</span>
+              <span className="text-[var(--foreground)]">{item.bid_title}</span>
             </div>
           )}
 
@@ -418,7 +418,7 @@ function InquiryCard({
               <select
                 value={status}
                 onChange={(e) => handleStatusChange(e.target.value)}
-                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs text-white focus:border-[var(--primary)] focus:outline-none"
+                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
               >
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -460,7 +460,7 @@ function InquiryCard({
                 onChange={(e) => setNote(e.target.value)}
                 rows={2}
                 placeholder="진행 상태나 메모를 입력하세요..."
-                className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+                className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
               />
             </div>
 
@@ -535,10 +535,10 @@ function CompanySlidePanel({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/50" onClick={onClose} />
+      <div className="fixed inset-0 z-40 bg-[var(--background)]/50" onClick={onClose} />
       <div className="fixed bottom-0 right-0 top-0 z-50 w-full max-w-md overflow-y-auto border-l border-[var(--border)] bg-[var(--surface)] shadow-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-5 py-4">
-          <h3 className="text-base font-bold text-white">기업 상세 정보</h3>
+          <h3 className="text-base font-bold text-[var(--foreground)]">기업 상세 정보</h3>
           <div className="flex gap-2">
             {company && (
               <a
@@ -550,7 +550,7 @@ function CompanySlidePanel({
             )}
             <button
               onClick={onClose}
-              className="rounded-lg border border-[var(--border)] px-3 py-1 text-xs text-gray-400 hover:text-white"
+              className="rounded-lg border border-[var(--border)] px-3 py-1 text-xs text-gray-400 hover:text-[var(--foreground)]"
             >
               닫기
             </button>
@@ -597,7 +597,7 @@ function CompanySlidePanel({
                           {f.value}
                         </a>
                       ) : (
-                        <p className="whitespace-pre-wrap text-sm text-white">{f.value}</p>
+                        <p className="whitespace-pre-wrap text-sm text-[var(--foreground)]">{f.value}</p>
                       )}
                     </div>
                   )

@@ -138,7 +138,7 @@ export default function CompaniesPage() {
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-white">기업 관리</h1>
+        <h1 className="text-2xl font-bold text-[var(--foreground)]">기업 관리</h1>
         <div className="flex gap-2">
           <div className="relative">
             <button
@@ -167,7 +167,7 @@ export default function CompaniesPage() {
                           className="h-2.5 w-2.5 rounded-full"
                           style={{ backgroundColor: tag.color }}
                         />
-                        <span className="text-sm text-white">{tag.name}</span>
+                        <span className="text-sm text-[var(--foreground)]">{tag.name}</span>
                       </div>
                       <div className="flex gap-1">
                         <button

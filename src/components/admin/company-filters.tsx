@@ -27,7 +27,7 @@ export function CompanyFilters() {
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder="기업명, 주소, 담당자, 이메일, 메모 검색..."
-          className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] py-2 pl-9 pr-4 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+          className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] py-2 pl-9 pr-4 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
         />
       </div>
       <RegionSelect

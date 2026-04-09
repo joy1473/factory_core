@@ -59,7 +59,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-white">대시보드</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[var(--foreground)]">대시보드</h1>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
@@ -80,13 +80,13 @@ export default function AdminDashboard() {
       </div>
 
       <div className="mt-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-        <h2 className="mb-4 text-lg font-bold text-white">빠른 시작</h2>
+        <h2 className="mb-4 text-lg font-bold text-[var(--foreground)]">빠른 시작</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <Link
             href="/admin/companies"
             className="rounded-lg border border-[var(--border)] p-4 transition hover:border-[var(--primary)]/30"
           >
-            <p className="font-semibold text-white">기업 관리</p>
+            <p className="font-semibold text-[var(--foreground)]">기업 관리</p>
             <p className="text-sm text-gray-500">
               2,277개 스마트공장 공급기업 필터·검색·태그
             </p>
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
             href="/admin/templates"
             className="rounded-lg border border-[var(--border)] p-4 transition hover:border-[var(--primary)]/30"
           >
-            <p className="font-semibold text-white">메시지 템플릿</p>
+            <p className="font-semibold text-[var(--foreground)]">메시지 템플릿</p>
             <p className="text-sm text-gray-500">
               업종별·규모별 알림톡 템플릿 작성
             </p>
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
             href="/admin/send"
             className="rounded-lg border border-[var(--border)] p-4 transition hover:border-[var(--primary)]/30"
           >
-            <p className="font-semibold text-white">설문 발송</p>
+            <p className="font-semibold text-[var(--foreground)]">설문 발송</p>
             <p className="text-sm text-gray-500">
               기업 선택 → 템플릿 매칭 → 카카오 알림톡 발송
             </p>
@@ -113,7 +113,7 @@ export default function AdminDashboard() {
             href="/admin/inquiries"
             className="rounded-lg border border-[var(--border)] p-4 transition hover:border-[var(--primary)]/30"
           >
-            <p className="font-semibold text-white">문의 확인</p>
+            <p className="font-semibold text-[var(--foreground)]">문의 확인</p>
             <p className="text-sm text-gray-500">
               PoC 신청 및 일반 문의 접수 확인
             </p>

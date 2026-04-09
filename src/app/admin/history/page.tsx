@@ -15,7 +15,7 @@ interface HistoryItem {
 }
 
 const STATUS_MAP: Record<string, { label: string; color: string; icon: typeof CheckCircle }> = {
-  sent: { label: "발송", color: "#00d4ff", icon: CheckCircle },
+  sent: { label: "발송", color: "var(--primary)", icon: CheckCircle },
   delivered: { label: "전달", color: "#00ff88", icon: CheckCircle },
   failed: { label: "실패", color: "#ff4444", icon: XCircle },
   pending: { label: "대기", color: "#888", icon: Clock },
@@ -35,7 +35,7 @@ export default function HistoryPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-white">발송 이력</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[var(--foreground)]">발송 이력</h1>
 
       {loading ? (
         <div className="flex justify-center py-20">
@@ -58,7 +58,7 @@ export default function HistoryPage() {
                 <div className="flex items-center gap-3">
                   <Mail size={16} className="text-gray-500" />
                   <div>
-                    <p className="text-sm font-semibold text-white">
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
                       {h.companies?.name || "알 수 없음"}
                     </p>
                     <p className="text-xs text-gray-500">

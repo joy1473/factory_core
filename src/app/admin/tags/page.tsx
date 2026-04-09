@@ -17,7 +17,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const PRESET_COLORS = [
-  "#00d4ff",
+  "var(--primary)",
   "#00ff88",
   "#ffaa00",
   "#ff6644",
@@ -36,7 +36,7 @@ export default function TagsPage() {
   const [newType, setNewType] = useState<"industry" | "size" | "custom">(
     "custom"
   );
-  const [newColor, setNewColor] = useState("#00d4ff");
+  const [newColor, setNewColor] = useState("var(--primary)");
   const [creating, setCreating] = useState(false);
 
   const fetchTags = useCallback(async () => {
@@ -92,7 +92,7 @@ export default function TagsPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-white">태그 관리</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[var(--foreground)]">태그 관리</h1>
 
       {/* Create */}
       <div className="mb-8 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
@@ -108,7 +108,7 @@ export default function TagsPage() {
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCreate()}
               placeholder="예: 자동차부품, 50인 이상..."
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
             />
           </div>
           <div>
@@ -118,7 +118,7 @@ export default function TagsPage() {
               onChange={(e) =>
                 setNewType(e.target.value as "industry" | "size" | "custom")
               }
-              className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
+              className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
             >
               <option value="industry">업종</option>
               <option value="size">규모</option>
@@ -177,7 +177,7 @@ export default function TagsPage() {
                         className="h-3 w-3 rounded-full"
                         style={{ backgroundColor: tag.color }}
                       />
-                      <span className="text-sm text-white">{tag.name}</span>
+                      <span className="text-sm text-[var(--foreground)]">{tag.name}</span>
                       <button
                         onClick={() => handleDelete(tag.id)}
                         className="ml-1 text-gray-600 opacity-0 transition group-hover:opacity-100 hover:text-red-400"

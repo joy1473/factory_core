@@ -50,7 +50,7 @@ function CompanyInfoEditor() {
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
+      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
         <Building2 size={16} className="text-[var(--primary)]" /> 회사 정보
       </h2>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -60,7 +60,7 @@ function CompanyInfoEditor() {
             <input
               value={data[f.key] || ""}
               onChange={(e) => setData({ ...data, [f.key]: e.target.value })}
-              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-white focus:border-[var(--primary)] focus:outline-none"
+              className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:border-[var(--primary)] focus:outline-none"
             />
           </div>
         ))}
@@ -144,7 +144,7 @@ function TagKeywordsEditor() {
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
+      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
         <Tag size={16} className="text-[var(--accent)]" /> 태그 키워드 사전 ({keywords.length})
       </h2>
 
@@ -153,7 +153,7 @@ function TagKeywordsEditor() {
         <select
           value={newType}
           onChange={(e) => setNewType(e.target.value)}
-          className="rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-xs text-white"
+          className="rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-xs text-[var(--foreground)]"
         >
           <option value="industry">업종</option>
           <option value="size">규모</option>
@@ -163,13 +163,13 @@ function TagKeywordsEditor() {
           value={newTag}
           onChange={(e) => setNewTag(e.target.value)}
           placeholder="태그명"
-          className="rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-xs text-white placeholder-gray-600"
+          className="rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-xs text-[var(--foreground)] placeholder-gray-600"
         />
         <input
           value={newKw}
           onChange={(e) => setNewKw(e.target.value)}
           placeholder="키워드 (쉼표 구분)"
-          className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-xs text-white placeholder-gray-600"
+          className="flex-1 rounded border border-[var(--border)] bg-[var(--background)] px-2 py-1 text-xs text-[var(--foreground)] placeholder-gray-600"
         />
         <button
           onClick={handleAdd}
@@ -187,13 +187,13 @@ function TagKeywordsEditor() {
           <div className="space-y-2">
             {grouped[type].map((kw) => (
               <div key={kw.id} className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2">
-                <span className="shrink-0 text-xs font-semibold text-white" style={{ minWidth: "100px" }}>
+                <span className="shrink-0 text-xs font-semibold text-[var(--foreground)]" style={{ minWidth: "100px" }}>
                   {kw.tag_name}
                 </span>
                 <input
                   defaultValue={kw.keywords.join(", ")}
                   onBlur={(e) => handleUpdateKeywords(kw.id, e.target.value)}
-                  className="flex-1 rounded border border-[var(--border)] bg-transparent px-2 py-1 text-xs text-gray-400 focus:border-[var(--primary)] focus:text-white focus:outline-none"
+                  className="flex-1 rounded border border-[var(--border)] bg-transparent px-2 py-1 text-xs text-gray-400 focus:border-[var(--primary)] focus:text-[var(--foreground)] focus:outline-none"
                 />
                 <button
                   onClick={() => handleDelete(kw.id)}
@@ -225,7 +225,7 @@ function ScenePresetsViewer() {
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
-      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-white">
+      <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
         <Monitor size={16} className="text-[var(--secondary)]" /> 3D 씬 프리셋 ({presets.length})
       </h2>
       <div className="grid gap-3 sm:grid-cols-2">
@@ -236,7 +236,7 @@ function ScenePresetsViewer() {
           >
             <div className="flex items-center gap-2">
               <span className="text-lg">{p.icon}</span>
-              <span className="text-sm font-bold text-white">{p.label}</span>
+              <span className="text-sm font-bold text-[var(--foreground)]">{p.label}</span>
               <span className={`ml-auto rounded-full px-2 py-0.5 text-[10px] ${p.visible ? "bg-green-500/10 text-green-400" : "bg-red-500/10 text-red-400"}`}>
                 {p.visible ? "활성" : "비활성"}
               </span>
@@ -264,7 +264,7 @@ function ScenePresetsViewer() {
 export default function ContentPage() {
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-white">콘텐츠 관리</h1>
+      <h1 className="mb-6 text-2xl font-bold text-[var(--foreground)]">콘텐츠 관리</h1>
       <div className="space-y-6">
         <CompanyInfoEditor />
         <TagKeywordsEditor />

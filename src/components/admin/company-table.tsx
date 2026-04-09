@@ -130,7 +130,7 @@ export function CompanyTable({
                 <td className="p-3">
                   <Link
                     href={`/admin/companies/${c.id}`}
-                    className="text-sm font-semibold text-white hover:text-[var(--primary)]"
+                    className="text-sm font-semibold text-[var(--foreground)] hover:text-[var(--primary)]"
                   >
                     {c.name}
                   </Link>
