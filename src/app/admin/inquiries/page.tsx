@@ -332,13 +332,14 @@ function InquiryCard({
             {item.contact_name}
           </span>
           {item.company_name && (
-            <button
+            <span
+              role="button"
+              tabIndex={0}
               onClick={async (e) => {
                 e.stopPropagation();
                 if (item.company_id) {
                   onCompanyClick(item.company_id);
                 } else {
-                  // company_id 없으면 검색해서 연결 시도
                   try {
                     const res = await fetch(`/api/companies/search?q=${encodeURIComponent(item.company_name!)}`);
                     const companies = await res.json();
@@ -352,10 +353,10 @@ function InquiryCard({
                   }
                 }
               }}
-              className="text-sm text-[var(--primary)] hover:underline"
+              className="cursor-pointer text-sm text-[var(--primary)] hover:underline"
             >
               ({item.company_name})
-            </button>
+            </span>
           )}
         </div>
         <div className="flex items-center gap-3">
