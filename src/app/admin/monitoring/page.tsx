@@ -87,6 +87,7 @@ export default function MonitoringPage() {
   const [chatLoading, setChatLoading] = useState(false);
   const [chatStreaming, setChatStreaming] = useState(false);
   const [convId, setConvId] = useState<string | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
   // ─── Data Fetching ───
@@ -277,9 +278,9 @@ export default function MonitoringPage() {
   useEffect(() => { return () => { if (simTimerRef.current) clearInterval(simTimerRef.current); cancelAnimationFrame(rafRef.current); if (micAnalyzeRef.current) clearInterval(micAnalyzeRef.current); }; }, []);
 
   return (
-    <div className="flex h-[calc(100vh-48px)] gap-0 overflow-hidden">
-      {/* ═══ Left: Dashboard ═══ */}
-      <div className="flex-1 overflow-y-auto p-5">
+    <div className="relative h-[calc(100vh-48px)] overflow-hidden">
+      {/* ═══ Dashboard ═══ */}
+      <div className="h-full overflow-y-auto p-5">
         {/* Header */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -454,23 +455,38 @@ export default function MonitoringPage() {
         )}
       </div>
 
-      {/* ═══ Right: Core Chat ═══ */}
-      {flags.core && (
-        <div className="flex w-96 shrink-0 flex-col border-l border-[var(--border)] bg-[var(--surface)]">
+      {/* ═══ Core Chat — Floating ═══ */}
+      {flags.core && !chatOpen && (
+        <button
+          onClick={() => setChatOpen(true)}
+          className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition hover:scale-110"
+          style={{ backgroundColor: "var(--corebot-core)", boxShadow: "0 4px 20px rgba(168,230,207,0.3)" }}
+        >
+          <video src="/video/Core.mp4" autoPlay loop muted playsInline className="h-12 w-12 rounded-full object-cover" />
+        </button>
+      )}
+
+      {flags.core && chatOpen && (
+        <div className="fixed bottom-6 right-6 z-50 flex h-[520px] w-96 flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-2xl" style={{ boxShadow: "0 8px 40px rgba(0,0,0,0.3)" }}>
           {/* Chat Header */}
-          <div className="flex items-center gap-3 border-b border-[var(--border)] px-4 py-3">
-            <video src="/video/Core.mp4" autoPlay loop muted playsInline className="h-8 w-8 rounded-full object-cover" />
-            <div>
-              <p className="text-xs font-bold text-[var(--foreground)]">Core Agent</p>
-              <p className="text-[9px] text-[var(--corebot-core)]">AI 공장장</p>
+          <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-3">
+            <div className="flex items-center gap-3">
+              <video src="/video/Core.mp4" autoPlay loop muted playsInline className="h-8 w-8 rounded-full object-cover" />
+              <div>
+                <p className="text-xs font-bold text-[var(--foreground)]">Core Agent</p>
+                <p className="text-[9px] text-[var(--corebot-core)]">AI 공장장</p>
+              </div>
             </div>
+            <button onClick={() => setChatOpen(false)} className="rounded-lg p-1 text-gray-500 hover:bg-[var(--border)] hover:text-[var(--foreground)]">
+              <ChevronDown size={16} />
+            </button>
           </div>
 
           {/* Messages */}
           <div ref={chatScrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
             {chatMsgs.length === 0 && (
-              <div className="flex flex-col items-center gap-3 pt-10 text-center">
-                <video src="/video/Core.mp4" autoPlay loop muted playsInline className="h-14 w-14 rounded-full object-cover" />
+              <div className="flex flex-col items-center gap-3 pt-6 text-center">
+                <video src="/video/Core.mp4" autoPlay loop muted playsInline className="h-12 w-12 rounded-full object-cover" />
                 <p className="text-xs text-gray-500">공장 현황을 물어보세요</p>
                 <QuickPrompts onSelect={sendChat} disabled={chatLoading} />
               </div>
