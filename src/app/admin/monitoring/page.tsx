@@ -47,15 +47,18 @@ interface AudioReading {
 interface ChatMsg { role: "user" | "assistant"; content: string; }
 
 export default function MonitoringPage() {
-  // Feature flags
-  const [flags, setFlags] = useState<FeatureFlags>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("fc-features");
-      if (saved) return JSON.parse(saved);
-    }
-    return DEFAULT_FLAGS;
-  });
+  // Feature flags — 서버/클라이언트 동일 초기값으로 hydration 일치
+  const [flags, setFlags] = useState<FeatureFlags>(DEFAULT_FLAGS);
   const [showSettings, setShowSettings] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("fc-features");
+    if (saved) {
+      try { setFlags(JSON.parse(saved)); } catch {}
+    }
+    setHydrated(true);
+  }, []);
 
   // Monitoring data
   const [devices, setDevices] = useState<Device[]>([]);
