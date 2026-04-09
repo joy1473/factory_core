@@ -24,8 +24,11 @@ export async function POST(request: Request) {
     .from("message_templates")
     .insert({
       name: body.name,
-      type: body.type || "alimtalk",
+      type: body.type || "email",
       content: body.content,
+      template_type: body.template_type || "general",
+      form_schema: body.form_schema || { questions: [] },
+      email_subject: body.email_subject || null,
       match_rules: body.match_rules || {},
       status: body.status || "draft",
     })

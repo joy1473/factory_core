@@ -1,6 +1,7 @@
 import { createServerSupabase } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import { buildEmailHtml } from "@/lib/email-html";
 
 const ses = new SESClient({
   region: process.env.AWS_SES_REGION || "ap-northeast-2",
@@ -12,7 +13,7 @@ const ses = new SESClient({
 
 const FROM_EMAIL = process.env.AWS_SES_FROM_EMAIL || "noreply@joy.it.kr";
 
-async function sendEmail(to: string, subject: string, body: string): Promise<boolean> {
+async function sendEmail(to: string, subject: string, textBody: string, htmlBody: string): Promise<boolean> {
   if (!process.env.AWS_SES_ACCESS_KEY) {
     console.log(`[EMAIL SIMULATE] To: ${to}, Subject: ${subject.substring(0, 50)}`);
     return true;
@@ -24,11 +25,8 @@ async function sendEmail(to: string, subject: string, body: string): Promise<boo
     Message: {
       Subject: { Data: subject, Charset: "UTF-8" },
       Body: {
-        Text: { Data: body, Charset: "UTF-8" },
-        Html: {
-          Data: body.replace(/\n/g, "<br>"),
-          Charset: "UTF-8",
-        },
+        Text: { Data: textBody, Charset: "UTF-8" },
+        Html: { Data: htmlBody, Charset: "UTF-8" },
       },
     },
   });
@@ -44,14 +42,16 @@ export async function POST(request: Request) {
 
   const { company_ids, template_id } = await request.json();
 
-  // 템플릿 조회
+  // 템플릿 조회 (form_schema 포함)
   const { data: template } = await supabase
     .from("message_templates")
-    .select("name, content")
+    .select("id, name, content, form_schema")
     .eq("id", template_id)
     .single();
 
   if (!template) return NextResponse.json({ error: "Template not found" }, { status: 404 });
+
+  const hasSurvey = template.form_schema?.questions?.length > 0;
 
   // 기업 목록
   const { data: companies } = await supabase
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
       .replace(/{담당자}/g, c.contact_person || c.ceo || "담당자")
       .replace(/{지역}/g, `${c.sido} ${c.sigungu}`);
 
-    // 제목 추출 (첫 줄이 "제목:" 이면)
+    // 제목 추출
     const lines = content.split("\n");
     let subject = template.name;
     let body = content;
@@ -87,30 +87,43 @@ export async function POST(request: Request) {
       body = lines.slice(2).join("\n");
     }
 
-    try {
-      const success = await sendEmail(email, subject, body);
+    // 추적 토큰 생성
+    const trackingToken = crypto.randomUUID();
 
-      // 발송 이력 저장
-      await supabase.from("send_history").insert({
+    try {
+      // 발송 이력 먼저 저장 (history_id 필요)
+      const { data: historyRow } = await supabase.from("send_history").insert({
         company_id: c.id,
         template_id,
         phone: email,
         rendered_content: content,
-        status: success ? "sent" : "failed",
+        tracking_token: trackingToken,
+        status: "pending",
+      }).select("id").single();
+
+      if (!historyRow) { failed++; continue; }
+
+      // HTML 이메일 생성
+      const htmlBody = buildEmailHtml({
+        subject,
+        body,
+        historyId: historyRow.id,
+        trackingToken,
+        templateId: template.id,
+        hasSurvey,
       });
+
+      const success = await sendEmail(email, subject, body, htmlBody);
+
+      // 상태 업데이트
+      await supabase.from("send_history")
+        .update({ status: success ? "sent" : "failed", sent_at: new Date().toISOString() })
+        .eq("id", historyRow.id);
 
       if (success) sent++;
       else failed++;
-    } catch (err) {
+    } catch {
       failed++;
-      // 실패 이력도 저장
-      await supabase.from("send_history").insert({
-        company_id: c.id,
-        template_id,
-        phone: email,
-        rendered_content: content,
-        status: "failed",
-      });
     }
   }
 

@@ -13,6 +13,7 @@ import {
   MessageSquare,
   LogOut,
   Settings,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -24,6 +25,7 @@ const NAV_ITEMS = [
   { href: "/admin/send", icon: Send, label: "발송" },
   { href: "/admin/history", icon: History, label: "발송 이력" },
   { href: "/admin/inquiries", icon: MessageSquare, label: "문의" },
+  { href: "/admin/surveys", icon: ClipboardList, label: "설문 응답" },
   { href: "/admin/content", icon: Settings, label: "콘텐츠 관리" },
 ];
 

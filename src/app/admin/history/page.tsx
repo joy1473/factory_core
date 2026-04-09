@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Clock, CheckCircle, XCircle, Mail, RefreshCw, Send, BarChart3 } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Mail, RefreshCw, Send, BarChart3, Eye, MousePointerClick, FileCheck } from "lucide-react";
 
 interface HistoryItem {
   id: string;
@@ -10,6 +10,9 @@ interface HistoryItem {
   rendered_content: string;
   sent_at: string;
   status: string;
+  open_at: string | null;
+  click_at: string | null;
+  responded_at: string | null;
   companies: { name: string } | null;
   message_templates: { name: string } | null;
 }
@@ -182,7 +185,19 @@ export default function HistoryPage() {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
+                  {/* 추적 아이콘 */}
+                  <div className="flex items-center gap-1">
+                    <span className={`flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] ${h.open_at ? "bg-[var(--corebot-eye)]/15 text-[var(--corebot-eye)]" : "bg-[var(--border)]/50 text-gray-600"}`} title={h.open_at ? `열람: ${new Date(h.open_at).toLocaleString("ko-KR")}` : "미열람"}>
+                      <Eye size={10} />
+                    </span>
+                    <span className={`flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] ${h.click_at ? "bg-[var(--corebot-ear)]/15 text-[var(--corebot-ear)]" : "bg-[var(--border)]/50 text-gray-600"}`} title={h.click_at ? `클릭: ${new Date(h.click_at).toLocaleString("ko-KR")}` : "미클릭"}>
+                      <MousePointerClick size={10} />
+                    </span>
+                    <span className={`flex items-center gap-0.5 rounded px-1.5 py-0.5 text-[10px] ${h.responded_at ? "bg-[var(--corebot-core)]/15 text-[var(--corebot-core)]" : "bg-[var(--border)]/50 text-gray-600"}`} title={h.responded_at ? `응답: ${new Date(h.responded_at).toLocaleString("ko-KR")}` : "미응답"}>
+                      <FileCheck size={10} />
+                    </span>
+                  </div>
                   <span className="text-xs text-gray-600">
                     {new Date(h.sent_at).toLocaleString("ko-KR")}
                   </span>

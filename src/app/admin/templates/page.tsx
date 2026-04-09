@@ -1,13 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Plus, Trash2, Save, Mail, Eye } from "lucide-react";
+import { Plus, Trash2, Save, Mail, Eye, FileText, ClipboardList } from "lucide-react";
+import { FormSchemaEditor } from "@/components/admin/form-schema-editor";
+import type { Question } from "@/components/survey/survey-field";
 
 interface Template {
   id: string;
   name: string;
   type: string;
+  template_type: string;
   content: string;
+  form_schema: { questions: Question[] };
   match_rules: Record<string, string[]>;
   status: string;
   created_at: string;
@@ -20,12 +24,23 @@ const VARIABLES = [
   { key: "{지역}", desc: "sido + sigungu" },
 ];
 
+const TEMPLATE_TYPES = [
+  { value: "interview", label: "현장 인터뷰", icon: ClipboardList },
+  { value: "inquiry", label: "문의 후속", icon: Mail },
+  { value: "general", label: "일반 마케팅", icon: FileText },
+];
+
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editId, setEditId] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
-  const [form, setForm] = useState({ name: "", content: "", subject: "" });
+  const [form, setForm] = useState({
+    name: "",
+    content: "",
+    subject: "",
+    template_type: "general",
+    form_schema: { questions: [] } as Template["form_schema"],
+  });
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
 
@@ -40,9 +55,7 @@ export default function TemplatesPage() {
     }
   }, []);
 
-  useEffect(() => {
-    fetchTemplates();
-  }, [fetchTemplates]);
+  useEffect(() => { fetchTemplates(); }, [fetchTemplates]);
 
   async function handleCreate() {
     if (!form.name || !form.content) return;
@@ -55,11 +68,13 @@ export default function TemplatesPage() {
           name: form.name,
           content: `제목: ${form.subject || form.name}\n\n${form.content}`,
           type: "email",
+          template_type: form.template_type,
+          form_schema: form.form_schema,
           match_rules: {},
           status: "draft",
         }),
       });
-      setForm({ name: "", content: "", subject: "" });
+      setForm({ name: "", content: "", subject: "", template_type: "general", form_schema: { questions: [] } });
       setShowCreate(false);
       fetchTemplates();
     } finally {
@@ -81,6 +96,8 @@ export default function TemplatesPage() {
       .replace(/{지역}/g, "대전 유성구");
   }
 
+  const typeLabel = (t: string) => TEMPLATE_TYPES.find((x) => x.value === t)?.label || t;
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
@@ -97,28 +114,58 @@ export default function TemplatesPage() {
       {showCreate && (
         <div className="mb-6 rounded-xl border border-[var(--primary)]/30 bg-[var(--surface)] p-5">
           <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">새 템플릿 작성</h2>
-          <div className="space-y-3">
+          <div className="space-y-4">
+            {/* 유형 선택 */}
+            <div>
+              <label className="mb-2 block text-xs text-gray-500">템플릿 유형</label>
+              <div className="flex gap-2">
+                {TEMPLATE_TYPES.map((t) => {
+                  const Icon = t.icon;
+                  const active = form.template_type === t.value;
+                  return (
+                    <button
+                      key={t.value}
+                      type="button"
+                      onClick={() => setForm({ ...form, template_type: t.value })}
+                      className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-xs font-semibold transition ${
+                        active
+                          ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--primary)]"
+                          : "border-[var(--border)] text-gray-500 hover:border-[var(--primary)]/30"
+                      }`}
+                    >
+                      <Icon size={14} /> {t.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 템플릿명 */}
             <div>
               <label className="mb-1 block text-xs text-gray-500">템플릿명</label>
               <input
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="예: 스마트공장 설문 요청"
+                placeholder="예: 스마트공장 현장 인터뷰 설문"
                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
               />
             </div>
+
+            {/* 이메일 제목 */}
             <div>
               <label className="mb-1 block text-xs text-gray-500">이메일 제목</label>
               <input
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                placeholder="예: [Factory Core] {기업명} 스마트공장 도입 안내"
+                placeholder="예: [Factory Core] {기업명} 스마트공장 도입 설문"
                 className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
               />
             </div>
+
+            {/* 본문 */}
             <div>
               <div className="mb-1 flex items-center justify-between">
-                <label className="text-xs text-gray-500">본문</label>
+                <label className="text-xs text-gray-500">이메일 본문</label>
                 <div className="flex gap-1">
                   {VARIABLES.map((v) => (
                     <button
@@ -135,11 +182,22 @@ export default function TemplatesPage() {
               <textarea
                 value={form.content}
                 onChange={(e) => setForm({ ...form, content: e.target.value })}
-                rows={10}
-                placeholder={`안녕하세요, {담당자}님.\n\nFactory Core에서 {기업명}의 스마트공장 도입을 지원하고자 연락드립니다.\n\n...`}
+                rows={8}
+                placeholder={`안녕하세요, {담당자}님.\n\nFactory Core에서 {기업명}의 스마트공장 현황을 파악하고자 간단한 설문을 요청드립니다.\n아래 링크를 통해 참여해주시면 감사하겠습니다.`}
                 className="w-full resize-none rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-gray-600 focus:border-[var(--primary)] focus:outline-none"
               />
             </div>
+
+            {/* 설문 폼 에디터 */}
+            <div>
+              <label className="mb-2 block text-xs text-gray-500">설문 항목 (선택 — 질문을 추가하면 이메일에 설문 링크 포함)</label>
+              <FormSchemaEditor
+                value={form.form_schema}
+                onChange={(schema) => setForm({ ...form, form_schema: schema as Template["form_schema"] })}
+              />
+            </div>
+
+            {/* 저장 */}
             <div className="flex gap-2">
               <button
                 onClick={handleCreate}
@@ -171,17 +229,19 @@ export default function TemplatesPage() {
       ) : (
         <div className="space-y-3">
           {templates.map((t) => (
-            <div
-              key={t.id}
-              className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5"
-            >
+            <div key={t.id} className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-5">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Mail size={16} className="text-[var(--primary)]" />
                   <span className="text-sm font-semibold text-[var(--foreground)]">{t.name}</span>
                   <span className="rounded bg-[var(--primary)]/10 px-2 py-0.5 text-[10px] text-[var(--primary)]">
-                    {t.status}
+                    {typeLabel(t.template_type || "general")}
                   </span>
+                  {t.form_schema?.questions?.length > 0 && (
+                    <span className="rounded bg-[var(--corebot-core)]/10 px-2 py-0.5 text-[10px] text-[var(--corebot-core)]">
+                      설문 {t.form_schema.questions.length}항목
+                    </span>
+                  )}
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -202,11 +262,10 @@ export default function TemplatesPage() {
                 {t.content.substring(0, 200)}...
               </pre>
 
-              {/* Preview */}
               {preview === t.id && (
                 <div className="mt-3 rounded-lg border border-[var(--accent)]/20 bg-[var(--background)] p-4">
                   <p className="mb-2 text-xs font-semibold text-[var(--accent)]">미리보기 (샘플 데이터)</p>
-                  <pre className="whitespace-pre-wrap text-sm text-gray-300">
+                  <pre className="whitespace-pre-wrap text-sm text-[var(--muted)]">
                     {renderPreview(t.content)}
                   </pre>
                 </div>
