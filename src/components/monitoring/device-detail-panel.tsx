@@ -41,8 +41,8 @@ export function DeviceDetailPanel({ deviceId, onClose }: DeviceDetailProps) {
   }, [deviceId]);
 
   if (loading) return (
-    <div className="absolute right-4 top-16 z-30 w-80 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl">
-      <div className="flex justify-center"><div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" /></div>
+    <div className="flex h-full items-center justify-center bg-[var(--surface)] p-6">
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--primary)] border-t-transparent" />
     </div>
   );
 
@@ -58,9 +58,9 @@ export function DeviceDetailPanel({ deviceId, onClose }: DeviceDetailProps) {
   const latestVision = vision[0];
 
   return (
-    <div className="absolute right-4 top-16 z-30 w-80 max-h-[calc(100vh-120px)] overflow-y-auto rounded-xl border border-[var(--border)] bg-[var(--surface)]/95 shadow-2xl backdrop-blur-md">
+    <div className="h-full bg-[var(--surface)] overflow-y-auto">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-4 py-3 rounded-t-xl">
+      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface)] px-4 py-3">
         <div>
           <p className="text-sm font-bold text-[var(--foreground)]">{device.name}</p>
           <p className="text-[10px] text-gray-500">{device.device_type} · {device.location}</p>

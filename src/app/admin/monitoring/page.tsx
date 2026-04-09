@@ -339,48 +339,53 @@ export default function MonitoringPage() {
           </div>
         )}
 
-        {/* 3D 뷰어 (에이전트 활성 + 씬 있을 때) */}
+        {/* 3D + 오른쪽 패널 */}
         {anyActive && scene && (
-          <div className="h-full">
-            <SceneViewer
-              splatSource={scene.splat_url}
-              editMode={editMode}
-              selectedDeviceId={selectedDevice}
-              devices={devices.filter((d) => d.position_3d).map((d) => ({
-                id: d.id,
-                name: d.name,
-                device_type: d.device_type,
-                status: d.status,
-                position_3d: d.position_3d!,
-                alertLevel: alerts.some((a) => a.device_id === d.id && a.severity === "critical") ? "critical" as const :
-                  alerts.some((a) => a.device_id === d.id) ? "warning" as const : "normal" as const,
-              }))}
-              onDeviceClick={(id) => setSelectedDevice(id === selectedDevice ? null : id)}
-              editTargetId={editMode ? selectedDevice : null}
-              onPlaceDevice={async (id, pos) => {
-                await fetch(`/api/devices/${id}/position`, {
-                  method: "PATCH",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ position_3d: pos }),
-                });
-                fetchData();
-              }}
-              onRemoveDevice={async (id) => {
-                await fetch(`/api/devices/${id}/position`, {
-                  method: "PATCH",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ position_3d: null }),
-                });
-                fetchData();
-              }}
-            />
-
-            {/* 설비 상세 팝업 */}
-            {selectedDevice && !editMode && (
-              <DeviceDetailPanel
-                deviceId={selectedDevice}
-                onClose={() => setSelectedDevice(null)}
+          <div className="flex h-full">
+            {/* 3D 뷰어 — 마커만 표시 */}
+            <div className={`${selectedDevice && !editMode ? "flex-1" : "w-full"} transition-all`}>
+              <SceneViewer
+                splatSource={scene.splat_url}
+                editMode={editMode}
+                selectedDeviceId={selectedDevice}
+                devices={devices.filter((d) => d.position_3d).map((d) => ({
+                  id: d.id,
+                  name: d.name,
+                  device_type: d.device_type,
+                  status: d.status,
+                  position_3d: d.position_3d!,
+                  alertLevel: alerts.some((a) => a.device_id === d.id && a.severity === "critical") ? "critical" as const :
+                    alerts.some((a) => a.device_id === d.id) ? "warning" as const : "normal" as const,
+                }))}
+                onDeviceClick={(id) => setSelectedDevice(id === selectedDevice ? null : id)}
+                editTargetId={editMode ? selectedDevice : null}
+                onPlaceDevice={async (id, pos) => {
+                  await fetch(`/api/devices/${id}/position`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ position_3d: pos }),
+                  });
+                  fetchData();
+                }}
+                onRemoveDevice={async (id) => {
+                  await fetch(`/api/devices/${id}/position`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ position_3d: null }),
+                  });
+                  fetchData();
+                }}
               />
+            </div>
+
+            {/* 오른쪽 패널 — 설비 상세 (3D 밖) */}
+            {selectedDevice && !editMode && (
+              <div className="w-80 shrink-0 border-l border-[var(--border)] overflow-y-auto">
+                <DeviceDetailPanel
+                  deviceId={selectedDevice}
+                  onClose={() => setSelectedDevice(null)}
+                />
+              </div>
             )}
           </div>
         )}
@@ -396,15 +401,9 @@ export default function MonitoringPage() {
         )}
       </div>
 
-      {/* ─── Alerts Overlay (하단) ─── */}
-      {anyActive && alerts.length > 0 && (
-        <div className="absolute bottom-4 left-4 z-30 max-w-md space-y-1">
-          {alerts.slice(0, 3).map((a) => (
-            <div key={a.id} className="flex items-center gap-2 rounded-lg bg-black/80 px-3 py-2 text-xs backdrop-blur-md" style={{ borderLeft: `3px solid ${a.severity === "critical" ? "var(--danger)" : "var(--accent)"}` }}>
-              <AlertTriangle size={12} style={{ color: a.severity === "critical" ? "var(--danger)" : "var(--accent)" }} />
-              <span className="text-white">{a.message}</span>
-            </div>
-          ))}
+      {/* 알림은 3D 위가 아닌 오른쪽 패널에서 표시 — 여기서는 제거 */}
+      {false && alerts.length > 0 && (
+        <div>
         </div>
       )}
 

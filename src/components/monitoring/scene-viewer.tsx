@@ -64,44 +64,17 @@ function DeviceMarker3D({ device, selected, editMode, onClick, onRemove }: {
           onClick={(e) => { e.stopPropagation(); onClick(); }}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative" }}
+          style={{ position: "relative", display: "inline-block" }}
         >
-          {/* 라벨 */}
-          <div style={{
-            background: selected ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.8)",
-            backdropFilter: "blur(8px)",
-            borderRadius: "6px",
-            padding: "4px 8px",
-            whiteSpace: "nowrap",
-            marginBottom: "2px",
-            boxShadow: selected ? "0 0 10px rgba(255,255,255,0.3)" : "none",
-            position: "relative",
-          }}>
-            {/* 편집 모드 X 버튼 */}
-            {editMode && hovered && (
-              <button
-                onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
-                style={{
-                  position: "absolute", top: "-6px", right: "-6px",
-                  width: "16px", height: "16px", borderRadius: "50%",
-                  backgroundColor: "#ef4444", color: "#fff", border: "none",
-                  fontSize: "10px", fontWeight: "bold", cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                }}
-              >×</button>
-            )}
-            <span style={{ fontSize: "10px", fontWeight: "bold", color: selected ? "#000" : "#fff" }}>{device.name}</span>
-          </div>
-
-          {/* 핀 이미지 */}
+          {/* 핀 이미지만 — 모든 조작은 오른쪽 패널 */}
           <img
             src="/images/solution/25530.jpg"
             alt="pin"
             style={{
-              width: hovered ? "28px" : "24px",
-              height: hovered ? "36px" : "32px",
+              width: hovered || selected ? "28px" : "22px",
+              height: hovered || selected ? "36px" : "28px",
               objectFit: "contain",
-              filter: selected ? "brightness(1.3) drop-shadow(0 0 4px white)" : "drop-shadow(0 2px 3px rgba(0,0,0,0.5))",
+              filter: selected ? "brightness(1.3) drop-shadow(0 0 6px white)" : "drop-shadow(0 2px 3px rgba(0,0,0,0.5))",
               transition: "all 0.15s ease",
             }}
           />
@@ -201,11 +174,9 @@ export function SceneViewer({ splatSource, devices, editMode, editTargetId, sele
         </div>
       )}
 
-      {/* Controls */}
-      {!editMode && loaded && (
-        <div className="absolute bottom-3 left-3 z-20 rounded-lg bg-black/50 px-3 py-1.5 text-[9px] text-gray-500 backdrop-blur-sm">
-          드래그: 회전 · 스크롤: 줌 · 설비 클릭: 상세
-        </div>
+      {/* 3D 위에 텍스트 없음 — 마커만 표시 */}
+      {false && (
+        <div />
       )}
     </div>
   );
