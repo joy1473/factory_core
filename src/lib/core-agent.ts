@@ -84,6 +84,14 @@ export async function buildContext(): Promise<string> {
     .order("created_at", { ascending: false })
     .limit(10);
 
+  // 3.5 최근 오디오 이상 감지 (Ear Agent)
+  const { data: audioAnomalies } = await supabase
+    .from("audio_readings")
+    .select("device_id, anomaly_type, confidence, recorded_at, devices(name)")
+    .eq("is_anomaly", true)
+    .order("recorded_at", { ascending: false })
+    .limit(5);
+
   // 4. 컨텍스트 조립
   const deviceLines = deviceReadings.map((d) => {
     const sensorStr = d.sensors.length > 0
@@ -104,6 +112,12 @@ ${deviceLines}
 
 ### 활성 알림 (${(alerts || []).length}건)
 ${alertLines}
+
+### 청각 AI (Ear Agent) 최근 이상음 감지
+${(audioAnomalies || []).length > 0 ? (audioAnomalies || []).map((a) => {
+    const name = (a.devices as unknown as { name: string } | null)?.name || "";
+    return `- ${name}: ${a.anomaly_type} (확신도 ${Math.round((a.confidence as number) * 100)}%) — ${new Date(a.recorded_at as string).toLocaleTimeString("ko-KR")}`;
+  }).join("\n") : "이상음 없음"}
 
 ### 참고 기준
 - 진동: ISO 10816 Zone A(정상) < 2.8mm/s, Zone B < 7.1mm/s, Zone C < 18mm/s

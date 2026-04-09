@@ -17,6 +17,7 @@ import {
   Activity,
   Radio,
   Bot,
+  Ear,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
@@ -30,6 +31,7 @@ const NAV_ITEMS = [
   { href: "/admin/inquiries", icon: MessageSquare, label: "문의" },
   { href: "/admin/surveys", icon: ClipboardList, label: "설문 응답" },
   { href: "/admin/chat", icon: Bot, label: "AI 공장장" },
+  { href: "/admin/ear", icon: Ear, label: "청각 AI" },
   { href: "/admin/monitoring", icon: Activity, label: "모니터링" },
   { href: "/admin/simulator", icon: Radio, label: "시뮬레이터" },
   { href: "/admin/content", icon: Settings, label: "콘텐츠 관리" },
