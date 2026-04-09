@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Send, Loader2 } from "lucide-react";
 import { ChatMessage } from "@/components/chat/chat-message";
 import { QuickPrompts } from "@/components/chat/quick-prompts";
+import { VoiceInput } from "@/components/chat/voice-input";
 
 interface Message {
   role: "user" | "assistant";
@@ -166,18 +167,22 @@ export default function ChatPage() {
 
       {/* Input */}
       <form onSubmit={handleSubmit} className="border-t border-[var(--border)] px-5 py-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <VoiceInput
+            onTranscript={(text) => sendMessage(text)}
+            disabled={loading}
+          />
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="메시지를 입력하세요..."
+            placeholder="메시지를 입력하거나 마이크를 누르세요..."
             disabled={loading}
             className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-3 text-sm text-[var(--foreground)] placeholder-gray-500 focus:border-[var(--corebot-core)] focus:outline-none disabled:opacity-50"
           />
           <button
             type="submit"
             disabled={loading || !input.trim()}
-            className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--corebot-core)] text-black transition hover:brightness-110 disabled:opacity-50"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--corebot-core)] text-black transition hover:brightness-110 disabled:opacity-50"
           >
             {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
           </button>
