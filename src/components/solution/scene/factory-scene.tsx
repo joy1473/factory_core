@@ -20,10 +20,19 @@ interface FactorySceneProps {
   sceneId?: string;
 }
 
+function useIsMobile() {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    setMobile(window.innerWidth < 768 || /Android|iPhone|iPad/i.test(navigator.userAgent));
+  }, []);
+  return mobile;
+}
+
 export function FactoryScene({ sceneId = "general" }: FactorySceneProps) {
   const [p, setP] = useState(0);
   const rafRef = useRef<number>(0);
   const preset = SCENE_PRESETS[sceneId] || SCENE_PRESETS.general;
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     function handleScroll() {
@@ -51,17 +60,19 @@ export function FactoryScene({ sceneId = "general" }: FactorySceneProps) {
       {/* Canvas: fixed background */}
       <div className="pointer-events-none fixed inset-0 z-0">
         <Canvas
-          dpr={[1, 1.5]}
-          camera={{ position: [12, 10, 12], fov: 50 }}
+          dpr={isMobile ? [1, 1] : [1, 1.5]}
+          camera={{ position: [12, 10, 12], fov: isMobile ? 60 : 50 }}
           gl={{ antialias: false, powerPreference: "high-performance" }}
           style={{ pointerEvents: "none" }}
         >
           <Suspense fallback={null}>
             <SceneContent preset={preset} />
-            <EffectComposer>
-              <Bloom intensity={1.2} luminanceThreshold={0.9} luminanceSmoothing={0.9} mipmapBlur />
-              <Vignette eskil={false} offset={0.1} darkness={0.7} />
-            </EffectComposer>
+            {!isMobile && (
+              <EffectComposer>
+                <Bloom intensity={1.2} luminanceThreshold={0.9} luminanceSmoothing={0.9} mipmapBlur />
+                <Vignette eskil={false} offset={0.1} darkness={0.7} />
+              </EffectComposer>
+            )}
           </Suspense>
         </Canvas>
       </div>
@@ -78,7 +89,7 @@ export function FactoryScene({ sceneId = "general" }: FactorySceneProps) {
           >
             {i === 3 ? (
               <>
-                <p className="mb-2 animate-pulse text-sm font-bold uppercase tracking-widest text-[#ff4444]">
+                <p className="mb-2 animate-pulse text-sm font-bold uppercase tracking-widest text-[#FF9A9A]">
                   ⚠ Alert
                 </p>
                 <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
@@ -88,7 +99,7 @@ export function FactoryScene({ sceneId = "general" }: FactorySceneProps) {
               </>
             ) : i === 0 ? (
               <>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#00d4ff]">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[#A8E6CF]">
                   Factory Guardian Agent
                 </p>
                 <h2 className="mb-3 text-3xl font-black leading-tight text-white md:text-4xl">
@@ -98,7 +109,7 @@ export function FactoryScene({ sceneId = "general" }: FactorySceneProps) {
               </>
             ) : i === 1 ? (
               <>
-                <p className="mb-2 text-5xl font-black text-[#00ff41] md:text-6xl">$1</p>
+                <p className="mb-2 text-5xl font-black text-[#A8E6CF] md:text-6xl">$1</p>
                 <h2 className="mb-3 text-2xl font-bold text-white md:text-3xl">
                   {text.title}
                 </h2>
@@ -112,7 +123,7 @@ export function FactoryScene({ sceneId = "general" }: FactorySceneProps) {
                 <p className="mb-6 text-gray-400">{text.subtitle}</p>
                 <a
                   href="/poc"
-                  className="inline-block rounded-xl bg-[#00d4ff] px-8 py-3.5 text-base font-bold text-black transition hover:brightness-110"
+                  className="inline-block rounded-xl bg-[#A8E6CF] px-8 py-3.5 text-base font-bold text-[#1a1a1a] transition hover:brightness-110"
                 >
                   지금 바로 도입하기 →
                 </a>
@@ -162,25 +173,25 @@ function SceneContent({ preset }: { preset: ScenePreset }) {
 
   return (
     <>
-      <ambientLight intensity={0.08} />
-      <hemisphereLight color="#001133" groundColor="#000000" intensity={0.3} />
+      <ambientLight intensity={0.12} />
+      <hemisphereLight color="#2a1a2e" groundColor="#000000" intensity={0.3} />
       <directionalLight position={[10, 15, 5]} intensity={0.4} color="#aabbff" />
 
-      <FactoryFloor />
+      <FactoryFloor gridColor={preset.colors.grid} />
       <DustParticles />
 
       {preset.equipment.map((eq, i) => (
-        <ScrollEquipment key={`${preset.id}-eq-${i}`} config={eq} alertIndex={preset.alertIndex} index={i} />
+        <ScrollEquipment key={`${preset.id}-eq-${i}`} config={eq} alertIndex={preset.alertIndex} index={i} sceneColor={preset.colors.primary} alertColor={preset.colors.alert} />
       ))}
 
       {preset.stickers.map((pos, i) => (
-        <ScrollSticker key={`${preset.id}-st-${i}`} position={pos} index={i} alertIndex={preset.alertIndex} />
+        <ScrollSticker key={`${preset.id}-st-${i}`} position={pos} index={i} alertIndex={preset.alertIndex} stickerColor={preset.colors.sticker} alertColor={preset.colors.alert} />
       ))}
 
-      <ScrollWorker waypoints={preset.waypoints} />
+      <ScrollWorker waypoints={preset.waypoints} primaryColor={preset.colors.primary} accentColor={preset.colors.accent} />
 
       {preset.stickers.map((pos, i) => (
-        <ScrollParticles key={`${preset.id}-pt-${i}`} from={pos} kioskPos={preset.kioskPos} index={i} alertIndex={preset.alertIndex} />
+        <ScrollParticles key={`${preset.id}-pt-${i}`} from={pos} kioskPos={preset.kioskPos} index={i} alertIndex={preset.alertIndex} particleColor={preset.colors.particles} alertColor={preset.colors.alert} />
       ))}
 
       <ScrollKiosk kioskPos={preset.kioskPos} chatMessages={preset.chatMessages} />
@@ -189,13 +200,13 @@ function SceneContent({ preset }: { preset: ScenePreset }) {
 }
 
 // ─── Scroll-aware wrappers ───
-function ScrollEquipment({ config, alertIndex, index }: { config: ScenePreset["equipment"][0]; alertIndex: number; index: number }) {
+function ScrollEquipment({ config, alertIndex, index, sceneColor, alertColor }: { config: ScenePreset["equipment"][0]; alertIndex: number; index: number; sceneColor: string; alertColor: string }) {
   const ref = useRef(0);
   useFrame(() => { ref.current = scrollState.progress; });
-  return <Equipment position={config.pos} type={config.type} alert={index === alertIndex} scrollProgress={ref.current} />;
+  return <Equipment position={config.pos} type={config.type} alert={index === alertIndex} scrollProgress={ref.current} sceneColor={sceneColor} alertColor={alertColor} />;
 }
 
-function ScrollSticker({ position, index, alertIndex }: { position: [number, number, number]; index: number; alertIndex: number }) {
+function ScrollSticker({ position, index, alertIndex, stickerColor, alertColor }: { position: [number, number, number]; index: number; alertIndex: number; stickerColor: string; alertColor: string }) {
   const ref = useRef(0);
   useFrame(() => { ref.current = scrollState.progress; });
   return (
@@ -204,18 +215,19 @@ function ScrollSticker({ position, index, alertIndex }: { position: [number, num
       active={ref.current > 0.15 + index * 0.04}
       alert={index === alertIndex && ref.current > 0.6}
       attachProgress={Math.max(0, Math.min(1, (ref.current - (0.15 + index * 0.04)) / 0.05))}
+      stickerColor={stickerColor}
+      alertColor={alertColor}
     />
   );
 }
 
-function ScrollWorker({ waypoints }: { waypoints: [number, number, number][] }) {
+function ScrollWorker({ waypoints, primaryColor, accentColor }: { waypoints: [number, number, number][]; primaryColor: string; accentColor: string }) {
   const ref = useRef(0);
   useFrame(() => { ref.current = scrollState.progress; });
-  // Worker reads waypoints from preset
-  return <Worker scrollProgress={ref.current} visible={ref.current > 0.3} />;
+  return <Worker scrollProgress={ref.current} visible={ref.current > 0.3} primaryColor={primaryColor} accentColor={accentColor} />;
 }
 
-function ScrollParticles({ from, kioskPos, index, alertIndex }: { from: [number, number, number]; kioskPos: [number, number, number]; index: number; alertIndex: number }) {
+function ScrollParticles({ from, kioskPos, index, alertIndex, particleColor, alertColor }: { from: [number, number, number]; kioskPos: [number, number, number]; index: number; alertIndex: number; particleColor: string; alertColor: string }) {
   const ref = useRef(0);
   useFrame(() => { ref.current = scrollState.progress; });
   return (
@@ -223,7 +235,7 @@ function ScrollParticles({ from, kioskPos, index, alertIndex }: { from: [number,
       from={from}
       to={kioskPos}
       active={ref.current > 0.35 && ref.current < 0.85}
-      color={index === alertIndex && ref.current > 0.6 ? "#ff4444" : "#00d4ff"}
+      color={index === alertIndex && ref.current > 0.6 ? alertColor : particleColor}
       count={15}
     />
   );

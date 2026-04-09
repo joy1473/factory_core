@@ -8,15 +8,17 @@ interface IoTStickerProps {
   position: [number, number, number];
   active: boolean;
   alert?: boolean;
-  attachProgress: number; // 0~1, controls sticker appearance
+  attachProgress: number;
+  stickerColor?: string;
+  alertColor?: string;
 }
 
-export function IoTSticker({ position, active, alert = false, attachProgress }: IoTStickerProps) {
+export function IoTSticker({ position, active, alert = false, attachProgress, stickerColor = "#A8E6CF", alertColor = "#FF9A9A" }: IoTStickerProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Mesh>(null);
   const glowRef = useRef<THREE.PointLight>(null);
 
-  const baseColor = alert ? "#ff2222" : "#00ff41";
+  const baseColor = alert ? alertColor : stickerColor;
 
   useFrame(() => {
     if (!meshRef.current) return;
@@ -70,7 +72,7 @@ export function IoTSticker({ position, active, alert = false, attachProgress }: 
         <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
           <ringGeometry args={[0.2, 0.3, 32]} />
           <meshBasicMaterial
-            color="#ff4444"
+            color={alertColor}
             transparent
             opacity={0.5}
             side={THREE.DoubleSide}
@@ -80,13 +82,13 @@ export function IoTSticker({ position, active, alert = false, attachProgress }: 
 
       {/* Attach particle burst */}
       {attachProgress > 0 && attachProgress < 1 && (
-        <AttachBurst progress={attachProgress} />
+        <AttachBurst progress={attachProgress} color={stickerColor} />
       )}
     </group>
   );
 }
 
-function AttachBurst({ progress }: { progress: number }) {
+function AttachBurst({ progress, color }: { progress: number; color: string }) {
   const ref = useRef<THREE.Points>(null);
 
   const { positions } = useMemoParticles(20);
@@ -106,7 +108,7 @@ function AttachBurst({ progress }: { progress: number }) {
         />
       </bufferGeometry>
       <pointsMaterial
-        color="#00d4ff"
+        color={color}
         size={0.05}
         transparent
         opacity={1}

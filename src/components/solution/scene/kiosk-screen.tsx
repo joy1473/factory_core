@@ -134,7 +134,7 @@ function KioskChat({ progress, messages }: { progress: number; messages?: ChatMs
       {/* Header */}
       <div
         style={{
-          background: "#0066ff",
+          background: "linear-gradient(135deg, #0d1f18 0%, #1a2f24 100%)",
           color: "#fff",
           padding: "8px 12px",
           display: "flex",
@@ -144,15 +144,22 @@ function KioskChat({ progress, messages }: { progress: number; messages?: ChatMs
           fontWeight: "bold",
         }}
       >
-        <span style={{ fontSize: "14px" }}>🏭</span>
-        Factory Guardian AI
+        <video
+          src="/video/Core.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{ width: "22px", height: "22px", borderRadius: "50%", objectFit: "cover" }}
+        />
+        <span style={{ color: "#A8E6CF" }}>Factory Guardian AI</span>
         <span
           style={{
             marginLeft: "auto",
             width: "7px",
             height: "7px",
             borderRadius: "50%",
-            background: "#00ff88",
+            background: "#A8E6CF",
           }}
         />
       </div>
@@ -178,8 +185,8 @@ function KioskChat({ progress, messages }: { progress: number; messages?: ChatMs
                 key={i}
                 style={{
                   alignSelf: "flex-end",
-                  background: "#0066ff",
-                  color: "#fff",
+                  background: "#2a3a30",
+                  color: "#e8e8e8",
                   padding: "5px 10px",
                   borderRadius: "10px 10px 2px 10px",
                   maxWidth: "65%",
@@ -196,45 +203,68 @@ function KioskChat({ progress, messages }: { progress: number; messages?: ChatMs
               key={i}
               style={{
                 alignSelf: "flex-start",
-                background: msg.alert ? "#fff0f0" : "#fff",
-                border: msg.alert ? "1px solid #ffcccc" : "1px solid #e8e8e8",
-                color: "#333",
-                padding: "6px 10px",
-                borderRadius: "10px 10px 10px 2px",
-                maxWidth: "80%",
+                display: "flex",
+                gap: "6px",
+                maxWidth: "85%",
                 opacity,
-                lineHeight: "1.5",
-                whiteSpace: "pre-line",
               }}
             >
+              {/* Core 캐릭터 아바타 */}
+              <video
+                src="/video/Core.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{
+                  width: "24px",
+                  height: "24px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  flexShrink: 0,
+                  marginTop: "2px",
+                }}
+              />
+              <div
+                style={{
+                  background: msg.alert ? "#fff5f5" : "#f0faf5",
+                  border: msg.alert ? "1px solid #FF9A9A" : "1px solid #A8E6CF40",
+                  color: "#333",
+                  padding: "6px 10px",
+                  borderRadius: "10px 10px 10px 2px",
+                  lineHeight: "1.5",
+                  whiteSpace: "pre-line",
+                  flex: 1,
+                }}
+              >
               <div style={{ display: "flex", gap: "4px", marginBottom: "3px" }}>
                 <span
                   style={{
                     fontSize: "9px",
-                    background: "#0066ff",
-                    color: "#fff",
+                    background: "#A8E6CF",
+                    color: "#0d1f18",
                     borderRadius: "3px",
                     padding: "1px 4px",
                     fontWeight: "bold",
                   }}
                 >
-                  AI
+                  Core
                 </span>
               </div>
               {msg.text}
               {msg.actions && chatProgress > 0.9 && (
                 <div style={{ display: "flex", gap: "4px", marginTop: "5px" }}>
                   {[
-                    { label: "📄 PDF", bg: "#0066ff" },
-                    { label: "🔧 정비요청", bg: "#ff6600" },
-                    { label: "📱 알림", bg: "#22cc66" },
+                    { label: "📄 PDF", bg: "#A8E6CF" },
+                    { label: "🔧 정비요청", bg: "#FFD3B6" },
+                    { label: "📱 알림", bg: "#DDA0DD" },
                   ].map((btn) => (
                     <div
                       key={btn.label}
                       style={{
                         padding: "3px 8px",
                         background: btn.bg,
-                        color: "#fff",
+                        color: "#1a1a1a",
                         borderRadius: "4px",
                         fontSize: "10px",
                         fontWeight: "bold",
@@ -245,6 +275,7 @@ function KioskChat({ progress, messages }: { progress: number; messages?: ChatMs
                   ))}
                 </div>
               )}
+              </div>
             </div>
           );
         })}
@@ -276,12 +307,12 @@ function KioskChat({ progress, messages }: { progress: number; messages?: ChatMs
           style={{
             width: "24px",
             height: "24px",
-            background: "#0066ff",
+            background: "#A8E6CF",
             borderRadius: "50%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#fff",
+            color: "#1a1a1a",
             fontSize: "12px",
             fontWeight: "bold",
           }}

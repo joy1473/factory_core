@@ -10,6 +10,30 @@
   --danger: #ff4444;
   --surface: #111111;
   --border: #1a1a2e;
+
+  /* CoreBot Family Pastel */
+  --pastel-mint: #A8E6CF;
+  --pastel-lavender: #DDA0DD;
+  --pastel-peach: #FFD3B6;
+  --pastel-yellow: #FDFD96;
+  --pastel-alert: #FF9A9A;
+  --corebot-core: var(--pastel-mint);
+  --corebot-eye: var(--pastel-lavender);
+  --corebot-ear: var(--pastel-peach);
+  --corebot-touch: var(--pastel-yellow);
+}
+
+/* Light mode */
+[data-theme="light"] {
+  --background: #f8f9fa;
+  --foreground: #1a1a1a;
+  --primary: #00b8d4;
+  --primary-dim: rgba(0, 184, 212, 0.12);
+  --secondary: #00c853;
+  --accent: #ff9800;
+  --danger: #e53935;
+  --surface: #ffffff;
+  --border: #e0e0e0;
 }
 
 @theme inline {
@@ -46,4 +70,18 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #00d4ff;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #f8f9fa;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #ccc;
+}
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #00b8d4;
+}
+[data-theme="light"] ::selection {
+  background: rgba(168, 230, 207, 0.4);
+  color: #1a1a1a;
 }

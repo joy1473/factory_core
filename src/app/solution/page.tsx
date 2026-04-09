@@ -15,9 +15,9 @@ const FactoryScene = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="flex h-screen w-full items-center justify-center bg-[#0a0a0a]">
+      <div className="flex h-screen w-full items-center justify-center bg-[var(--background)]">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-[#00ff41] border-t-transparent" />
+          <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-[#A8E6CF] border-t-transparent" />
           <p className="text-sm text-gray-500">3D 씬 로딩 중...</p>
         </div>
       </div>
@@ -49,7 +49,7 @@ export default function SolutionPage() {
       </div>
 
       {/* Smart Factory Level Guide — 첫 화면 */}
-      <div className="relative z-20 bg-[#0a0a0a] pt-20">
+      <div className="relative z-20 bg-[var(--background)] pt-20">
         <div className="mx-auto max-w-6xl px-5 py-16">
           <p className="mb-2 text-center text-xs font-semibold uppercase tracking-widest text-[var(--primary)]">
             Smart Factory Levels
@@ -64,11 +64,11 @@ export default function SolutionPage() {
           {/* 5 Level Cards */}
           <div className="mb-8 grid gap-3 sm:grid-cols-5">
             {[
-              { level: "ICT 미적용", desc: "수작업, 전화/이메일", color: "#555", items: ["수기 기록", "엑셀 관리", "전화 협업"] },
-              { level: "기초", desc: "실적집계 자동화", color: "#00d4ff", items: ["바코드/QR", "POP 시스템", "실시간 집계"] },
-              { level: "중간1", desc: "설비데이터 자동집계", color: "#00ff88", items: ["설비 모니터링", "ERP 연동", "자동 리포트"] },
-              { level: "중간2", desc: "설비제어 자동화", color: "#ffaa00", items: ["MES 통합", "실시간 제어", "시뮬레이션"] },
-              { level: "고도", desc: "IoT/AI 기반 CPS", color: "#ff6644", items: ["AI 예측", "자율 최적화", "디지털 트윈"] },
+              { level: "ICT 미적용", desc: "수작업, 전화/이메일", color: "#B0B0B0", items: ["수기 기록", "엑셀 관리", "전화 협업"] },
+              { level: "기초", desc: "실적집계 자동화", color: "#A8E6CF", items: ["바코드/QR", "POP 시스템", "실시간 집계"] },
+              { level: "중간1", desc: "설비데이터 자동집계", color: "#DDA0DD", items: ["설비 모니터링", "ERP 연동", "자동 리포트"] },
+              { level: "중간2", desc: "설비제어 자동화", color: "#FFD3B6", items: ["MES 통합", "실시간 제어", "시뮬레이션"] },
+              { level: "고도", desc: "IoT/AI 기반 CPS", color: "#FFB347", items: ["AI 예측", "자율 최적화", "디지털 트윈"] },
             ].map((l, i) => (
               <div
                 key={l.level}
@@ -89,20 +89,24 @@ export default function SolutionPage() {
             ))}
           </div>
 
-          {/* 5대 요건 */}
+          {/* CoreBot Family — AI 기능 소개 */}
           <div className="mb-10 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6">
-            <h3 className="mb-4 text-center text-sm font-bold text-white">스마트공장 5대 요건</h3>
-            <div className="grid gap-3 sm:grid-cols-5">
+            <h3 className="mb-2 text-center text-sm font-bold text-white">CoreBot Family</h3>
+            <p className="mb-5 text-center text-[10px] text-gray-500">Factory Guardian Agent를 구성하는 AI 요원들</p>
+            <div className="grid gap-4 sm:grid-cols-4">
               {[
-                { title: "4M+1E 디지털화", desc: "Man, Machine, Material, Method, Environment" },
-                { title: "지능화", desc: "AI/알고리즘으로 예측·최적화" },
-                { title: "통합", desc: "수평적·수직적 End-to-End 연결" },
-                { title: "지식 창출", desc: "데이터 기반 제조 지식 축적" },
-                { title: "스마트 연결", desc: "IoT 표준 통신으로 확장" },
-              ].map((r) => (
-                <div key={r.title} className="text-center">
-                  <p className="text-xs font-semibold text-[var(--primary)]">{r.title}</p>
-                  <p className="mt-1 text-[10px] text-gray-500">{r.desc}</p>
+                { name: "Core", role: "AI 공장장", desc: "모든 데이터를 통합·분석하고 자동 보고서 생성", video: "/video/Core.mp4", color: "#A8E6CF" },
+                { name: "Eye", role: "시각 AI", desc: "카메라·스마트글래스로 설비 상태를 자동 판별", video: "/video/Eye.mp4", color: "#DDA0DD" },
+                { name: "Ear", role: "청각 AI", desc: "설비 소리를 분석하여 이상 징후 조기 감지", video: "/video/Ear.mp4", color: "#FFD3B6" },
+                { name: "Touch", role: "IoT 촉각", desc: "$1 스티커 센서로 온도·습도·진동 실시간 감지", video: "/video/Touch.mp4", color: "#FDFD96" },
+              ].map((bot) => (
+                <div key={bot.name} className="flex flex-col items-center rounded-lg border border-[var(--border)] bg-black/20 p-4 text-center transition hover:border-opacity-60" style={{ borderTopColor: bot.color, borderTopWidth: "2px" }}>
+                  <div className="mb-3 h-16 w-16 overflow-hidden rounded-full" style={{ boxShadow: `0 0 20px ${bot.color}20` }}>
+                    <video src={bot.video} autoPlay loop muted playsInline className="h-full w-full object-cover" />
+                  </div>
+                  <p className="text-xs font-bold" style={{ color: bot.color }}>{bot.name}</p>
+                  <p className="text-[11px] font-semibold text-white">{bot.role}</p>
+                  <p className="mt-1 text-[10px] text-gray-500">{bot.desc}</p>
                 </div>
               ))}
             </div>
@@ -130,7 +134,7 @@ export default function SolutionPage() {
       </div>
 
       {/* Bottom nav */}
-      <div className="relative z-20 bg-[#0a0a0a]">
+      <div className="relative z-20 bg-[var(--background)]">
         <div className="h-16 bg-gradient-to-b from-transparent to-[#0a0a0a]" />
         <div className="mx-auto max-w-4xl px-5 py-16 text-center">
           <h2 className="mb-4 text-2xl font-bold text-white md:text-3xl">

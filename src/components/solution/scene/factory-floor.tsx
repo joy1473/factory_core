@@ -4,10 +4,14 @@ import { useRef } from "react";
 import { GridHelper } from "three";
 import { useFrame } from "@react-three/fiber";
 
-export function FactoryFloor() {
+interface FactoryFloorProps {
+  gridColor?: string;
+}
+
+export function FactoryFloor({ gridColor = "#A8E6CF" }: FactoryFloorProps) {
   const gridRef = useRef<GridHelper>(null);
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     if (gridRef.current) {
       gridRef.current.material.opacity = 0.15 + Math.sin(Date.now() * 0.001) * 0.05;
     }
@@ -24,7 +28,7 @@ export function FactoryFloor() {
       {/* Grid */}
       <gridHelper
         ref={gridRef}
-        args={[40, 40, "#00ff41", "#00ff41"]}
+        args={[40, 40, gridColor, gridColor]}
         position={[0, 0, 0]}
         material-transparent
         material-opacity={0.15}
@@ -39,7 +43,7 @@ export function FactoryFloor() {
         <mesh key={i} position={wall.pos}>
           <boxGeometry args={wall.size} />
           <meshStandardMaterial
-            color="#00ff41"
+            color={gridColor}
             wireframe
             transparent
             opacity={0.05}

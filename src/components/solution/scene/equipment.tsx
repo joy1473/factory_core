@@ -9,19 +9,21 @@ interface EquipmentProps {
   type: string;
   alert?: boolean;
   scrollProgress: number;
+  sceneColor?: string;
+  alertColor?: string;
 }
 
-export function Equipment({ position, type, alert = false, scrollProgress }: EquipmentProps) {
+export function Equipment({ position, type, alert = false, scrollProgress, sceneColor = "#A8E6CF", alertColor = "#FF9A9A" }: EquipmentProps) {
   const groupRef = useRef<THREE.Group>(null);
   const alertProgress = useRef(0);
 
   const color = alert && scrollProgress > 0.6
-    ? new THREE.Color("#ff2222")
+    ? new THREE.Color(alertColor)
     : new THREE.Color("#1a1a2e");
 
   const edgeColor = alert && scrollProgress > 0.6
-    ? "#ff4444"
-    : "#00d4ff";
+    ? alertColor
+    : sceneColor;
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
@@ -80,7 +82,7 @@ function CNCMachine({ color, edgeColor }: { color: THREE.Color; edgeColor: strin
       {/* 컨트롤 패널 */}
       <mesh position={[1.05, 1, 0]}>
         <boxGeometry args={[0.1, 0.6, 0.4]} />
-        <meshStandardMaterial color="#111" emissive="#00ff41" emissiveIntensity={0.3} />
+        <meshStandardMaterial color="#111" emissive={edgeColor} emissiveIntensity={0.3} />
       </mesh>
     </group>
   );
@@ -163,7 +165,7 @@ function SMTLine({ color, edgeColor }: { color: THREE.Color; edgeColor: string }
       {[-1.5, -0.5, 0.5, 1.5].map((x, i) => (
         <mesh key={i} position={[x, 1.1, 0]}>
           <boxGeometry args={[0.3, 0.2, 0.3]} />
-          <meshStandardMaterial color="#333" emissive="#00ff41" emissiveIntensity={0.3} />
+          <meshStandardMaterial color="#333" emissive={edgeColor} emissiveIntensity={0.3} />
         </mesh>
       ))}
     </group>
@@ -202,11 +204,11 @@ function AOIInspector({ color, edgeColor }: { color: THREE.Color; edgeColor: str
       </mesh>
       <mesh position={[0, 1.5, 0]}>
         <cylinderGeometry args={[0.15, 0.2, 0.4, 8]} />
-        <meshStandardMaterial color="#222" emissive="#00d4ff" emissiveIntensity={0.5} />
+        <meshStandardMaterial color="#222" emissive={edgeColor} emissiveIntensity={0.5} />
       </mesh>
       <mesh position={[0.8, 1, 0.1]}>
         <boxGeometry args={[0.6, 0.5, 0.05]} />
-        <meshStandardMaterial color="#111" emissive="#00ff41" emissiveIntensity={0.3} />
+        <meshStandardMaterial color="#111" emissive={edgeColor} emissiveIntensity={0.3} />
       </mesh>
     </group>
   );
@@ -266,7 +268,7 @@ function ServerRack({ color, edgeColor }: { color: THREE.Color; edgeColor: strin
       {[0.4, 0.8, 1.2, 1.6, 2.0].map((y, i) => (
         <mesh key={i} position={[0, y, 0.42]}>
           <boxGeometry args={[0.6, 0.08, 0.02]} />
-          <meshStandardMaterial color="#111" emissive={i === 0 ? "#ff4444" : "#00ff41"} emissiveIntensity={1.5} toneMapped={false} />
+          <meshStandardMaterial color="#111" emissive={i === 0 ? "#FF9A9A" : edgeColor} emissiveIntensity={1.5} toneMapped={false} />
         </mesh>
       ))}
     </group>

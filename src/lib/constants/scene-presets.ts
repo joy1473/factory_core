@@ -18,6 +18,15 @@ export interface CameraKeyframe {
   target: [number, number, number];
 }
 
+export interface SceneColors {
+  primary: string;
+  accent: string;
+  alert: string;
+  grid: string;
+  particles: string;
+  sticker: string;
+}
+
 export interface ScenePreset {
   id: string;
   label: string;
@@ -31,6 +40,7 @@ export interface ScenePreset {
   cameraKeyframes: CameraKeyframe[];
   chatMessages: ChatMessage[];
   overlayTexts: { title: string; subtitle: string }[];
+  colors: SceneColors;
 }
 
 // ─── General Factory ───
@@ -39,6 +49,7 @@ const GENERAL: ScenePreset = {
   label: "기본 공장",
   icon: "🏭",
   description: "CNC, 프레스, 사출기",
+  colors: { primary: "#A8E6CF", accent: "#7FCDBB", alert: "#FF9A9A", grid: "#A8E6CF", particles: "#A8E6CF", sticker: "#A8E6CF" },
   equipment: [
     { pos: [-6, 0, -2], type: "cnc", label: "CNC-1" },
     { pos: [-2, 0, -2], type: "cnc", label: "CNC-2" },
@@ -79,6 +90,7 @@ const ELECTRONICS: ScenePreset = {
   label: "전자/반도체",
   icon: "⚡",
   description: "SMT라인, 리플로우, AOI",
+  colors: { primary: "#DDA0DD", accent: "#C89BD9", alert: "#FF9A9A", grid: "#DDA0DD", particles: "#DDA0DD", sticker: "#DDA0DD" },
   equipment: [
     { pos: [-7, 0, -2], type: "smt", label: "SMT라인" },
     { pos: [-2, 0, -2], type: "reflow", label: "리플로우" },
@@ -119,6 +131,7 @@ const METAL: ScenePreset = {
   label: "금형/CNC",
   icon: "⚙",
   description: "CNC, 와이어컷, 연마기",
+  colors: { primary: "#FFD3B6", accent: "#FFB89A", alert: "#FF9A9A", grid: "#FFD3B6", particles: "#FFD3B6", sticker: "#FFD3B6" },
   equipment: [
     { pos: [-7, 0, -2], type: "cnc", label: "CNC-1" },
     { pos: [-3, 0, -2], type: "cnc", label: "CNC-2" },
@@ -160,6 +173,7 @@ const OFFICE: ScenePreset = {
   label: "사무실/IT",
   icon: "🖥",
   description: "서버, 데스크, 회의실",
+  colors: { primary: "#FDFD96", accent: "#F0E68C", alert: "#FF9A9A", grid: "#FDFD96", particles: "#FDFD96", sticker: "#FDFD96" },
   equipment: [
     { pos: [-6, 0, -3], type: "server", alert: true, label: "서버랙-1" },
     { pos: [-3, 0, -3], type: "server", label: "서버랙-2" },
