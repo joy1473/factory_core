@@ -4,9 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Activity, Settings, Play, Square, Zap,
   Send, Loader2, Mic, MicOff, ChevronDown,
-  AlertTriangle,
+  AlertTriangle, Move,
 } from "lucide-react";
 import dynamic from "next/dynamic";
+import { DeviceDetailPanel } from "@/components/monitoring/device-detail-panel";
 
 const SceneViewer = dynamic(
   () => import("@/components/monitoring/scene-viewer").then((m) => m.SceneViewer),
@@ -38,6 +39,7 @@ export default function MonitoringPage() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [selectedDevice, setSelectedDevice] = useState<string | null>(null);
+  const [editMode, setEditMode] = useState(false);
 
   // Simulator
   const [simRunning, setSimRunning] = useState(false);
@@ -198,6 +200,11 @@ export default function MonitoringPage() {
           )}
         </div>
         <div className="flex items-center gap-2">
+          {anyActive && scene && (
+            <button onClick={() => { setEditMode(!editMode); if (editMode) setSelectedDevice(null); }} className={`flex items-center gap-1 rounded-lg border px-3 py-1 text-[10px] transition ${editMode ? "border-[var(--accent)] text-[var(--accent)]" : "border-[var(--border)] text-[var(--muted)]"}`}>
+              <Move size={10} /> {editMode ? "편집 완료" : "배치 편집"}
+            </button>
+          )}
           {anyActive && (
             <button onClick={() => setShowSim(!showSim)} className={`rounded-lg border px-3 py-1 text-[10px] transition ${simRunning ? "border-[var(--corebot-core)]/50 text-[var(--corebot-core)]" : "border-[var(--border)] text-[var(--muted)]"}`}>
               시뮬레이터
@@ -288,18 +295,35 @@ export default function MonitoringPage() {
           <div className="h-full">
             <SceneViewer
               splatSource={scene.splat_url}
+              editMode={editMode}
+              selectedDeviceId={selectedDevice}
               devices={devices.map((d) => ({
                 id: d.id,
                 name: d.name,
                 device_type: d.device_type,
                 status: d.status,
-                position_3d: d.position_3d || { x: Math.random() * 4 - 2, y: 0, z: Math.random() * 4 - 2 },
-                label_offset: d.label_offset || { x: 0, y: 2, z: 0 },
+                position_3d: (d as unknown as Record<string, unknown>).position_3d as { x: number; y: number; z: number } || { x: (devices.indexOf(d) - 1.5) * 2, y: 0, z: 0 },
                 alertLevel: alerts.some((a) => a.device_id === d.id && a.severity === "critical") ? "critical" as const :
                   alerts.some((a) => a.device_id === d.id) ? "warning" as const : "normal" as const,
               }))}
               onDeviceClick={(id) => setSelectedDevice(id === selectedDevice ? null : id)}
+              onDeviceMove={async (id, pos) => {
+                await fetch(`/api/devices/${id}/position`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ position_3d: pos }),
+                });
+                fetchData();
+              }}
             />
+
+            {/* 설비 상세 팝업 */}
+            {selectedDevice && !editMode && (
+              <DeviceDetailPanel
+                deviceId={selectedDevice}
+                onClose={() => setSelectedDevice(null)}
+              />
+            )}
           </div>
         )}
 
