@@ -23,17 +23,17 @@
   --corebot-touch: var(--pastel-yellow);
 }
 
-/* Light mode */
+/* Light mode — 전구색 (warm white) */
 [data-theme="light"] {
-  --background: #f8f9fa;
-  --foreground: #1a1a1a;
-  --primary: #00b8d4;
-  --primary-dim: rgba(0, 184, 212, 0.12);
-  --secondary: #00c853;
-  --accent: #ff9800;
-  --danger: #e53935;
-  --surface: #ffffff;
-  --border: #e0e0e0;
+  --background: #FDF6EC;
+  --foreground: #3a3226;
+  --primary: #5aaa8a;
+  --primary-dim: rgba(90, 170, 138, 0.12);
+  --secondary: #7ab87a;
+  --accent: #d4944a;
+  --danger: #c45c5c;
+  --surface: #FFF8F0;
+  --border: #e8ddd0;
 }
 
 @theme inline {
@@ -73,15 +73,15 @@ body {
 }
 
 [data-theme="light"] ::-webkit-scrollbar-track {
-  background: #f8f9fa;
+  background: #FDF6EC;
 }
 [data-theme="light"] ::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: #d4c4b0;
 }
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
-  background: #00b8d4;
+  background: #5aaa8a;
 }
 [data-theme="light"] ::selection {
   background: rgba(168, 230, 207, 0.4);
-  color: #1a1a1a;
+  color: #3a3226;
 }
