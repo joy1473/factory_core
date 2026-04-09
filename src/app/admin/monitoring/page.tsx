@@ -17,7 +17,7 @@ const SceneViewer = dynamic(
 // ─── Types ───
 interface FeatureFlags { touch: boolean; ear: boolean; eye: boolean; core: boolean; }
 interface Scene { id: string; name: string; splat_url: string; camera_position: { x: number; y: number; z: number }; camera_target: { x: number; y: number; z: number }; }
-interface Device { id: string; name: string; device_type: string; location: string; status: string; thresholds: Record<string, number>; position_3d?: { x: number; y: number; z: number }; label_offset?: { x: number; y: number; z: number }; }
+interface Device { id: string; name: string; device_type: string; location: string; status: string; thresholds: Record<string, number>; position_3d?: { x: number; y: number; z: number }; metadata?: Record<string, string>; }
 interface Alert { id: string; device_id: string; sensor_type: string; severity: string; message: string; status: string; created_at: string; }
 interface ChatMsg { role: "user" | "assistant"; content: string; }
 
@@ -302,7 +302,7 @@ export default function MonitoringPage() {
                 name: d.name,
                 device_type: d.device_type,
                 status: d.status,
-                position_3d: (d as unknown as Record<string, unknown>).position_3d as { x: number; y: number; z: number } || { x: (devices.indexOf(d) - 1.5) * 2, y: 0, z: 0 },
+                position_3d: d.position_3d || { x: (devices.indexOf(d) - 1.5) * 2, y: 0.5, z: 0 },
                 alertLevel: alerts.some((a) => a.device_id === d.id && a.severity === "critical") ? "critical" as const :
                   alerts.some((a) => a.device_id === d.id) ? "warning" as const : "normal" as const,
               }))}
