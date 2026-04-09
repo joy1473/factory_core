@@ -8,6 +8,9 @@ import {
 } from "lucide-react";
 import { DeviceCard } from "@/components/monitoring/device-card";
 import { AlertBanner } from "@/components/monitoring/alert-banner";
+import dynamic from "next/dynamic";
+
+const SceneViewer = dynamic(() => import("@/components/monitoring/scene-viewer").then((m) => m.SceneViewer), { ssr: false });
 import { ChatMessage } from "@/components/chat/chat-message";
 import { QuickPrompts } from "@/components/chat/quick-prompts";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -60,6 +63,10 @@ export default function MonitoringPage() {
     setHydrated(true);
   }, []);
 
+  // 3D Scene
+  const [activeScene, setActiveScene] = useState<{ id: string; name: string; splat_url: string; camera_position: { x: number; y: number; z: number }; camera_target: { x: number; y: number; z: number } } | null>(null);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
+
   // Monitoring data
   const [devices, setDevices] = useState<Device[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
@@ -104,14 +111,23 @@ export default function MonitoringPage() {
 
   // ─── Data Fetching ───
   const fetchData = useCallback(async () => {
-    const [devRes, alertRes] = await Promise.all([
+    const [devRes, alertRes, sceneRes] = await Promise.all([
       fetch("/api/devices"),
       fetch("/api/alerts?status=active&limit=20"),
+      !activeScene ? fetch("/api/scenes") : Promise.resolve(null),
     ]);
     const [devData, alertData] = await Promise.all([devRes.json(), alertRes.json()]);
     setDevices(Array.isArray(devData) ? devData : []);
     setAlerts(Array.isArray(alertData) ? alertData : []);
     setRefreshKey((k) => k + 1);
+
+    // 첫 로드 시 씬 가져오기
+    if (sceneRes) {
+      const scenes = await sceneRes.json();
+      if (Array.isArray(scenes) && scenes.length > 0 && !activeScene) {
+        setActiveScene(scenes[0]);
+      }
+    }
 
     if (flags.ear) {
       const audioRes = await fetch("/api/audio/readings?limit=10");
@@ -123,7 +139,7 @@ export default function MonitoringPage() {
       const visionData = await visionRes.json();
       setVisionReadings(Array.isArray(visionData) ? visionData : []);
     }
-  }, [flags.ear, flags.eye]);
+  }, [flags.ear, flags.eye, activeScene]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -440,6 +456,28 @@ export default function MonitoringPage() {
               </button>
               <span className="text-[10px] text-gray-500">Tick: {simTick} | Touch{flags.touch ? "✅" : "❌"} Ear{flags.ear ? "✅" : "❌"} Eye{flags.eye ? "✅" : "❌"}</span>
             </div>
+          </div>
+        )}
+
+        {/* 3D Scene Viewer */}
+        {(flags.touch || flags.ear || flags.eye) && activeScene && (
+          <div className="mb-4 h-[400px]">
+            <SceneViewer
+              splatUrl={activeScene.splat_url}
+              cameraPosition={activeScene.camera_position}
+              cameraTarget={activeScene.camera_target}
+              devices={devices.map((d) => ({
+                id: d.id,
+                name: d.name,
+                device_type: d.device_type,
+                status: d.status,
+                position_3d: (d as unknown as Record<string, unknown>).position_3d as { x: number; y: number; z: number } || { x: 0, y: 0, z: 0 },
+                label_offset: (d as unknown as Record<string, unknown>).label_offset as { x: number; y: number; z: number } || { x: 0, y: 2, z: 0 },
+                alertLevel: alerts.some((a) => a.device_id === d.id && a.severity === "critical") ? "critical" as const :
+                  alerts.some((a) => a.device_id === d.id) ? "warning" as const : "normal" as const,
+              }))}
+              onDeviceClick={(id) => setSelectedDeviceId(id === selectedDeviceId ? null : id)}
+            />
           </div>
         )}
 
