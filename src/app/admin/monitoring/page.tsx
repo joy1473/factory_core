@@ -365,6 +365,14 @@ export default function MonitoringPage() {
                 });
                 fetchData();
               }}
+              onRemoveDevice={async (id) => {
+                await fetch(`/api/devices/${id}/position`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ position_3d: null }),
+                });
+                fetchData();
+              }}
             />
 
             {/* 설비 상세 팝업 */}

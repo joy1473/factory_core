@@ -39,13 +39,14 @@ interface SceneViewerProps {
   selectedDeviceId?: string | null;
   onDeviceClick?: (deviceId: string) => void;
   onPlaceDevice?: (deviceId: string, position: { x: number; y: number; z: number }) => void;
+  onRemoveDevice?: (deviceId: string) => void;
 }
 
-const ALERT_COLORS = { normal: "#A8E6CF", warning: "#FFD3B6", critical: "#FF9A9A" };
+const ALERT_COLORS = { normal: "#4ade80", warning: "#fbbf24", critical: "#ef4444" };
 
 // ─── 3D 마커 ───
-function DeviceMarker3D({ device, selected, onClick }: {
-  device: DevicePosition; selected?: boolean; onClick: () => void;
+function DeviceMarker3D({ device, selected, editMode, onClick, onRemove }: {
+  device: DevicePosition; selected?: boolean; editMode?: boolean; onClick: () => void; onRemove?: () => void;
 }) {
   const [hovered, setHovered] = useState(false);
   const { gl } = useThree();
@@ -61,16 +62,16 @@ function DeviceMarker3D({ device, selected, onClick }: {
         onPointerOver={() => { setHovered(true); gl.domElement.style.cursor = "pointer"; }}
         onPointerOut={() => { setHovered(false); gl.domElement.style.cursor = "auto"; }}
       >
-        <sphereGeometry args={[hovered || selected ? 0.25 : 0.2, 16, 16]} />
-        <meshBasicMaterial color={selected ? "#ffffff" : color} transparent opacity={hovered || selected ? 1 : 0.85} depthTest={false} />
+        <sphereGeometry args={[hovered || selected ? 0.07 : 0.05, 12, 12]} />
+        <meshBasicMaterial color={selected ? "#ffffff" : color} transparent opacity={0.95} depthTest={false} />
       </mesh>
 
       <mesh position={[pos.x, pos.y + 0.25, pos.z]} renderOrder={998}>
-        <cylinderGeometry args={[0.015, 0.015, 0.5, 4]} />
+        <cylinderGeometry args={[0.005, 0.005, 0.5, 4]} />
         <meshBasicMaterial color={color} transparent opacity={0.5} depthTest={false} />
       </mesh>
 
-      <Html position={[pos.x, pos.y + 1.0, pos.z]} center distanceFactor={8} zIndexRange={[1000, 0]} style={{ pointerEvents: "none", userSelect: "none" }}>
+      <Html position={[pos.x, pos.y + 1.0, pos.z]} center distanceFactor={8} zIndexRange={[1000, 0]} style={{ pointerEvents: editMode && hovered ? "auto" : "none", userSelect: "none" }}>
         <div style={{
           background: selected ? "rgba(255,255,255,0.95)" : "rgba(0,0,0,0.8)",
           backdropFilter: "blur(8px)",
@@ -80,7 +81,24 @@ function DeviceMarker3D({ device, selected, onClick }: {
           whiteSpace: "nowrap",
           transform: "translateY(-100%)",
           boxShadow: selected ? `0 0 15px ${color}60` : "none",
+          position: "relative",
         }}>
+          {/* 편집 모드 + hover 시 X 버튼 */}
+          {editMode && hovered && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onRemove?.(); }}
+              style={{
+                position: "absolute", top: "-8px", right: "-8px",
+                width: "18px", height: "18px", borderRadius: "50%",
+                backgroundColor: "#FF9A9A", color: "#000", border: "none",
+                fontSize: "11px", fontWeight: "bold", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                lineHeight: 1,
+              }}
+            >
+              ×
+            </button>
+          )}
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
             <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: color, boxShadow: `0 0 6px ${color}`, display: "inline-block" }} />
             <span style={{ fontSize: "11px", fontWeight: "bold", color: selected ? "#000" : "#fff" }}>{device.name}</span>
@@ -130,7 +148,7 @@ function FloorClickHandler({ onFloorClick }: { onFloorClick: (pos: { x: number; 
 }
 
 // ─── Main ───
-export function SceneViewer({ splatSource, devices, editMode, editTargetId, selectedDeviceId, onDeviceClick, onPlaceDevice }: SceneViewerProps) {
+export function SceneViewer({ splatSource, devices, editMode, editTargetId, selectedDeviceId, onDeviceClick, onPlaceDevice, onRemoveDevice }: SceneViewerProps) {
   const [loaded, setLoaded] = useState(false);
 
   return (
@@ -157,7 +175,9 @@ export function SceneViewer({ splatSource, devices, editMode, editTargetId, sele
             key={device.id}
             device={device}
             selected={selectedDeviceId === device.id}
+            editMode={editMode}
             onClick={() => onDeviceClick?.(device.id)}
+            onRemove={() => onRemoveDevice?.(device.id)}
           />
         ))}
 
