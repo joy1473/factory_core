@@ -84,6 +84,15 @@ export default function MonitoringPage() {
   const micAnalyzeRef = useRef<ReturnType<typeof setInterval>>(undefined);
   const latestMicPeaksRef = useRef<{ freq_hz: number; amplitude_db: number; label: string }[]>([]);
 
+  // Eye
+  const [visionReadings, setVisionReadings] = useState<{ id: string; device_id: string; is_anomaly: boolean; anomaly_type: string | null; confidence: number; ai_description: string; source: string; recorded_at: string; devices: { name: string } | null }[]>([]);
+  const [camActive, setCamActive] = useState(false);
+  const [camAnalyzing, setCamAnalyzing] = useState(false);
+  const [camResult, setCamResult] = useState<{ is_anomaly: boolean; anomaly_type: string | null; confidence: number; description: string } | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const camStreamRef = useRef<MediaStream | null>(null);
+  const camIntervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
+
   // Chat
   const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
@@ -109,7 +118,12 @@ export default function MonitoringPage() {
       const audioData = await audioRes.json();
       setAudioReadings(Array.isArray(audioData) ? audioData : []);
     }
-  }, [flags.ear]);
+    if (flags.eye) {
+      const visionRes = await fetch("/api/vision/readings?limit=10");
+      const visionData = await visionRes.json();
+      setVisionReadings(Array.isArray(visionData) ? visionData : []);
+    }
+  }, [flags.ear, flags.eye]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -130,6 +144,11 @@ export default function MonitoringPage() {
         stopMic();
         setAudioReadings([]);
       }
+      // Eye 비활성화 시 카메라 정리
+      if (key === "eye" && !updated.eye) {
+        stopCam();
+        setVisionReadings([]);
+      }
       // Core 비활성화 시 채팅 닫기
       if (key === "core" && !updated.core) {
         setChatOpen(false);
@@ -142,8 +161,9 @@ export default function MonitoringPage() {
   // ─── Simulator ───
   async function simGenerate() {
     await Promise.all([
-      fetch("/api/simulator/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ anomaly_chance: 0.05, tick: simTick }) }),
+      flags.touch ? fetch("/api/simulator/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ anomaly_chance: 0.05, tick: simTick }) }) : Promise.resolve(),
       flags.ear ? fetch("/api/audio/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ anomaly_chance: 0.1, tick: simTick }) }) : Promise.resolve(),
+      flags.eye ? fetch("/api/vision/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ anomaly_chance: 0.1 }) }) : Promise.resolve(),
     ]);
     setSimTick((t) => t + 1);
     fetchData();
@@ -152,8 +172,9 @@ export default function MonitoringPage() {
   function simStop() { setSimRunning(false); if (simTimerRef.current) clearInterval(simTimerRef.current); }
   function simInject() {
     Promise.all([
-      fetch("/api/simulator/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ anomaly_chance: 1.0, tick: simTick }) }),
+      flags.touch ? fetch("/api/simulator/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ anomaly_chance: 1.0, tick: simTick }) }) : Promise.resolve(),
       flags.ear ? fetch("/api/audio/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ anomaly_chance: 1.0, tick: simTick }) }) : Promise.resolve(),
+      flags.eye ? fetch("/api/vision/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ anomaly_chance: 1.0 }) }) : Promise.resolve(),
     ]).then(() => fetchData());
   }
 
@@ -207,6 +228,55 @@ export default function MonitoringPage() {
     audioCtxRef.current?.close();
     streamRef.current = null; audioCtxRef.current = null; analyserRef.current = null;
     setMicData([]); setMicResult(null);
+  }
+
+  // ─── Eye Camera ───
+  async function startCam() {
+    try {
+      // facingMode: "environment" = 모바일 후면카메라, PC는 기본 웹캠
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: 640, height: 480 } });
+      camStreamRef.current = stream;
+      if (videoRef.current) videoRef.current.srcObject = stream;
+      setCamActive(true);
+
+      // 10초마다 캡처 → Claude Vision 분석
+      const deviceId = devices[0]?.id;
+      if (deviceId) {
+        camIntervalRef.current = setInterval(() => captureAndAnalyze(deviceId), 10000);
+      }
+    } catch (err) {
+      console.error("Camera error:", err);
+    }
+  }
+
+  function stopCam() {
+    setCamActive(false);
+    if (camIntervalRef.current) clearInterval(camIntervalRef.current);
+    camStreamRef.current?.getTracks().forEach((t) => t.stop());
+    camStreamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setCamResult(null);
+  }
+
+  async function captureAndAnalyze(deviceId: string) {
+    if (!videoRef.current || camAnalyzing) return;
+    setCamAnalyzing(true);
+    try {
+      const canvas = document.createElement("canvas");
+      canvas.width = 640; canvas.height = 480;
+      canvas.getContext("2d")?.drawImage(videoRef.current, 0, 0, 640, 480);
+      const base64 = canvas.toDataURL("image/jpeg", 0.7).split(",")[1];
+
+      const source = /Mobi|Android/i.test(navigator.userAgent) ? "mobile_rear" : "webcam";
+      const res = await fetch("/api/vision/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ device_id: deviceId, image_base64: base64, source }),
+      });
+      const result = await res.json();
+      setCamResult(result);
+      fetchData();
+    } catch {} finally { setCamAnalyzing(false); }
   }
 
   // ─── Chat ───
@@ -289,7 +359,7 @@ export default function MonitoringPage() {
   const warningCount = alerts.filter((a) => a.severity === "warning").length;
 
   // Cleanup
-  useEffect(() => { return () => { if (simTimerRef.current) clearInterval(simTimerRef.current); cancelAnimationFrame(rafRef.current); if (micAnalyzeRef.current) clearInterval(micAnalyzeRef.current); }; }, []);
+  useEffect(() => { return () => { if (simTimerRef.current) clearInterval(simTimerRef.current); cancelAnimationFrame(rafRef.current); if (micAnalyzeRef.current) clearInterval(micAnalyzeRef.current); if (camIntervalRef.current) clearInterval(camIntervalRef.current); }; }, []);
 
   return (
     <div className="relative h-[calc(100vh-48px)] overflow-hidden">
@@ -368,7 +438,7 @@ export default function MonitoringPage() {
               <button onClick={simInject} className="flex items-center gap-1 rounded-lg border border-[var(--danger)]/30 px-3 py-1.5 text-xs text-[var(--danger)]">
                 <Zap size={12} /> 이상 주입
               </button>
-              <span className="text-[10px] text-gray-500">Tick: {simTick} | Touch{flags.touch ? "✅" : "❌"} Ear{flags.ear ? "✅" : "❌"}</span>
+              <span className="text-[10px] text-gray-500">Tick: {simTick} | Touch{flags.touch ? "✅" : "❌"} Ear{flags.ear ? "✅" : "❌"} Eye{flags.eye ? "✅" : "❌"}</span>
             </div>
           </div>
         )}
@@ -506,11 +576,53 @@ export default function MonitoringPage() {
           </div>
         )}
 
-        {/* Eye placeholder */}
+        {/* Eye Section */}
         {flags.eye && (
-          <div className="mb-4 rounded-xl border border-dashed border-[var(--corebot-eye)]/30 p-6 text-center">
-            <Eye size={24} className="mx-auto mb-2 text-[var(--corebot-eye)]/50" />
-            <p className="text-xs text-gray-500">Eye Agent (시각 AI) — 준비 중</p>
+          <div className="mb-4">
+            <div className="mb-2 flex items-center justify-between">
+              <p className="flex items-center gap-2 text-xs font-semibold text-[var(--corebot-eye)]">
+                <Eye size={12} /> Eye — 시각 AI
+              </p>
+              <div className="flex items-center gap-2">
+                <button onClick={camActive ? stopCam : startCam} className={`flex items-center gap-1 rounded-lg px-2.5 py-1 text-[10px] font-semibold transition ${camActive ? "bg-[var(--danger)] text-black animate-pulse" : "border border-[var(--border)] text-[var(--muted)]"}`}>
+                  {camActive ? <><Eye size={10} /> 카메라 OFF</> : <><Eye size={10} /> 카메라 ON</>}
+                </button>
+                {camAnalyzing && <span className="text-[10px] text-[var(--corebot-eye)] animate-pulse">분석 중...</span>}
+                {camResult && (
+                  camResult.is_anomaly
+                    ? <span className="rounded-full bg-[var(--danger)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--danger)]">{camResult.anomaly_type} ({Math.round(camResult.confidence * 100)}%)</span>
+                    : <span className="rounded-full bg-[var(--corebot-core)]/10 px-2 py-0.5 text-[10px] text-[var(--corebot-core)]">정상</span>
+                )}
+              </div>
+            </div>
+
+            {/* 카메라 피드 */}
+            {camActive && (
+              <div className="mb-3 overflow-hidden rounded-lg border border-[var(--corebot-eye)]/20 bg-black">
+                <video ref={videoRef} autoPlay playsInline muted className="w-full max-h-48 object-cover" />
+                {camResult?.description && (
+                  <div className={`px-3 py-2 text-[10px] ${camResult.is_anomaly ? "bg-[var(--danger)]/10 text-[var(--danger)]" : "bg-[var(--surface)] text-gray-500"}`}>
+                    {camResult.description}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 분석 이력 */}
+            <div className="space-y-1">
+              {visionReadings.slice(0, 5).map((r) => (
+                <div key={r.id} className={`flex items-center justify-between rounded-lg border px-3 py-1.5 text-[10px] ${r.is_anomaly ? "border-[var(--danger)]/30 bg-[var(--danger)]/5" : "border-[var(--border)]"}`}>
+                  <div className="flex items-center gap-2">
+                    <span className={`h-1.5 w-1.5 rounded-full ${r.is_anomaly ? "bg-[var(--danger)]" : "bg-[var(--corebot-core)]"}`} />
+                    <span className="text-[var(--foreground)]">{(r.devices as unknown as { name: string } | null)?.name}</span>
+                    <span className="text-gray-500">{r.source}</span>
+                    {r.is_anomaly && <span className="text-[var(--danger)]">{r.anomaly_type} ({Math.round(r.confidence * 100)}%)</span>}
+                  </div>
+                  <span className="text-gray-500">{new Date(r.recorded_at).toLocaleTimeString("ko-KR")}</span>
+                </div>
+              ))}
+              {visionReadings.length === 0 && !camActive && <p className="text-[10px] text-gray-500">데이터 없음 — 시뮬레이터 또는 카메라를 시작하세요</p>}
+            </div>
           </div>
         )}
       </div>

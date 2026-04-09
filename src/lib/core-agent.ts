@@ -113,6 +113,22 @@ ${deviceLines}
 ### 활성 알림 (${(alerts || []).length}건)
 ${alertLines}
 
+### 시각 AI (Eye Agent) 최근 이상 감지
+${await (async () => {
+    const { data: visionAnomalies } = await supabase
+      .from("vision_readings")
+      .select("device_id, anomaly_type, confidence, ai_description, recorded_at, devices(name)")
+      .eq("is_anomaly", true)
+      .order("recorded_at", { ascending: false })
+      .limit(5);
+    return (visionAnomalies || []).length > 0
+      ? (visionAnomalies || []).map((v) => {
+          const name = (v.devices as unknown as { name: string } | null)?.name || "";
+          return `- ${name}: ${v.anomaly_type} (${Math.round((v.confidence as number) * 100)}%) — ${v.ai_description}`;
+        }).join("\n")
+      : "시각 이상 없음";
+  })()}
+
 ### 청각 AI (Ear Agent) 최근 이상음 감지
 ${(audioAnomalies || []).length > 0 ? (audioAnomalies || []).map((a) => {
     const name = (a.devices as unknown as { name: string } | null)?.name || "";
