@@ -80,7 +80,23 @@ body {
 [data-theme="light"] .text-gray-400 { color: #6b5e50 !important; }
 [data-theme="light"] .text-gray-500 { color: #5a4e42 !important; }
 [data-theme="light"] .text-gray-600 { color: #4a3f35 !important; }
+[data-theme="light"] .text-gray-200 { color: #4a3f35 !important; }
+[data-theme="light"] .text-gray-300 { color: #5a4e42 !important; }
 [data-theme="light"] .placeholder-gray-600::placeholder { color: #8a7d6f !important; }
+
+/* Light mode: buttons with text-black need white text on muted primary */
+[data-theme="light"] .text-black { color: #ffffff !important; }
+
+/* Light mode: hover states */
+[data-theme="light"] .hover\:bg-white\/5:hover { background-color: rgba(0, 0, 0, 0.05) !important; }
+[data-theme="light"] .hover\:text-gray-200:hover { color: #3a3226 !important; }
+[data-theme="light"] .hover\:text-red-400:hover { color: #c45c5c !important; }
+[data-theme="light"] .hover\:text-green-400:hover { color: #5aaa8a !important; }
+[data-theme="light"] .bg-red-500\/10 { background-color: rgba(196, 92, 92, 0.1) !important; }
+[data-theme="light"] .text-red-400 { color: #c45c5c !important; }
+[data-theme="light"] .text-green-400 { color: #5aaa8a !important; }
+[data-theme="light"] .text-yellow-400 { color: #d4944a !important; }
+[data-theme="light"] .text-blue-400 { color: #5a8aaa !important; }
 
 [data-theme="light"] ::-webkit-scrollbar-track {
   background: #FDF6EC;
