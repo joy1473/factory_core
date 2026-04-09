@@ -39,23 +39,26 @@
 | **4** | **Core AI 통제** | • Claude API 대화형 (텍스트 + 리턴제로 STT 음성 입력)<br>• Touch+Ear+Eye 멀티모달 데이터 통합 RAG 컨텍스트<br>• 이상 감지 종합 판단 + 원인 추정 + 조치 권고<br>• 예측 유지보수 (LSTM/Prophet → RUL 잔여수명 추정)<br>• 자동 보고서 생성 (일일/주간/월간 — 마크다운+PDF)<br>• 키오스크(PWA) / 모바일 / 웨어러블(워치/글래스) 멀티 디바이스<br>• 음성 응답(TTS) 추후 추가 (네이버 클로바 Voice) |
 | **5** | **에이전트 토글** | • Core/Eye/Ear/Touch 개별 활성화/비활성화<br>• CoreBot Family 캐릭터 영상 카드 UI<br>• Core만 사용 가능 (DB 데이터 직접 입력 시 — Level 0 고객)<br>• 과금 모델 연동 (Basic: Touch+Core / Standard: +Ear / Premium: +Eye)<br>• 비활성 Agent는 UI에서 완전히 숨김 + 리소스 해제 |
 
-### Tier 3: MES 기능 (Phase 5~7)
+### Tier 3: MES 기능 — ERPNext API 연동 (Phase 5)
 
-| # | 기능 | 세부 내용 |
-|---|------|----------|
-| **11** | **생산 스케줄링** | • 작업 순서/우선순위 배정 (드래그 간트 차트)<br>• 설비 가용 시간 + 정비 일정 기반 자동 배치<br>• Core가 설비 상태 기반 일정 조정 제안<br>• 긴급 주문 투입 시 자동 재스케줄링<br>• 라인별/설비별 가동률 시각화 |
-| **12** | **작업 지시** | • 생산계획 → 작업 지시서 자동 생성<br>• 키오스크/모바일로 작업자에게 실시간 전달<br>• 작업 시작/완료 터치 보고<br>• 작업별 소요시간/실적 자동 집계<br>• 작업 지시 변경 이력 추적 |
-| **13** | **생산/제품 추적** | • LOT 번호 자동 채번 + 관리<br>• 제품별 생산 이력 (어떤 설비, 어떤 자재, 어떤 작업자, 어떤 조건)<br>• 계보 추적 (원자재 → 반제품 → 완제품)<br>• 불량 발생 시 역추적 (LOT → 원자재까지)<br>• 바코드/QR 스캔 기반 현장 추적 |
-| **14** | **품질 관리** | • 검사 기준 등록 (치수, 외관, 기능, 공차)<br>• Eye Agent 자동 외관 검사 연동<br>• SPC 통계적 공정 관리 (X-bar, R 관리도)<br>• 불량 유형별 분석 (파레토 차트, 특성요인도)<br>• 고객 클레임 등록 + 원인 추적 + 시정조치<br>• Core가 품질 추세 분석 + 공정 개선 제안 |
+> ★ 직접 개발하지 않음 — ERPNext 오픈소스(MIT, 무료) REST API로 연동
+> ★ ERPNext가 MES/ERP 기능 담당, Factory Guardian은 AI+3D+연동 레이어
 
-### Tier 4: ERP/운영 기능 (Phase 8~10)
+| # | 기능 | ERPNext 모듈 | Factory Guardian 역할 |
+|---|------|-------------|---------------------|
+| **11** | **생산 스케줄링** | Production Plan + Work Order API | 3D 대시보드에 일정 표시 + Core가 설비 상태 기반 일정 조정 제안 |
+| **12** | **작업 지시** | Work Order + Job Card API | 키오스크/모바일 전달 UI + Core 자연어 작업 보고 |
+| **13** | **생산/제품 추적** | Stock Entry + Serial No + Batch API | 3D 맵 위 LOT 위치 표시 + Core 역추적 대화 |
+| **14** | **품질 관리** | Quality Inspection + QC Template API | Eye Agent 자동 검사 결과 → ERPNext 품질 검사 자동 등록 + Core SPC 분석 |
 
-| # | 기능 | 세부 내용 |
-|---|------|----------|
-| **6** | **설비 교체/발주** | • 이상 감지 → Core가 부품/설비 교체 필요 판단<br>• 협력업체/장비업체 목록 관리 (연락처, 납기, 단가)<br>• 견적 요청 → 비교 → 발주 → 입고 확인 워크플로우<br>• Core가 교체 권고 시 자동 발주 제안<br>• 발주/입고 이력 추적 + 비용 분석 |
-| **9** | **정비 이력 관리** | • 이상 감지(Touch/Ear/Eye) → 정비 요청 자동 생성<br>• 정비 요청 → 담당자 배정 → 작업 중 → 완료 워크플로우<br>• 정비 유형 (예방정비/긴급정비/교체/점검)<br>• 정비 완료 후 결과 기록 + Eye로 사진 첨부<br>• 설비별 정비 이력 타임라인<br>• Core가 정비 패턴 분석 → 최적 정비 주기 제안 |
-| **15** | **문서 관리** | • 작업표준서(SOP) 등록/버전 관리<br>• 설비 매뉴얼 업로드 (PDF/이미지)<br>• 도면 관리 (PDF/DWG 뷰어)<br>• 절차서/체크리스트 (키오스크에서 현장 조회)<br>• Core RAG 연동 (매뉴얼 기반 답변 — pgvector)<br>• 문서 검색 + AI 요약 |
-| **16** | **자재/재고 관리** | • 원자재/부품/소모품 입출고 관리<br>• 재고 현황 실시간 표시 (3D 맵 위 오버레이 가능)<br>• 안전재고 미달 시 자동 알림 + 발주 제안<br>• BOM(자재명세서) 관리<br>• 설비 교체 발주(#6)와 통합<br>• 바코드/QR 스캔 입출고 |
+### Tier 4: ERP/운영 기능 — ERPNext API 연동 (Phase 5)
+
+| # | 기능 | ERPNext 모듈 | Factory Guardian 역할 |
+|---|------|-------------|---------------------|
+| **6** | **설비 교체/발주** | Purchase Order + Supplier API | Core → ERPNext 자동 발주 제안 + 3D 대시보드 발주 현황 |
+| **9** | **정비 이력 관리** | Asset Maintenance + Maintenance Visit API | AI 예측 정비 주기 + Touch/Ear/Eye → 자동 정비 요청 |
+| **15** | **문서 관리** | File Manager + BOM API | Core RAG(pgvector) — 매뉴얼 기반 AI 답변 + 키오스크 현장 조회 |
+| **16** | **자재/재고 관리** | Stock Ledger + BOM + Purchase Order API | 3D 맵 재고 오버레이 + Core 안전재고 알림 + 자동 발주 제안 |
 
 ### Tier 5: 보고/분석 (Phase 11)
 
@@ -98,7 +101,10 @@
 | 이메일 | AWS SES (기존) | 알림 + 보고서 발송 |
 | 3D | React Three Fiber + Gaussian Splatting | 디지털 트윈 |
 | 실시간 | Supabase Realtime → AWS AppSync(확장 시) | WebSocket 실시간 업데이트 |
-| 배포 | Vercel (웹) + AWS (IoT/ML) | 하이브리드 |
+| **MES/ERP** | **ERPNext (오픈소스, MIT)** | **생산/품질/자재/문서/구매 — API 연동, 직접 개발 X** |
+| MES/ERP 호스팅 | Docker 셀프호스팅 (AWS EC2 또는 Frappe Cloud) | $10~25/월 |
+| MES/ERP 연동 | ERPNext REST API (JSON) + src/lib/erpnext-client.ts | 양방향 CRUD |
+| 배포 | Vercel (웹) + AWS (IoT/ML) + Docker (ERPNext) | 하이브리드 |
 
 ### Edge (공장 현장)
 
@@ -154,68 +160,95 @@
 3-4. Core — 멀티모달 RAG + 예측 유지보수 모델 (SageMaker)
 ```
 
-### Phase 4: 정비/발주 (3주)
+### Phase 4: 정비/발주 + 보고서 (3주)
 
 ```
 4-1. 정비 이력 관리 (워크플로우)
+     - 이상 감지 → 정비 요청 자동 생성
+     - 요청 → 배정 → 작업 → 완료 상태 관리
+     - ERPNext Asset Maintenance API 연동
 4-2. 설비 교체/발주 (협력업체 관리)
+     - Core → ERPNext Purchase Order API 자동 발주 제안
+     - 견적 → 비교 → 발주 → 입고 워크플로우
 4-3. 보고서 자동 발송 (스케줄 cron)
 ```
 
-### Phase 5: MES — 생산관리 (4주)
+### Phase 5: ERPNext 연동 — MES/ERP 통합 (3주)
 
 ```
-5-1. 생산 스케줄링 (간트 차트)
-5-2. 작업 지시 (키오스크 전달)
-5-3. 생산/제품 추적 (LOT 관리)
+★ 직접 개발 X → ERPNext 오픈소스(무료) API 연동으로 대체
+★ 개발 시간: 기존 10주 → 3주로 단축
+
+5-1. ERPNext 셀프호스팅 세팅 (Docker, $10~25/월)
+     - Manufacturing, Stock, Quality, Buying 모듈 활성화
+     - 한국어 설정 + 기본 데이터 세팅
+
+5-2. ERPNext REST API 연동 레이어
+     - Factory Guardian → ERPNext 양방향 API 통신
+     - 인증: API Key 기반
+     - src/lib/erpnext-client.ts (CRUD 래퍼)
+
+5-3. 생산관리 연동 (ERPNext Manufacturing)
+     - 생산 스케줄링: ERPNext Production Plan API ↔ 3D 대시보드 표시
+     - 작업 지시: ERPNext Work Order API → 키오스크/모바일 전달
+     - 생산 추적: ERPNext Stock Entry + Serial No API → LOT 이력
+     - Core가 ERPNext 데이터 읽어서 자연어 보고
+
+5-4. 품질관리 연동 (ERPNext Quality)
+     - 품질 검사: ERPNext Quality Inspection API ↔ Eye Agent 자동 검사 결과
+     - SPC/불량 분석: ERPNext 데이터 → 3D 대시보드 시각화
+     - Core가 품질 추세 분석 + 개선 제안
+
+5-5. 자재/재고 연동 (ERPNext Stock + Buying)
+     - 재고 현황: ERPNext Stock Ledger API → 3D 맵 오버레이
+     - BOM 관리: ERPNext BOM API → 제품별 자재 트리
+     - 발주 연동: Core → ERPNext Purchase Order API
+     - 안전재고 미달 → Core 자동 알림 + 발주 제안
+
+5-6. 문서 관리 연동 (ERPNext File + BOM)
+     - 작업표준서(SOP): ERPNext File Manager → Core RAG(pgvector)
+     - 설비 매뉴얼: ERPNext → 키오스크 현장 조회
+     - 도면: ERPNext File 첨부 → 뷰어
 ```
 
-### Phase 6: MES — 품질 (3주)
+### Phase 6: 분석/보고 + 경영진 뷰 (2주)
 
 ```
-6-1. 품질 관리 (검사 기준 + SPC)
-6-2. Eye 자동 외관 검사 연동
-6-3. 불량 분석 + 클레임 관리
+6-1. KPI 대시보드
+     - OEE (가동률×성능률×양품률): ERPNext + 센서 데이터 결합 자동 산출
+     - 에너지 모니터링: Touch 센서 데이터 기반
+     - 생산성 추이: ERPNext Production Analytics + 시계열 차트
+
+6-2. 경영진 통합 뷰
+     - 다중 공장 한눈에 (ERPNext Company 매핑)
+     - Core에게 "이번 달 전체 공장 실적 보고서" 요청
 ```
 
-### Phase 7: ERP (3주)
+### Phase 7: PoC + 런칭 (4주)
 
 ```
-7-1. 자재/재고 관리 (입출고 + BOM)
-7-2. 문서 관리 (SOP + 매뉴얼 + RAG)
-```
-
-### Phase 8: 분석/보고 (2주)
-
-```
-8-1. KPI 대시보드 (OEE + 가동률 + 에너지)
-8-2. 경영진 통합 뷰 (다중 공장)
-```
-
-### Phase 9: PoC + 런칭 (4주)
-
-```
-9-1. 1개 공장 실제 PoC (8주 무료)
-9-2. 피드백 반영 + 안정화
-9-3. SaaS 과금 시스템 연동
-9-4. 런칭
+7-1. 1개 공장 실제 PoC (8주 무료)
+7-2. 피드백 반영 + 안정화
+7-3. SaaS 과금 시스템 연동
+7-4. 런칭
 ```
 
 ---
 
-## 5. 마일스톤 요약
+## 5. 마일스톤 요약 (ERPNext 연동으로 단축)
 
 ```
 2026.04 ─── v1 완료 (홈페이지 + CRM + 시뮬레이터 + 기본 Agent)
 2026.05 ─── Phase 1: 3D 디지털 트윈 + 통합 모니터링 ★
 2026.06 ─── Phase 2~3: 인프라 + AI Agent 고도화
         ─── STK 2026 (6/10~12 코엑스) 전시회 데모
-2026.07 ─── Phase 4: 정비/발주
-2026.08 ─── Phase 5: MES 생산관리
-2026.09 ─── Phase 6: MES 품질
-2026.10 ─── Phase 7: ERP
-2026.11 ─── Phase 8: KPI + 경영진 대시보드
-2026.12 ─── Phase 9: PoC + 런칭
+2026.07 ─── Phase 4: 정비/발주 + 보고서
+2026.08 ─── Phase 5: ERPNext 연동 (MES+ERP+품질+자재+문서 한 번에) ★★
+2026.09 ─── Phase 6: KPI + 경영진 대시보드
+2026.10 ─── Phase 7: PoC + 런칭
+
+기존 대비 2개월 단축 (12월 → 10월)
+Phase 5~7 (10주) → Phase 5 (3주) ERPNext 연동으로 7주 절감
 ```
 
 ---
@@ -238,8 +271,10 @@
 |--------|------|
 | 3D 디지털 트윈 기술 난이도 | Gaussian Splatting은 최신 기술 — PoC로 검증 후 결정 |
 | 실제 센서 하드웨어 확보 | Wiliot Gen3 샘플 주문 필요 — 시뮬레이터로 먼저 개발 |
-| MES/ERP 기능 범위 과다 | Tier별 점진 개발 — 핵심(Tier 1~2)부터 |
-| 고객 IT 인프라 부재 | 올인원 패키지 (RPi + LTE 모뎀 + 태블릿) 제공 |
+| ERPNext 한국어/현지화 | 커뮤니티 번역 + 필요 시 직접 보강 |
+| ERPNext API 속도/안정성 | 캐싱 레이어 + 비동기 큐 — 실시간 데이터는 Supabase 우선 |
+| ERPNext 버전 업그레이드 | API 래퍼(erpnext-client.ts)로 격리 — ERPNext 내부 변경에 영향 최소화 |
+| 고객 IT 인프라 부재 | 올인원 패키지 (RPi + LTE 모뎀 + 태블릿 + ERPNext 포함) |
 | Claude API 비용 | 캐싱 + 요약 컨텍스트로 토큰 절약 — 로컬 LLM(Llama) 검토 |
 
 ---
@@ -261,3 +296,4 @@
 | Version | Date | Changes | Author |
 |---------|------|---------|--------|
 | 0.1 | 2026-04-10 | Initial v2 plan — 17 features, 9 phases | JOYTEC |
+| 0.2 | 2026-04-10 | ERPNext 연동으로 MES/ERP 대체 — 9→7 phases, 2개월 단축 | JOYTEC |
