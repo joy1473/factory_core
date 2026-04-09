@@ -246,6 +246,55 @@ export default function MonitoringPage() {
         </div>
       )}
 
+      {/* ─── Device Bar (설비 목록 — 상단 고정) ─── */}
+      {anyActive && (
+        <div className="flex shrink-0 items-center gap-3 border-b border-[var(--border)] bg-[var(--surface)] px-5 py-2">
+          <span className="text-[10px] font-semibold text-[var(--muted)]">설비:</span>
+          {(() => {
+            // 타입별 그룹 + 카운트
+            const groups: Record<string, { type: string; count: number; ids: string[] }> = {};
+            devices.forEach((d) => {
+              if (!groups[d.device_type]) groups[d.device_type] = { type: d.device_type, count: 0, ids: [] };
+              groups[d.device_type].count++;
+              groups[d.device_type].ids.push(d.id);
+            });
+            return Object.values(groups).map((g) => (
+              <button
+                key={g.type}
+                onClick={() => {
+                  if (editMode) {
+                    // 편집 모드: 해당 타입의 첫 번째 설비 선택
+                    setSelectedDevice(g.ids[0]);
+                  }
+                }}
+                className={`rounded-lg border px-3 py-1 text-[10px] font-semibold transition ${
+                  editMode && selectedDevice && g.ids.includes(selectedDevice)
+                    ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
+                    : "border-[var(--border)] text-[var(--foreground)] hover:border-[var(--primary)]/50"
+                }`}
+              >
+                {g.type.toUpperCase()} ({g.count})
+              </button>
+            ));
+          })()}
+          {/* 개별 설비 목록 */}
+          <div className="mx-2 h-4 w-px bg-[var(--border)]" />
+          {devices.map((d) => (
+            <button
+              key={d.id}
+              onClick={() => setSelectedDevice(d.id === selectedDevice ? null : d.id)}
+              className={`rounded-lg border px-2 py-0.5 text-[9px] transition ${
+                selectedDevice === d.id
+                  ? "border-[var(--corebot-core)] bg-[var(--corebot-core)]/10 text-[var(--corebot-core)]"
+                  : "border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)]"
+              }`}
+            >
+              {d.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* ─── Simulator Bar ─── */}
       {showSim && anyActive && (
         <div className="flex shrink-0 items-center gap-2 border-b border-[var(--border)] bg-[var(--surface)] px-5 py-2">
@@ -297,12 +346,12 @@ export default function MonitoringPage() {
               splatSource={scene.splat_url}
               editMode={editMode}
               selectedDeviceId={selectedDevice}
-              devices={devices.map((d) => ({
+              devices={devices.filter((d) => d.position_3d).map((d) => ({
                 id: d.id,
                 name: d.name,
                 device_type: d.device_type,
                 status: d.status,
-                position_3d: d.position_3d || { x: (devices.indexOf(d) - 1.5) * 2, y: 0.5, z: 0 },
+                position_3d: d.position_3d!,
                 alertLevel: alerts.some((a) => a.device_id === d.id && a.severity === "critical") ? "critical" as const :
                   alerts.some((a) => a.device_id === d.id) ? "warning" as const : "normal" as const,
               }))}
