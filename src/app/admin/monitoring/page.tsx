@@ -20,7 +20,7 @@ interface FeatureFlags {
   core: boolean;
 }
 
-const DEFAULT_FLAGS: FeatureFlags = { touch: true, ear: true, eye: false, core: true };
+const DEFAULT_FLAGS: FeatureFlags = { touch: false, ear: false, eye: false, core: false };
 
 const FEATURE_META = [
   { key: "core" as const, label: "AI 공장장", desc: "모든 데이터를 통합·분석하고 자동 보고서 생성", video: "/video/Core.mp4", color: "#A8E6CF" },
@@ -359,8 +359,8 @@ export default function MonitoringPage() {
           </div>
         )}
 
-        {/* Stats */}
-        <div className="mb-4 grid gap-2 sm:grid-cols-4">
+        {/* Stats — 하나라도 활성화 시만 */}
+        {(flags.touch || flags.ear || flags.eye || flags.core) && <div className="mb-4 grid gap-2 sm:grid-cols-4">
           {[
             { label: "설비", value: devices.length, icon: Server, color: "var(--primary)" },
             { label: "정상", value: Math.max(0, devices.length - criticalCount - warningCount), icon: CheckCircle, color: "var(--corebot-core)" },
@@ -375,12 +375,58 @@ export default function MonitoringPage() {
               </div>
             </div>
           ))}
-        </div>
+        </div>}
 
         {/* Alerts */}
-        {alerts.length > 0 && (
+        {(flags.touch || flags.ear || flags.eye || flags.core) && alerts.length > 0 && (
           <div className="mb-4">
             <AlertBanner alerts={alerts} onAcknowledge={(id) => handleAlertAction(id, "acknowledge")} onResolve={(id) => handleAlertAction(id, "resolve")} />
+          </div>
+        )}
+
+        {/* ═══ Onboarding — 모두 비활성화 시 ═══ */}
+        {!flags.touch && !flags.ear && !flags.eye && !flags.core && (
+          <div className="flex flex-col items-center py-10">
+            {/* CoreBot Family 소개 */}
+            <div className="mb-8 text-center">
+              <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-[var(--corebot-core)]">Factory Guardian Agent</p>
+              <h2 className="mb-2 text-2xl font-bold text-[var(--foreground)]">CoreBot Family를 만나보세요</h2>
+              <p className="text-sm text-gray-500">AI 요원들을 활성화하면 공장이 달라집니다</p>
+            </div>
+
+            <div className="mb-8 grid w-full max-w-3xl gap-4 sm:grid-cols-4">
+              {FEATURE_META.map((f) => {
+                const name = f.key.charAt(0).toUpperCase() + f.key.slice(1);
+                return (
+                  <button
+                    key={f.key}
+                    onClick={() => { toggleFlag(f.key); }}
+                    className="group flex flex-col items-center rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 text-center transition hover:border-opacity-60"
+                    style={{ borderTopColor: f.color, borderTopWidth: "3px" }}
+                  >
+                    <div className="mb-3 h-20 w-20 overflow-hidden rounded-full transition group-hover:scale-110" style={{ boxShadow: `0 0 25px ${f.color}20` }}>
+                      <video src={f.video} autoPlay loop muted playsInline className="h-full w-full object-cover" />
+                    </div>
+                    <p className="text-xs font-bold" style={{ color: f.color }}>{name}</p>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">{f.label}</p>
+                    <p className="mt-2 text-[10px] text-gray-500">{f.desc}</p>
+                    <span className="mt-3 rounded-full border px-3 py-1 text-[10px] font-semibold transition group-hover:text-black" style={{ borderColor: f.color, color: f.color }} onMouseEnter={(e) => { (e.target as HTMLElement).style.backgroundColor = f.color; }} onMouseLeave={(e) => { (e.target as HTMLElement).style.backgroundColor = "transparent"; }}>
+                      활성화
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="max-w-lg text-center">
+              <p className="mb-4 text-xs text-gray-500">
+                캐릭터를 클릭하면 해당 기능이 활성화됩니다. 언제든 ⚙ 설정에서 변경할 수 있습니다.
+              </p>
+              <div className="rounded-xl border border-dashed border-[var(--border)] p-6">
+                <p className="mb-2 text-sm font-semibold text-[var(--foreground)]">Core만으로도 시작할 수 있습니다</p>
+                <p className="text-xs text-gray-500">센서 데이터를 DB에 직접 입력하면 Core가 분석·보고서를 생성합니다.<br />센서 없이 AI 공장장부터 체험해보세요.</p>
+              </div>
+            </div>
           </div>
         )}
 
