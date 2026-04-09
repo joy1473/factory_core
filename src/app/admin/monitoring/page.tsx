@@ -287,9 +287,7 @@ export default function MonitoringPage() {
         {anyActive && scene && (
           <div className="h-full">
             <SceneViewer
-              splatUrl={scene.splat_url}
-              cameraPosition={scene.camera_position}
-              cameraTarget={scene.camera_target}
+              splatSource={scene.splat_url}
               devices={devices.map((d) => ({
                 id: d.id,
                 name: d.name,

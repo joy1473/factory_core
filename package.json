@@ -11,6 +11,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.86.1",
     "@aws-sdk/client-ses": "^3.1027.0",
+    "@lumaai/luma-web": "^0.2.2",
     "@mkkellogg/gaussian-splats-3d": "^0.4.7",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
