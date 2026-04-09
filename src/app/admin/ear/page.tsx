@@ -24,11 +24,16 @@ export default function EarPage() {
   const [anomalyChance, setAnomalyChance] = useState(0.1);
   const [micActive, setMicActive] = useState(false);
   const [micData, setMicData] = useState<{ freq_hz: number; amplitude_db: number }[]>([]);
+  const [micResult, setMicResult] = useState<{ is_anomaly: boolean; anomaly_type: string | null; confidence: number } | null>(null);
+  const [selectedDevice, setSelectedDevice] = useState<string>("");
+  const [devices, setDevices] = useState<{ id: string; name: string }[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
+  const micAnalyzeRef = useRef<ReturnType<typeof setInterval>>(undefined);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef<number>(0);
+  const latestMicPeaksRef = useRef<{ freq_hz: number; amplitude_db: number; label: string }[]>([]);
 
   const fetchReadings = useCallback(async () => {
     const res = await fetch("/api/audio/readings?limit=20");
@@ -36,7 +41,14 @@ export default function EarPage() {
     setReadings(Array.isArray(data) ? data : []);
   }, []);
 
-  useEffect(() => { fetchReadings(); }, [fetchReadings]);
+  useEffect(() => {
+    fetchReadings();
+    fetch("/api/devices").then((r) => r.json()).then((d) => {
+      const list = Array.isArray(d) ? d : [];
+      setDevices(list.map((x: { id: string; name: string }) => ({ id: x.id, name: x.name })));
+      if (list.length > 0 && !selectedDevice) setSelectedDevice(list[0].id);
+    });
+  }, [fetchReadings, selectedDevice]);
 
   // 시뮬레이터
   async function generate() {
@@ -93,18 +105,38 @@ export default function EarPage() {
 
         // 주요 주파수 대역만 추출 (50개 빈)
         const step = Math.floor(data.length / 50);
-        const peaks = [];
+        const peaks: { freq_hz: number; amplitude_db: number; label: string }[] = [];
         for (let i = 0; i < 50; i++) {
           const idx = i * step;
-          peaks.push({
-            freq_hz: Math.round(idx * binSize),
-            amplitude_db: Math.round(data[idx] * 10) / 10,
-          });
+          const freq = Math.round(idx * binSize);
+          const amp = Math.round(data[idx] * 10) / 10;
+          peaks.push({ freq_hz: freq, amplitude_db: amp, label: `${freq}Hz` });
         }
         setMicData(peaks);
+        latestMicPeaksRef.current = peaks;
         rafRef.current = requestAnimationFrame(draw);
       }
       draw();
+
+      // 5초마다 서버로 분석 요청
+      micAnalyzeRef.current = setInterval(async () => {
+        const peaks = latestMicPeaksRef.current;
+        if (peaks.length === 0 || !selectedDevice) return;
+
+        // RMS 계산
+        const rms = peaks.reduce((sum, p) => sum + p.amplitude_db, 0) / peaks.length;
+
+        try {
+          const res = await fetch("/api/audio/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ device_id: selectedDevice, peaks, rms_level: Math.round(rms * 10) / 10 }),
+          });
+          const result = await res.json();
+          setMicResult(result);
+          fetchReadings(); // 이력 갱신
+        } catch {}
+      }, 5000);
     } catch (err) {
       console.error("Mic error:", err);
     }
@@ -113,6 +145,7 @@ export default function EarPage() {
   function stopMic() {
     setMicActive(false);
     cancelAnimationFrame(rafRef.current);
+    if (micAnalyzeRef.current) clearInterval(micAnalyzeRef.current);
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
       streamRef.current = null;
@@ -123,11 +156,13 @@ export default function EarPage() {
     }
     analyserRef.current = null;
     setMicData([]);
+    setMicResult(null);
   }
 
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (micAnalyzeRef.current) clearInterval(micAnalyzeRef.current);
       cancelAnimationFrame(rafRef.current);
     };
   }, []);
@@ -171,6 +206,9 @@ export default function EarPage() {
         <button onClick={injectAnomaly} className="flex items-center gap-2 rounded-lg border border-[var(--danger)]/30 px-4 py-2 text-sm text-[var(--danger)] hover:bg-[var(--danger)]/10">
           <Zap size={14} /> 이상음 주입
         </button>
+        <select value={selectedDevice} onChange={(e) => setSelectedDevice(e.target.value)} className="rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)]">
+          {devices.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
+        </select>
         <button onClick={micActive ? stopMic : startMic} className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition ${micActive ? "bg-[var(--danger)] text-black animate-pulse" : "border border-[var(--border)] text-[var(--muted)] hover:text-[var(--corebot-ear)]"}`}>
           <Mic size={14} /> {micActive ? "마이크 정지" : "실제 마이크"}
         </button>
@@ -184,9 +222,22 @@ export default function EarPage() {
       {/* 실제 마이크 FFT 스펙트럼 */}
       {micActive && micData.length > 0 && (
         <div className="mb-6 rounded-xl border border-[var(--corebot-ear)]/30 bg-[var(--surface)] p-5">
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-[var(--corebot-ear)]">
-            <Activity size={14} className="animate-pulse" /> 실시간 마이크 스펙트럼
-          </h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--corebot-ear)]">
+              <Activity size={14} className="animate-pulse" /> 실시간 마이크 스펙트럼 — {devices.find((d) => d.id === selectedDevice)?.name}
+            </h2>
+            {micResult && (
+              micResult.is_anomaly ? (
+                <span className="flex items-center gap-1 rounded-full bg-[var(--danger)]/10 px-3 py-1 text-xs font-semibold text-[var(--danger)]">
+                  <AlertTriangle size={12} /> {micResult.anomaly_type} ({Math.round(micResult.confidence * 100)}%)
+                </span>
+              ) : (
+                <span className="rounded-full bg-[var(--corebot-core)]/10 px-3 py-1 text-xs font-semibold text-[var(--corebot-core)]">
+                  정상 (5초마다 분석 중)
+                </span>
+              )
+            )}
+          </div>
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={micData}>
               <XAxis dataKey="freq_hz" tick={{ fontSize: 8 }} interval={4} />
