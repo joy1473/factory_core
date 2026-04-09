@@ -128,8 +128,16 @@
   - 진동 분석 (ISO 10816 기준 Zone A~D 판정)
   - 습도/가스 감지 (선택)
   - 추세 분석 → 예측 유지보수 (RUL 추정)
+센서 선정: Wiliot Gen3 IoT Pixel (강력 추천)
+  - Battery-free (RF energy harvesting, dual-band 2.4GHz + sub-1GHz)
+  - 온도/습도/모션/빛/위치 다기능 센싱
+  - Passive BLE encrypted continuous broadcast
+  - 범위: 최대 150ft+, Gen3에서 대폭 향상
+  - 단가: ~$0.10 목표 (대량), postage stamp 크기
+  - Ambient IoT Alliance 멤버 (Qualcomm/Intel/PepsiCo)
+  - 파트너: Avery Dennison, Tageos (대량 생산)
 기술:
-  - BLE 5.0 / Zigbee / LoRa (센서 통신)
+  - Wiliot Gen3 BLE passive (센서 통신)
   - MQTT → Edge Gateway → Supabase
   - 시계열 DB (TimescaleDB 또는 Supabase + pg_partman)
   - Prophet / LSTM (시계열 예측)

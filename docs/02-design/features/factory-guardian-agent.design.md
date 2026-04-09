@@ -46,6 +46,44 @@ Gen3 IoT 스티커 → BLE → Edge Gateway (RPi + BLE dongle)
 
 ---
 
+## 1.5 센서 기술 선정: Wiliot Gen3 IoT Pixel
+
+### 비교 분석
+
+| 항목 | Wiliot Gen3 | BeFC | Evigence Sensors |
+|------|-------------|------|-----------------|
+| **전원** | Battery-free (RF harvesting, dual-band) | Battery-free (효소/생체) | Battery-free/초저전력 |
+| **통신** | Passive BLE encrypted continuous | BLE | RFID/BLE |
+| **센싱** | 온도, 습도, 모션, 빛, 위치 | 온도/신선도 | 식품 TTI 중심 |
+| **범위** | 150ft+ (Gen3 dual-band) | 중간 | 짧음 |
+| **단가** | ~$0.10 (대량) | 중~높음 | 중간 |
+| **성숙도** | 높음 (mass production) | 중간 (연구 단계) | 중간 (niche) |
+| **적합성** | 스마트팩토리 최적 | 식품 보조 | 식품 전용 |
+
+### 선정 이유: Wiliot Gen3
+
+1. **다기능 센싱** — 온도+진동+습도를 하나의 $0.10 스티커로 해결
+2. **설치 극도 단순화** — 붙이기만 하면 됨, 배터리 교체 없음
+3. **Gen3 개선점** — dual-band로 범위/안정성 대폭 향상, 단가 하락
+4. **생태계** — Ambient IoT Alliance (Qualcomm/Intel) → BLE/5G 표준 호환
+5. **Hybrid SaaS 적합** — Passive BLE이라 Thin Edge Gateway 필수 → 우리 아키텍처와 일치
+6. **미래 확장** — Alliance 표준화 → Edge 더 가볍게, Pure SaaS 경험 강화
+
+### 시뮬레이터에서 모사할 Gen3 특성
+
+```typescript
+// Phase 1 시뮬레이터에서 Gen3 특성 반영
+const WILIOT_GEN3_PROFILE = {
+  sensors: ["temperature", "humidity", "vibration", "motion", "light"],
+  broadcast_interval_ms: 5000,  // continuous broadcast
+  temperature_accuracy: 0.5,     // ±0.5°C
+  range_meters: 45,              // ~150ft
+  battery: "none",               // energy harvesting
+};
+```
+
+---
+
 ## 2. DB 설계
 
 ### 2.1 devices (설비/센서 장치)
