@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 import { NextRequest, NextResponse } from "next/server";
 import { generateDeviceReadings, DEVICE_PROFILES } from "@/lib/simulator";
 import { checkThreshold } from "@/lib/threshold";
+import { sendAlertEmail } from "@/lib/alert-email";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -66,6 +67,19 @@ export async function POST(request: NextRequest) {
             message: result.message,
           });
           totalAlerts++;
+
+          // Critical 알림 → SES 이메일 발송
+          if (result.severity === "critical") {
+            sendAlertEmail({
+              deviceName: device.name,
+              sensorType: reading.sensor_type,
+              value: reading.value,
+              threshold: max,
+              unit: reading.unit,
+              severity: "critical",
+              message: result.message,
+            }).catch(() => {}); // 이메일 실패해도 시뮬레이터 중단하지 않음
+          }
         }
       }
     }
