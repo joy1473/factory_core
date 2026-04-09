@@ -38,6 +38,13 @@
   --border: #e8ddd0;
   --muted: #6b5e50;
   --muted-dim: #8a7d6f;
+
+  /* 파스텔 톤다운 (라이트 배경에서 채도 낮춤) */
+  --pastel-mint: #7dbfa5;
+  --pastel-lavender: #b888b8;
+  --pastel-peach: #d4a888;
+  --pastel-yellow: #c8c070;
+  --pastel-alert: #d48080;
 }
 
 @theme inline {
